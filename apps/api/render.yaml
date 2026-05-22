@@ -12,7 +12,7 @@ services:
     rootDir: .                 # Monorepo root'tan build et
     buildCommand: |
       corepack enable
-      pnpm install --frozen-lockfile
+      pnpm install --no-frozen-lockfile
       pnpm --filter @pusula/shared build || true
       pnpm --filter @pusula/scoring build || true
       pnpm --filter @pusula/llm-gateway build || true

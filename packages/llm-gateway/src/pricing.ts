@@ -19,6 +19,8 @@ export const PRICING: Record<Provider, Record<string, { input: number; output: n
     'deepseek-chat': { input: 0.14, output: 0.28 },
     'deepseek-reasoner': { input: 0.55, output: 2.19 },
     'deepseek-v3.2': { input: 0.14, output: 0.28 },
+    'deepseek-coder': { input: 0.14, output: 0.28 },
+    'deepseek-vl2': { input: 0.20, output: 0.40 },
   },
   anthropic: {
     'claude-haiku-4-5': { input: 1.0, output: 5.0 },
@@ -34,7 +36,12 @@ export const PRICING: Record<Provider, Record<string, { input: number; output: n
   },
 };
 
-export function tahminiMaliyetUsd(provider: Provider, model: string, inputTokens: number, outputTokens: number): number {
+export function tahminiMaliyetUsd(
+  provider: Provider,
+  model: string,
+  inputTokens: number,
+  outputTokens: number,
+): number {
   const m = PRICING[provider]?.[model];
   if (!m) return 0;
   return (inputTokens / 1_000_000) * m.input + (outputTokens / 1_000_000) * m.output;

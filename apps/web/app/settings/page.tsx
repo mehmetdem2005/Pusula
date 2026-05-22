@@ -35,7 +35,7 @@ const PROVIDERS: ProviderConfig[] = [
     provider: 'deepseek',
     label: 'DeepSeek (V3 + R1 reasoning)',
     signupUrl: 'https://platform.deepseek.com',
-    whitelist: ['deepseek-chat', 'deepseek-reasoner'],
+    whitelist: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3.2', 'deepseek-coder', 'deepseek-vl2'],
     warning: 'DeepSeek Çin merkezli — hassas kişisel veri göndermeyin.',
   },
   {

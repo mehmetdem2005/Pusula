@@ -2,19 +2,35 @@
 
 import { useState, type ReactElement } from 'react';
 import Link from 'next/link';
+import { getSupabaseBrowser } from '../../../lib/supabase';
 
 export default function SignupPage(): ReactElement {
-  const [form, setForm] = useState({ email: '', display_name: '', role: 'individual' as const });
+  const [form, setForm] = useState<{ email: string; display_name: string; role: 'individual' | 'agent' | 'dealer' }>({
+    email: '',
+    display_name: '',
+    role: 'individual',
+  });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
-      // V1: Supabase auth.signUp + user profile insert
-      await new Promise((r) => setTimeout(r, 800));
+      const supabase = getSupabaseBrowser();
+      const { error: err } = await supabase.auth.signInWithOtp({
+        email: form.email,
+        options: {
+          data: { display_name: form.display_name, role: form.role },
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (err) throw err;
       setSent(true);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -32,9 +48,7 @@ export default function SignupPage(): ReactElement {
 
         {sent ? (
           <div className="text-center py-8">
-            <div className="text-4xl mb-3" aria-hidden>
-              🎉
-            </div>
+            <div className="text-4xl mb-3" aria-hidden>🎉</div>
             <h2 className="text-lg font-bold mb-2">Beta&apos;ya hoş geldin</h2>
             <p className="text-sm text-slate-600">
               <strong>{form.email}</strong> adresine onay bağlantısı yolladık. Tıkla, başla.
@@ -78,6 +92,8 @@ export default function SignupPage(): ReactElement {
                 <option value="dealer">Galerici</option>
               </select>
             </label>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
             <button
               type="submit"

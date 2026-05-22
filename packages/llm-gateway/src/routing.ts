@@ -17,6 +17,7 @@ export const DEFAULT_ROUTING: Record<TaskType, RouteCandidate[]> = {
   ],
   'score-explanation': [
     { provider: 'deepseek', model: 'deepseek-chat' },
+    { provider: 'deepseek', model: 'deepseek-v3.2' },
     { provider: 'groq', model: 'llama-3.3-70b-versatile' },
     { provider: 'anthropic', model: 'claude-haiku-4-5' },
   ],
@@ -32,8 +33,9 @@ export const DEFAULT_ROUTING: Record<TaskType, RouteCandidate[]> = {
   ],
   vision: [
     { provider: 'gemini', model: 'gemini-2.5-flash' },
+    { provider: 'gemini', model: 'gemini-2.5-pro' },
+    { provider: 'deepseek', model: 'deepseek-vl2' },
     { provider: 'anthropic', model: 'claude-haiku-4-5' },
-    { provider: 'anthropic', model: 'claude-sonnet-4-6' },
   ],
   'long-report': [
     { provider: 'gemini', model: 'gemini-2.5-pro' },

@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from 'react';
 import Link from 'next/link';
+import { getSupabaseBrowser } from '../../../lib/supabase';
 
 export default function LoginPage(): ReactElement {
   const [email, setEmail] = useState('');
@@ -14,9 +15,14 @@ export default function LoginPage(): ReactElement {
     setLoading(true);
     setError(null);
     try {
-      // V1: getSupabaseBrowser().auth.signInWithOtp({ email, options: { emailRedirectTo: ... } })
-      // MVP stub: 1 saniye delay + sent state
-      await new Promise((r) => setTimeout(r, 800));
+      const supabase = getSupabaseBrowser();
+      const { error: err } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      if (err) throw err;
       setSent(true);
     } catch (err) {
       setError((err as Error).message);
@@ -37,9 +43,7 @@ export default function LoginPage(): ReactElement {
 
         {sent ? (
           <div className="text-center py-8">
-            <div className="text-4xl mb-3" aria-hidden>
-              📬
-            </div>
+            <div className="text-4xl mb-3" aria-hidden>📬</div>
             <h2 className="text-lg font-bold mb-2">E-postanı kontrol et</h2>
             <p className="text-sm text-slate-600">
               <strong>{email}</strong> adresine sihirli bir bağlantı yolladık. Linke tıkla, oturum açılır.

@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ChatMessage, ChatOptions, ChatResponse, Provider } from '@pusula/shared';
 import { LLMGateway, ByokKeyResolver } from '@pusula/llm-gateway';
@@ -12,20 +11,29 @@ export class LLMService {
   constructor(@Inject(SUPABASE) private readonly sb: SupabaseClient) {}
 
   /**
-   * Sunucu-side LLM çağrı proxy'si. Browser'dan asla doğrudan provider'a gidilmez.
-   * Usage event'i DB'ye loglanır (quota / billing / abuse detection için).
+   * Provider key resolution priority:
+   *  1. Body'den gelen provider_keys (BYOK — kullanıcı tarayıcısından)
+   *  2. Env'den MANAGED_*_KEY (managed pool fallback)
+   *
+   * Tüm çağrılar usage_events tablosuna loglanır.
    */
   async chat(
     userId: string,
     messages: ChatMessage[],
     options: ChatOptions,
-    providerKeys: Partial<Record<Provider, string>>,
+    providerKeysFromBody: Partial<Record<Provider, string>>,
   ): Promise<ChatResponse> {
+    const merged: Partial<Record<Provider, string>> = {
+      groq: providerKeysFromBody.groq ?? process.env.MANAGED_GROQ_KEY,
+      gemini: providerKeysFromBody.gemini ?? process.env.MANAGED_GEMINI_KEY,
+      deepseek: providerKeysFromBody.deepseek ?? process.env.MANAGED_DEEPSEEK_KEY,
+      anthropic: providerKeysFromBody.anthropic ?? process.env.MANAGED_ANTHROPIC_KEY,
+    };
+
     const gateway = new LLMGateway({
-      keyResolver: new ByokKeyResolver(providerKeys),
+      keyResolver: new ByokKeyResolver(merged),
       onUsage: async (resp, keySource) => {
         const { error } = await this.sb.from('usage_events').insert({
-          id: undefined,
           user_id: userId,
           provider: resp.provider,
           model: resp.model,
@@ -39,8 +47,7 @@ export class LLMService {
         if (error) this.logger.warn(`usage_events insert failed: ${error.message}`);
       },
     });
-    const response = await gateway.chat(messages, options);
-    void randomUUID; // keep import alive for future request_id correlation
-    return response;
+
+    return gateway.chat(messages, options);
   }
 }
