@@ -26,12 +26,13 @@ async function bootstrap(): Promise<void> {
 
   const helmet = (await import('helmet')).default;
   const compression = (await import('compression')).default;
-  const { json, urlencoded } = await import('express');
+  // Dinamik import'ta named-destructuring CJS interop'ta undefined verebilir → default kullan.
+  const express = (await import('express')).default;
   app.use(helmet());
   app.use(compression());
   // Görüntü-tabanlı extract (tam-sayfa ekran görüntüsü base64) için büyük body limiti.
-  app.use(json({ limit: '15mb' }));
-  app.use(urlencoded({ extended: true, limit: '15mb' }));
+  app.use(express.json({ limit: '15mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
   app.enableShutdownHooks();
 

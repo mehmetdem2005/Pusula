@@ -35,10 +35,16 @@ export class QueueService implements OnModuleInit, OnApplicationShutdown {
         this.logger.warn('bullmq veya ioredis yüklü değil — kuyruk no-op modunda');
         return;
       }
+      if (!env.REDIS_URL || /placeholder/i.test(env.REDIS_URL)) {
+        this.logger.warn('REDIS_URL tanımlı değil/placeholder — kuyruk no-op modunda');
+        return;
+      }
       this.connection = new Redis(env.REDIS_URL, {
         maxRetriesPerRequest: null,
         enableReadyCheck: false,
+        retryStrategy: (times: number) => (times > 5 ? null : Math.min(times * 500, 3000)),
       });
+      this.connection.on('error', (e: Error) => this.logger.warn(`Redis bağlantı: ${e.message}`));
       for (const name of Object.values(Q)) {
         this.queues.set(name, new Queue(name, { connection: this.connection }));
       }
