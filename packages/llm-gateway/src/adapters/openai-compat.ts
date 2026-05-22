@@ -41,13 +41,17 @@ export abstract class OpenAICompatAdapter implements LLMAdapter {
     const t0 = Date.now();
     const model = options.model ?? 'unknown';
     try {
-      const resp = await this.client(apiKey).chat.completions.create({
+      // exactOptionalPropertyTypes uyumu: optional alanlar yalnız varsa nesneye konur.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const params: any = {
         model,
         messages: messages as never,
         temperature: options.temperature ?? 0.7,
-        max_tokens: options.maxTokens,
-        response_format: options.jsonSchema ? { type: 'json_object' } : undefined,
-      });
+      };
+      if (options.maxTokens !== undefined) params.max_tokens = options.maxTokens;
+      if (options.jsonSchema) params.response_format = { type: 'json_object' };
+
+      const resp = await this.client(apiKey).chat.completions.create(params);
       const text = resp.choices[0]?.message?.content ?? '';
       const usage = {
         input: resp.usage?.prompt_tokens ?? 0,
@@ -75,13 +79,16 @@ export abstract class OpenAICompatAdapter implements LLMAdapter {
   ): AsyncIterable<{ delta: string; done: boolean; usage?: ChatResponse['usage'] }> {
     const model = options.model ?? 'unknown';
     try {
-      const stream = await this.client(apiKey).chat.completions.create({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const params: any = {
         model,
         messages: messages as never,
         temperature: options.temperature ?? 0.7,
-        max_tokens: options.maxTokens,
         stream: true,
-      });
+      };
+      if (options.maxTokens !== undefined) params.max_tokens = options.maxTokens;
+
+      const stream = await this.client(apiKey).chat.completions.create(params);
       for await (const chunk of stream) {
         const delta = chunk.choices[0]?.delta?.content ?? '';
         if (delta) yield { delta, done: false };
