@@ -87,8 +87,8 @@ importers:
         specifier: ^1.7.5
         version: 1.8.1
       helmet:
-        specifier: ^8.0.0
-        version: 8.1.0
+        specifier: ^8.2.0
+        version: 8.2.0
       ioredis:
         specifier: ^5.4.2
         version: 5.10.1
@@ -3549,8 +3549,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  helmet@8.1.0:
-    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
+  helmet@8.2.0:
+    resolution: {integrity: sha512-DRgTIUgnWcJ62KyarxxziuqYxKGnR6Rgg19BlbucN/dpmJbl1XOit6qvoOX0ZT+HhWe5OUVhU/a1zpGyc1xA0Q==}
     engines: {node: '>=18.0.0'}
 
   hoist-non-react-statics@3.3.2:
@@ -9150,7 +9150,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  helmet@8.1.0: {}
+  helmet@8.2.0: {}
 
   hoist-non-react-statics@3.3.2:
     dependencies:
