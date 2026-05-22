@@ -12,12 +12,10 @@ services:
     rootDir: . # Monorepo root'tan build et
     buildCommand: |
       corepack enable
+      corepack prepare pnpm@9.14.4 --activate
       pnpm install --no-frozen-lockfile
-      pnpm --filter @pusula/shared build || true
-      pnpm --filter @pusula/scoring build || true
-      pnpm --filter @pusula/llm-gateway build || true
-      pnpm --filter @pusula/api build
-    startCommand: pnpm --filter @pusula/api start
+      pnpm --filter "@pusula/api..." build
+    startCommand: node apps/api/dist/main.js
     healthCheckPath: /health
     autoDeploy: true
     envVars:
