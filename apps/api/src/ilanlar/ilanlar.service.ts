@@ -5,6 +5,7 @@ import type { KonutInput } from '@pusula/shared';
 import type { ScoringContext } from '@pusula/scoring';
 import { ScoringService } from '../scoring/scoring.service.js';
 import { SUPABASE } from '../supabase/supabase.module.js';
+import { buildRiskContext } from './risk-enrichment.js';
 
 interface ListBatchItem {
   url: string;
@@ -36,7 +37,7 @@ export class IlanlarService {
     const score = await this.scoring.scoreKonut(input, {
       comparables,
       konum: {},
-      risk: {},
+      risk: buildRiskContext(input),
     });
 
     // 2. UPSERT ilan
