@@ -1,0 +1,49 @@
+# Render Blueprint — Pusula API
+# Docs: https://render.com/docs/blueprint-spec
+# Deploy: Render dashboard → New → Blueprint → bağladığın repo → render.yaml otomatik algılanır
+
+services:
+  - type: web
+    name: pusula-api
+    runtime: node
+    region: frankfurt          # Türkiye'ye en yakın Render bölgesi
+    plan: starter              # $7/ay, MVP için yeter; V1+ "standard" $25
+    branch: main
+    rootDir: .                 # Monorepo root'tan build et
+    buildCommand: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      pnpm --filter @pusula/shared build || true
+      pnpm --filter @pusula/scoring build || true
+      pnpm --filter @pusula/llm-gateway build || true
+      pnpm --filter @pusula/api build
+    startCommand: pnpm --filter @pusula/api start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "10000"          # Render varsayılan
+      - key: NODE_ENV
+        value: production
+      # Aşağıdakileri Render Dashboard → Environment'tan elle gir (secret):
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+  - type: redis
+    name: pusula-redis
+    region: frankfurt
+    plan: starter              # $10/ay
+    ipAllowList: []            # internal only
+    maxmemoryPolicy: allkeys-lru
