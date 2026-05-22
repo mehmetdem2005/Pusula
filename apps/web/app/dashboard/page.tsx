@@ -6,6 +6,7 @@ import { Navbar } from '../../components/Navbar';
 import { useApi } from '../../lib/api';
 import { scoreBadge, scoreColor, TRY } from '../../lib/score-ui';
 import { IlanChat } from '../../components/IlanChat';
+import { PasteIngest } from '../../components/PasteIngest';
 
 interface IlanCard {
   id: string;
@@ -40,6 +41,8 @@ export default function DashboardPage(): ReactElement {
           🚧 <strong>Beta:</strong> AI analizleri uygulama içinde sağlanır. Eklentiyi yükleyip bir
           ilan sayfasına gidin — analiz burada belirir.
         </div>
+
+        <PasteIngest />
 
         <div className="mb-6 flex items-end justify-between">
           <h1 className="text-2xl font-bold">İlanlarım</h1>
