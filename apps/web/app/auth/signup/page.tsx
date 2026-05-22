@@ -28,7 +28,7 @@ export default function SignupPage(): ReactElement {
         email: form.email,
         options: {
           data: { display_name: form.display_name, role: form.role },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
         },
       });
       if (err) throw err;
