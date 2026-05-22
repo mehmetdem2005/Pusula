@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, type ReactElement } from 'react';
-import { authedFetch } from '../lib/api';
+import { authedFetch, sttTranscribe, ttsSynthesize } from '../lib/api';
 
 interface Msg {
   role: 'user' | 'assistant';
@@ -16,15 +16,35 @@ const SUGGESTIONS = [
 ];
 
 /**
- * İlan detay AI sohbet paneli — platform AI (key girişsiz) ile.
- * `context` skor/ilan özetini içeren system promptudur; LLM skoru değiştirmez, yorumlar.
+ * İlan detay AI sohbet paneli — yazılı + sesli mod.
+ * Platform AI (key girişsiz). `context` skor/ilan + TÜM metrik özetini içerir; LLM yorumlar,
+ * skoru değiştirmez. Sesli giriş: Groq Whisper (STT). Sesli yanıt: Gemini TTS.
  */
 export function IlanChat({ context }: { context: string }): ReactElement {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [voiceOut, setVoiceOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mrRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  async function playTts(text: string) {
+    try {
+      const blob = await ttsSynthesize(text);
+      audioRef.current?.pause();
+      const audio = new Audio(URL.createObjectURL(blob));
+      audioRef.current = audio;
+      await audio.play();
+    } catch {
+      // sesli yanıt başarısızsa sessizce geç
+    }
+  }
 
   async function send(text: string) {
     const q = text.trim();
@@ -44,6 +64,7 @@ export function IlanChat({ context }: { context: string }): ReactElement {
       });
       setMessages((m) => [...m, { role: 'assistant', content: resp.text }]);
       requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 1e9 }));
+      if (voiceOut) void playTts(resp.text);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -51,13 +72,64 @@ export function IlanChat({ context }: { context: string }): ReactElement {
     }
   }
 
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mr = new MediaRecorder(stream);
+      chunksRef.current = [];
+      mr.ondataavailable = (e: BlobEvent) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      mr.onstop = () => {
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        setRecording(false);
+        setLoading(true);
+        sttTranscribe(blob)
+          .then((text) => {
+            setLoading(false);
+            if (text.trim()) void send(text);
+          })
+          .catch((err) => {
+            setLoading(false);
+            setError((err as Error).message);
+          });
+      };
+      mrRef.current = mr;
+      mr.start();
+      setRecording(true);
+      setError(null);
+    } catch {
+      setError('Mikrofona erişilemedi (izin gerekli).');
+    }
+  }
+
+  function toggleRecord() {
+    if (recording) mrRef.current?.stop();
+    else void startRecording();
+  }
+
   return (
     <div className="rounded-lg bg-white p-6">
-      <h2 className="mb-3 text-lg font-semibold">AI Danışman</h2>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">AI Danışman</h2>
+        <button
+          type="button"
+          onClick={() => setVoiceOut((v) => !v)}
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            voiceOut ? 'bg-[#0F1F4B] text-white' : 'bg-slate-100 text-slate-600'
+          }`}
+          aria-pressed={voiceOut}
+        >
+          {voiceOut ? '🔊 Sesli yanıt açık' : '🔈 Sesli yanıt'}
+        </button>
+      </div>
 
       {messages.length === 0 && (
         <p className="mb-3 text-sm text-slate-500">
-          Skor hakkında soru sor — pazarlık, yatırım, riskler. Yapay zeka uygulama içinde sağlanır.
+          Skorun her metriğini biliyorum — pazarlık, yatırım, riskler hakkında yazarak veya
+          konuşarak sor.
         </p>
       )}
 
@@ -83,7 +155,7 @@ export function IlanChat({ context }: { context: string }): ReactElement {
           <button
             key={s}
             type="button"
-            disabled={loading}
+            disabled={loading || recording}
             onClick={() => void send(s)}
             className="rounded-full border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-50"
           >
@@ -99,15 +171,27 @@ export function IlanChat({ context }: { context: string }): ReactElement {
         }}
         className="flex gap-2"
       >
+        <button
+          type="button"
+          onClick={toggleRecord}
+          disabled={loading && !recording}
+          className={`rounded-md px-3 py-2 text-sm ${
+            recording ? 'animate-pulse bg-red-600 text-white' : 'bg-slate-100 text-slate-700'
+          }`}
+          aria-label={recording ? 'Kaydı durdur' : 'Sesli sor'}
+        >
+          {recording ? '■' : '🎤'}
+        </button>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Bir soru yazın…"
+          placeholder={recording ? 'Dinliyorum…' : 'Bir soru yazın…'}
+          disabled={recording}
           className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F1F4B]"
         />
         <button
           type="submit"
-          disabled={loading || !input.trim()}
+          disabled={loading || recording || !input.trim()}
           className="rounded-md bg-[#D4A22E] px-4 py-2 text-sm font-semibold text-[#0F1F4B] disabled:opacity-60"
         >
           Gönder

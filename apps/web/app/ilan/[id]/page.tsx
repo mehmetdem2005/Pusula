@@ -60,7 +60,8 @@ export default function IlanDetayPage(): ReactElement {
       `risk: ${Math.round(data.skor.bilesenler.risk?.deger ?? 0)}.` +
       (data.skor.uyarilar && data.skor.uyarilar.length > 0
         ? `\nUyarılar: ${data.skor.uyarilar.join('; ')}`
-        : '')
+        : '') +
+      `\n\nTÜM METRİKLER (ayrıntılı referans, JSON — alt bileşenler, comparable medyan/IQR/z-score dahil): ${JSON.stringify(data.skor)}`
     : '';
 
   return (
