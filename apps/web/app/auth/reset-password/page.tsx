@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import Link from 'next/link';
 import { getSupabaseBrowser } from '../../../lib/supabase';
 import { updatePassword, logAudit } from '../../../lib/auth';
+import { PasswordInput } from '../../../components/auth/PasswordInput';
 
 export default function ResetPasswordPage(): ReactElement {
   const [password, setPassword] = useState('');
@@ -81,22 +82,20 @@ export default function ResetPasswordPage(): ReactElement {
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             <h2 className="text-center text-xl font-bold">Yeni Şifre Belirle</h2>
-            <input
-              type="password"
+            <PasswordInput
               required
-              autoComplete="new-password"
               minLength={8}
+              autoComplete="new-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               className={inputCls}
               placeholder="Yeni şifre (min 8)"
             />
-            <input
-              type="password"
+            <PasswordInput
               required
               autoComplete="new-password"
               value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
+              onChange={setConfirm}
               className={inputCls}
               placeholder="Yeni şifre (tekrar)"
             />

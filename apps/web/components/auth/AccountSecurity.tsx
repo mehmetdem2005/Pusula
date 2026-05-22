@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import { getSupabaseBrowser } from '../../lib/supabase';
-import { updatePassword, logAudit } from '../../lib/auth';
+import { updatePassword, logAudit, friendlyAuthError } from '../../lib/auth';
+import { PasswordInput } from './PasswordInput';
 
 interface Factor {
   id: string;
@@ -27,6 +28,8 @@ export function AccountSecurity(): ReactElement {
   const [role, setRole] = useState('individual');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
   const [factors, setFactors] = useState<Factor[]>([]);
   const [enroll, setEnroll] = useState<{ id: string; qr: string } | null>(null);
   const [mfaCode, setMfaCode] = useState('');
@@ -39,7 +42,7 @@ export function AccountSecurity(): ReactElement {
     setErr(null);
   };
   const fail = (e: unknown) => {
-    setErr((e as Error).message);
+    setErr(friendlyAuthError((e as Error).message));
     setMsg(null);
   };
 
@@ -84,25 +87,34 @@ export function AccountSecurity(): ReactElement {
   }
 
   async function changeEmail() {
+    if (!confirm(`E-posta ${newEmail} olarak değiştirilecek. Onay maili gelecek. Devam?`)) return;
+    setBusy(true);
     try {
       const { error } = await getSupabaseBrowser().auth.updateUser({ email: newEmail });
       if (error) throw error;
       flash('Onay e-postası gönderildi (hem eski hem yeni adrese).');
     } catch (e) {
       fail(e);
+    } finally {
+      setBusy(false);
     }
   }
 
   async function changePassword() {
+    setBusy(true);
     try {
       if (newPassword.length < 8) throw new Error('Şifre en az 8 karakter olmalı.');
+      if (newPassword !== newPasswordConfirm) throw new Error('Şifreler eşleşmiyor.');
       const { error } = await updatePassword(newPassword);
       if (error) throw error;
       setNewPassword('');
+      setNewPasswordConfirm('');
       await logAudit('password_change', {});
       flash('Şifre güncellendi.');
     } catch (e) {
       fail(e);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -138,6 +150,8 @@ export function AccountSecurity(): ReactElement {
   }
 
   async function removeFactor(id: string) {
+    if (!confirm('İki adımlı doğrulamayı kaldırmak hesabını daha az güvenli yapar. Emin misin?'))
+      return;
     try {
       const { error } = await getSupabaseBrowser().auth.mfa.unenroll({ factorId: id });
       if (error) throw error;
@@ -149,6 +163,7 @@ export function AccountSecurity(): ReactElement {
   }
 
   async function signOutEverywhere() {
+    if (!confirm('Tüm cihazlardaki oturumların kapatılacak. Devam?')) return;
     await getSupabaseBrowser().auth.signOut({ scope: 'global' });
     window.location.href = '/auth/login';
   }
@@ -221,27 +236,35 @@ export function AccountSecurity(): ReactElement {
           <button
             type="button"
             className={btn}
-            disabled={!newEmail}
+            disabled={!newEmail || busy}
             onClick={() => void changeEmail()}
           >
             Değiştir
           </button>
         </div>
-        <div className="flex gap-2">
-          <input
+        <div className="space-y-2">
+          <PasswordInput
             className={input}
-            type="password"
+            autoComplete="new-password"
+            minLength={8}
             placeholder="Yeni şifre (min 8)"
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={setNewPassword}
+          />
+          <PasswordInput
+            className={input}
+            autoComplete="new-password"
+            placeholder="Yeni şifre (tekrar)"
+            value={newPasswordConfirm}
+            onChange={setNewPasswordConfirm}
           />
           <button
             type="button"
             className={btn}
-            disabled={!newPassword}
+            disabled={!newPassword || busy}
             onClick={() => void changePassword()}
           >
-            Güncelle
+            Şifreyi Güncelle
           </button>
         </div>
       </section>

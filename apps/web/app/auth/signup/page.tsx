@@ -2,16 +2,18 @@
 
 import { useState, type ReactElement } from 'react';
 import Link from 'next/link';
-import { signUpPassword, logAudit } from '../../../lib/auth';
+import { signUpPassword, logAudit, friendlyAuthError } from '../../../lib/auth';
 import { OAuthButtons } from '../../../components/auth/OAuthButtons';
+import { PasswordInput } from '../../../components/auth/PasswordInput';
 
 export default function SignupPage(): ReactElement {
   const [form, setForm] = useState<{
     email: string;
     password: string;
+    confirm: string;
     display_name: string;
     role: 'individual' | 'agent' | 'dealer';
-  }>({ email: '', password: '', display_name: '', role: 'individual' });
+  }>({ email: '', password: '', confirm: '', display_name: '', role: 'individual' });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +25,9 @@ export default function SignupPage(): ReactElement {
     try {
       if (form.password.length < 8) {
         throw new Error('Şifre en az 8 karakter olmalı.');
+      }
+      if (form.password !== form.confirm) {
+        throw new Error('Şifreler eşleşmiyor.');
       }
       const { data, error: err } = await signUpPassword(form.email, form.password, {
         display_name: form.display_name,
@@ -36,7 +41,7 @@ export default function SignupPage(): ReactElement {
       }
       setSent(true);
     } catch (err) {
-      setError((err as Error).message);
+      setError(friendlyAuthError((err as Error).message));
     } finally {
       setLoading(false);
     }
@@ -93,15 +98,23 @@ export default function SignupPage(): ReactElement {
               </label>
               <label className="block">
                 <span className="text-sm font-medium text-slate-700">Şifre (min 8)</span>
-                <input
-                  type="password"
+                <PasswordInput
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={form.password}
+                  onChange={(v) => setForm({ ...form, password: v })}
+                  className={inputCls}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Şifre (tekrar)</span>
+                <PasswordInput
                   required
                   autoComplete="new-password"
-                  minLength={8}
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  value={form.confirm}
+                  onChange={(v) => setForm({ ...form, confirm: v })}
                   className={inputCls}
-                  placeholder="••••••••"
                 />
               </label>
               <label className="block">
