@@ -3,8 +3,8 @@
   "version": 2,
   "framework": "nextjs",
   "regions": ["fra1"],
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @pusula/web build",
-  "installCommand": "echo 'install deferred to buildCommand'",
+  "buildCommand": "cd ../.. && pnpm --filter @pusula/web build",
+  "installCommand": "cd ../.. && corepack enable && pnpm install --frozen-lockfile=false",
   "outputDirectory": ".next",
   "github": {
     "silent": true
