@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { KonutInput } from '@pusula/shared';
-import type { IlanlarService } from './ilanlar.service.js';
+import { IlanlarService } from './ilanlar.service.js';
 import { ListBatchSchema, type ListBatchInput } from './dto.js';
 import { JwtAuthGuard, type AuthedUser, CurrentUser } from '../auth/jwt.guard.js';
 import { ZodValidationPipe } from '../common/zod.pipe.js';
