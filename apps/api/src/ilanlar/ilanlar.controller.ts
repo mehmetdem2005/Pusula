@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { KonutInput } from '@pusula/shared';
 import { IlanlarService } from './ilanlar.service.js';
@@ -10,6 +10,18 @@ import { ZodValidationPipe } from '../common/zod.pipe.js';
 @UseGuards(JwtAuthGuard)
 export class IlanlarController {
   constructor(private readonly service: IlanlarService) {}
+
+  /** Kullanıcının ilanları + son skorları (dashboard). */
+  @Get()
+  async list(@CurrentUser() user: AuthedUser): Promise<unknown[]> {
+    return this.service.listIlanlar(user.id);
+  }
+
+  /** Tek ilan + son skor detayı. */
+  @Get(':id')
+  async getOne(@CurrentUser() user: AuthedUser, @Param('id') id: string): Promise<unknown> {
+    return this.service.getIlan(user.id, id);
+  }
 
   /**
    * Extension'dan tek bir konut ilanı ingest et + skor hesapla.

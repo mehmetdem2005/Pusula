@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ChatMessage, ChatOptions, ChatResponse, Provider } from '@pusula/shared';
-import { LLMGateway, ByokKeyResolver } from '@pusula/llm-gateway';
+import { LLMGateway, ByokKeyResolver, PlatformPoolResolver } from '@pusula/llm-gateway';
 import { SUPABASE } from '../supabase/supabase.module.js';
 
 @Injectable()
@@ -11,9 +11,10 @@ export class LLMService {
   constructor(@Inject(SUPABASE) private readonly sb: SupabaseClient) {}
 
   /**
-   * Provider key resolution priority:
-   *  1. Body'den gelen provider_keys (BYOK — kullanıcı tarayıcısından)
-   *  2. Env'den MANAGED_*_KEY (managed pool fallback)
+   * Key modeli (karma):
+   *  - Varsayılan: PLATFORM havuzu (server-side MANAGED_*_KEY). Kullanıcı key girmez.
+   *    key_source='platform_pool' loglanır.
+   *  - Opsiyonel: kullanıcı body'de provider_keys gönderirse BYOK (gelişmiş kullanıcı).
    *
    * Tüm çağrılar usage_events tablosuna loglanır.
    */
@@ -23,17 +24,25 @@ export class LLMService {
     options: ChatOptions,
     providerKeysFromBody: Partial<Record<Provider, string>>,
   ): Promise<ChatResponse> {
-    const merged: Partial<Record<Provider, string>> = {};
-    const assign = (p: Provider, value: string | undefined): void => {
-      if (value) merged[p] = value;
-    };
-    assign('groq', providerKeysFromBody.groq ?? process.env.MANAGED_GROQ_KEY);
-    assign('gemini', providerKeysFromBody.gemini ?? process.env.MANAGED_GEMINI_KEY);
-    assign('deepseek', providerKeysFromBody.deepseek ?? process.env.MANAGED_DEEPSEEK_KEY);
-    assign('anthropic', providerKeysFromBody.anthropic ?? process.env.MANAGED_ANTHROPIC_KEY);
+    const hasByok = Object.values(providerKeysFromBody).some((v) => !!v);
+
+    const keyResolver = hasByok
+      ? new ByokKeyResolver(providerKeysFromBody)
+      : new PlatformPoolResolver((provider) => {
+          const managed: Record<string, string | undefined> = {
+            groq: process.env.MANAGED_GROQ_KEY,
+            gemini: process.env.MANAGED_GEMINI_KEY,
+            deepseek: process.env.MANAGED_DEEPSEEK_KEY,
+            anthropic: process.env.MANAGED_ANTHROPIC_KEY,
+          };
+          const k = managed[provider];
+          return k
+            ? Promise.resolve(k)
+            : Promise.reject(new Error(`Platform key tanımlı değil: ${provider}`));
+        });
 
     const gateway = new LLMGateway({
-      keyResolver: new ByokKeyResolver(merged),
+      keyResolver,
       onUsage: async (resp, keySource) => {
         const { error } = await this.sb.from('usage_events').insert({
           user_id: userId,
