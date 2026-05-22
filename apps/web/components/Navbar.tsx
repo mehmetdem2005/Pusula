@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
+import { getSupabaseBrowser } from '../lib/supabase';
 
 interface NavItem {
   href: string;
@@ -15,11 +16,26 @@ const NAV: NavItem[] = [
 ];
 
 /**
- * Ortak üst menü — Dashboard ve Settings sayfalarında aynı tasarım.
- * Aktif rota highlight'lanır.
+ * Ortak üst menü — Dashboard ve Settings sayfalarında. Aktif rota highlight'lanır,
+ * giriş yapan kullanıcı gösterilir, "Çıkış" gerçekten signOut() yapar.
  */
 export function Navbar(): ReactElement {
   const pathname = usePathname();
+  const [email, setEmail] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    getSupabaseBrowser()
+      .auth.getUser()
+      .then(({ data }) => setEmail(data.user?.email ?? null))
+      .catch(() => setEmail(null));
+  }, []);
+
+  async function logout() {
+    setBusy(true);
+    await getSupabaseBrowser().auth.signOut();
+    window.location.href = '/auth/login';
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0F1F4B] text-white">
@@ -47,12 +63,19 @@ export function Navbar(): ReactElement {
               </Link>
             );
           })}
-          <Link
-            href="/auth/login"
-            className="ml-2 rounded-full border border-white/20 px-3 py-1.5 text-xs hover:bg-white/5"
+          {email && (
+            <span className="ml-2 hidden max-w-[160px] truncate text-xs text-white/60 sm:inline">
+              {email}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => void logout()}
+            disabled={busy}
+            className="ml-2 rounded-full border border-white/20 px-3 py-1.5 text-xs hover:bg-white/5 disabled:opacity-60"
           >
-            Çıkış
-          </Link>
+            {busy ? 'Çıkılıyor...' : 'Çıkış'}
+          </button>
         </nav>
       </div>
     </header>

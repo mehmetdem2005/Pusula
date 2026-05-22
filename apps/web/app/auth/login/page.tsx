@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, type ReactElement } from 'react';
+import { Suspense, useEffect, useState, type ReactElement } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { getSupabaseBrowser } from '../../../lib/supabase';
@@ -10,14 +10,18 @@ import {
   sendPhoneOtp,
   verifyPhoneOtp,
   logAudit,
+  safeNext,
+  friendlyAuthError,
 } from '../../../lib/auth';
 import { OAuthButtons } from '../../../components/auth/OAuthButtons';
+import { PasswordInput } from '../../../components/auth/PasswordInput';
 
 type Method = 'password' | 'magic' | 'phone';
 
 function LoginForm(): ReactElement {
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') ?? '/dashboard';
+  const next = safeNext(searchParams.get('next'));
+  const callbackError = searchParams.get('error');
 
   const [method, setMethod] = useState<Method>('password');
   const [email, setEmail] = useState('');
@@ -34,6 +38,16 @@ function LoginForm(): ReactElement {
   function go() {
     window.location.href = next;
   }
+
+  // Zaten giriş yapmışsa hedefe yönlendir.
+  useEffect(() => {
+    getSupabaseBrowser()
+      .auth.getSession()
+      .then(({ data }) => {
+        if (data.session) window.location.href = next;
+      })
+      .catch(() => undefined);
+  }, [next]);
 
   /** Şifre ile girişten sonra MFA (aal2) gerekiyor mu kontrol et. */
   async function afterPrimaryLogin(): Promise<void> {
@@ -60,7 +74,7 @@ function LoginForm(): ReactElement {
       if (err) throw err;
       await afterPrimaryLogin();
     } catch (err) {
-      setError((err as Error).message);
+      setError(friendlyAuthError((err as Error).message));
     } finally {
       setLoading(false);
     }
@@ -81,7 +95,7 @@ function LoginForm(): ReactElement {
       await logAudit('login_mfa', {});
       go();
     } catch (err) {
-      setError((err as Error).message);
+      setError(friendlyAuthError((err as Error).message));
     } finally {
       setLoading(false);
     }
@@ -96,7 +110,7 @@ function LoginForm(): ReactElement {
       if (err) throw err;
       setMagicSent(true);
     } catch (err) {
-      setError((err as Error).message);
+      setError(friendlyAuthError((err as Error).message));
     } finally {
       setLoading(false);
     }
@@ -111,7 +125,7 @@ function LoginForm(): ReactElement {
       if (err) throw err;
       setPhoneSent(true);
     } catch (err) {
-      setError((err as Error).message);
+      setError(friendlyAuthError((err as Error).message));
     } finally {
       setLoading(false);
     }
@@ -127,10 +141,16 @@ function LoginForm(): ReactElement {
       await logAudit('login', { method: 'phone' });
       go();
     } catch (err) {
-      setError((err as Error).message);
+      setError(friendlyAuthError((err as Error).message));
     } finally {
       setLoading(false);
     }
+  }
+
+  async function resendPhone() {
+    setError(null);
+    const { error: err } = await sendPhoneOtp(phone);
+    if (err) setError(friendlyAuthError(err.message));
   }
 
   const inputCls =
@@ -183,10 +203,23 @@ function LoginForm(): ReactElement {
             <p className="text-sm text-slate-600">
               <strong>{email}</strong> adresine sihirli bir bağlantı yolladık.
             </p>
+            <button
+              type="button"
+              onClick={() => setMagicSent(false)}
+              className="mt-4 text-xs text-sky-600 underline"
+            >
+              ← Geri dön / farklı e-posta dene
+            </button>
           </div>
         ) : (
           <>
             <h2 className="mb-4 text-center text-xl font-bold">Giriş Yap</h2>
+
+            {callbackError && (
+              <p className="mb-3 rounded-md bg-red-50 p-2 text-center text-sm text-red-600">
+                Bağlantı geçersiz veya süresi dolmuş. Lütfen tekrar dene.
+              </p>
+            )}
 
             <div className="mb-4 flex gap-1 rounded-lg bg-slate-100 p-1">
               <button
@@ -220,14 +253,12 @@ function LoginForm(): ReactElement {
                 </label>
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">Şifre</span>
-                  <input
-                    type="password"
+                  <PasswordInput
                     required
                     autoComplete="current-password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={setPassword}
                     className={inputCls}
-                    placeholder="••••••••"
                   />
                 </label>
                 <div className="text-right">
@@ -318,6 +349,21 @@ function LoginForm(): ReactElement {
                 >
                   {loading ? 'Doğrulanıyor...' : 'Doğrula & Giriş'}
                 </button>
+                <div className="flex justify-between text-xs text-sky-600">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhoneSent(false);
+                      setOtp('');
+                    }}
+                    className="underline"
+                  >
+                    Numarayı değiştir
+                  </button>
+                  <button type="button" onClick={() => void resendPhone()} className="underline">
+                    Kodu tekrar gönder
+                  </button>
+                </div>
               </form>
             )}
 

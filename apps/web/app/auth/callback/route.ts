@@ -12,7 +12,12 @@ export async function GET(request: Request): Promise<NextResponse> {
   const code = searchParams.get('code');
   const tokenHash = searchParams.get('token_hash');
   const type = searchParams.get('type') as EmailOtpType | null;
-  const next = searchParams.get('next') ?? '/dashboard';
+  const nextParam = searchParams.get('next');
+  // Open-redirect koruması: yalnız uygulama-içi göreli path.
+  const next =
+    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+      ? nextParam
+      : '/dashboard';
 
   const supabase = await getSupabaseServer();
 

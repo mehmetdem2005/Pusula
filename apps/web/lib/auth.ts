@@ -7,6 +7,34 @@ import { getSupabaseBrowser } from './supabase';
 
 export type OAuthProvider = 'google' | 'facebook';
 
+/**
+ * Open-redirect koruması: yalnız uygulama-içi göreli path'lere izin ver.
+ * `//evil.com`, `https://...`, boş gibi değerler /dashboard'a düşer.
+ */
+export function safeNext(next: string | null | undefined): string {
+  if (!next || !next.startsWith('/') || next.startsWith('//')) return '/dashboard';
+  return next;
+}
+
+/** Supabase hata mesajlarını anlaşılır Türkçeye çevir. */
+export function friendlyAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes('invalid login') || m.includes('invalid credentials'))
+    return 'E-posta veya şifre hatalı.';
+  if (m.includes('email not confirmed')) return 'E-postanı henüz doğrulamadın.';
+  if (m.includes('user already registered') || m.includes('already been registered'))
+    return 'Bu e-posta zaten kayıtlı. Giriş yapmayı dene.';
+  if (m.includes('rate limit') || m.includes('too many'))
+    return 'Çok fazla deneme. Lütfen biraz sonra tekrar dene.';
+  if (m.includes('provider is not enabled') || m.includes('provider_disabled'))
+    return 'Bu giriş yöntemi henüz aktif değil.';
+  if (m.includes('password should be') || m.includes('at least'))
+    return 'Şifre en az 8 karakter olmalı.';
+  if (m.includes('invalid phone') || m.includes('phone'))
+    return 'Telefon numarası geçersiz. +90 ile tam formatta gir.';
+  return message;
+}
+
 const callbackUrl = (next = '/dashboard'): string =>
   `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 

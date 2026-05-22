@@ -44,19 +44,42 @@ function decodeJwtExp(token: string): number | null {
   }
 }
 
+/**
+ * Web app'in @supabase/ssr oturum cookie'sinden access_token'ı çıkar.
+ * Cookie adı `sb-<ref>-auth-token` (büyük oturumlarda `.0`, `.1` parçaları),
+ * değeri `base64-<base64(JSON session)>`. Eski tek-JWT formatına da düşer.
+ */
+async function readAccessTokenFromCookies(): Promise<string | null> {
+  const cookies = await chrome.cookies.getAll({ url: WEB_BASE }).catch(() => []);
+  const authCookies = cookies
+    .filter((c) => /^sb-.*-auth-token(\.\d+)?$/.test(c.name))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  if (authCookies.length === 0) return null;
+
+  let raw = authCookies.map((c) => c.value).join('');
+  if (raw.startsWith('base64-')) raw = raw.slice('base64-'.length);
+  try {
+    const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+    const session = JSON.parse(atob(b64)) as { access_token?: string };
+    if (session.access_token) return session.access_token;
+  } catch {
+    // base64 değilse: legacy ham JWT olabilir
+    if (raw.includes('.')) return raw;
+  }
+  return null;
+}
+
 async function ensureAuth(): Promise<string | null> {
   if (state.auth.jwt && state.auth.expires_at && state.auth.expires_at > Date.now() + 30_000) {
     return state.auth.jwt;
   }
   try {
-    const cookie = await chrome.cookies
-      .get({ url: WEB_BASE, name: 'sb-access-token' })
-      .catch(() => null);
-    if (cookie?.value) {
-      const exp = decodeJwtExp(cookie.value);
-      state.auth.jwt = cookie.value;
+    const token = await readAccessTokenFromCookies();
+    if (token) {
+      const exp = decodeJwtExp(token);
+      state.auth.jwt = token;
       state.auth.expires_at = exp ?? Date.now() + 50 * 60 * 1000;
-      return cookie.value;
+      return token;
     }
   } catch {
     // ignore
