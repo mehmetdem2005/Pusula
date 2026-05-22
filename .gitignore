@@ -50,3 +50,9 @@ test-results/
 *.swp
 *.swo
 .eslintcache
+
+# Local env override files (NEVER commit — contains secrets)
+.env.local
+.env.*.local
+**/.env.local
+**/.env.*.local
