@@ -41,10 +41,12 @@ export const SkorSonucu = z.object({
     konum: SkorBileseni,
     risk: SkorBileseni,
   }),
-  alt_bilesenler: z.record(z.object({
-    deger: z.number(),
-    agirlik: z.number(),
-  })),
+  alt_bilesenler: z.record(
+    z.object({
+      deger: z.number(),
+      agirlik: z.number(),
+    }),
+  ),
   comparable: KomparableOzet,
   confidence: Confidence,
   uyarilar: z.array(z.string()),

@@ -2,7 +2,7 @@
  * RiskAgent — Tier 1
  * docs/11-multi-agent-mimarisi.md §4.4
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import { RiskRequest, RiskResponse } from '../contracts/risk.js';
 import type { Logger } from '../runtime/Logger.js';
 

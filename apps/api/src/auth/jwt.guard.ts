@@ -1,13 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-  createParamDecorator,
-} from '@nestjs/common';
+import type { CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException, createParamDecorator } from '@nestjs/common';
 import type { Request } from 'express';
-import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
+import { createRemoteJWKSet, jwtVerify, type JWTPayload, type JWTVerifyOptions } from 'jose';
 
 export interface AuthedUser {
   id: string;
@@ -45,10 +39,10 @@ export class JwtAuthGuard implements CanActivate {
       throw new Error('SUPABASE_URL env var missing — JWT guard cannot start');
     }
     this.issuer = `${supabaseUrl}/auth/v1`;
-    this.jwks = createRemoteJWKSet(
-      new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`),
-      { cooldownDuration: 30_000, cacheMaxAge: 600_000 },
-    );
+    this.jwks = createRemoteJWKSet(new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`), {
+      cooldownDuration: 30_000,
+      cacheMaxAge: 600_000,
+    });
     return this.jwks;
   }
 
@@ -66,11 +60,12 @@ export class JwtAuthGuard implements CanActivate {
     const jwks = this.ensureJwks();
     let payload: JWTPayload;
     try {
-      const result = await jwtVerify(token, jwks, {
-        issuer: this.issuer ?? undefined,
+      const verifyOpts: JWTVerifyOptions = {
         audience: 'authenticated',
         algorithms: ['RS256', 'ES256'],
-      });
+      };
+      if (this.issuer) verifyOpts.issuer = this.issuer;
+      const result = await jwtVerify(token, jwks, verifyOpts);
       payload = result.payload;
     } catch (err) {
       this.logger.warn(`JWT verify failed: ${(err as Error).message}`);
@@ -82,19 +77,18 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid subject');
     }
 
-    req.user = {
+    const user: AuthedUser = {
       id: sub,
       email: typeof payload.email === 'string' ? payload.email : '',
-      role: typeof payload.role === 'string' ? payload.role : undefined,
     };
+    if (typeof payload.role === 'string') user.role = payload.role;
+    req.user = user;
     return true;
   }
 }
 
-export const CurrentUser = createParamDecorator(
-  (_: unknown, ctx: ExecutionContext): AuthedUser => {
-    const req = ctx.switchToHttp().getRequest<Request>();
-    if (!req.user) throw new UnauthorizedException();
-    return req.user;
-  },
-);
+export const CurrentUser = createParamDecorator((_: unknown, ctx: ExecutionContext): AuthedUser => {
+  const req = ctx.switchToHttp().getRequest<Request>();
+  if (!req.user) throw new UnauthorizedException();
+  return req.user;
+});

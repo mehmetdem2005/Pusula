@@ -26,7 +26,7 @@ export class AnthropicAdapter implements LLMAdapter {
 
   private toAnthropicMessages(messages: ChatMessage[]): {
     system?: string;
-    messages: Array<{ role: 'user' | 'assistant'; content: string }>;
+    messages: { role: 'user' | 'assistant'; content: string }[];
   } {
     const sys = messages.find((m) => m.role === 'system');
     const rest = messages
@@ -35,10 +35,13 @@ export class AnthropicAdapter implements LLMAdapter {
         role: m.role as 'user' | 'assistant',
         content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content),
       }));
-    return {
-      system: sys ? (typeof sys.content === 'string' ? sys.content : JSON.stringify(sys.content)) : undefined,
+    const out: { system?: string; messages: { role: 'user' | 'assistant'; content: string }[] } = {
       messages: rest,
     };
+    if (sys) {
+      out.system = typeof sys.content === 'string' ? sys.content : JSON.stringify(sys.content);
+    }
+    return out;
   }
 
   private mapError(err: unknown): never {
@@ -59,8 +62,8 @@ export class AnthropicAdapter implements LLMAdapter {
         model,
         max_tokens: options.maxTokens ?? 4096,
         temperature: options.temperature ?? 0.7,
-        system,
         messages: msgs,
+        ...(system !== undefined ? { system } : {}),
       });
       const block = resp.content[0];
       const text = block && block.type === 'text' ? block.text : '';
@@ -86,7 +89,7 @@ export class AnthropicAdapter implements LLMAdapter {
   async *chatStream(
     messages: ChatMessage[],
     options: ChatOptions,
-    apiKey: string
+    apiKey: string,
   ): AsyncIterable<{ delta: string; done: boolean; usage?: ChatResponse['usage'] }> {
     const model = options.model ?? 'claude-sonnet-4-6';
     const { system, messages: msgs } = this.toAnthropicMessages(messages);
@@ -95,8 +98,8 @@ export class AnthropicAdapter implements LLMAdapter {
         model,
         max_tokens: options.maxTokens ?? 4096,
         temperature: options.temperature ?? 0.7,
-        system,
         messages: msgs,
+        ...(system !== undefined ? { system } : {}),
       });
       for await (const evt of stream) {
         if (evt.type === 'content_block_delta' && evt.delta.type === 'text_delta') {

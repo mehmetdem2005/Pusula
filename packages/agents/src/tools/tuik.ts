@@ -9,7 +9,13 @@ export interface TuikMahalleData {
   mahalle: string;
   nufus: number;
   gelir_quintile: 1 | 2 | 3 | 4 | 5;
-  yas_dagilimi: { '0-14': number; '15-29': number; '30-44': number; '45-64': number; '65+': number };
+  yas_dagilimi: {
+    '0-14': number;
+    '15-29': number;
+    '30-44': number;
+    '45-64': number;
+    '65+': number;
+  };
   data_year: number;
 }
 
@@ -20,7 +26,7 @@ export interface TuikMahalleData {
 export async function getMahalleData(
   _il: string,
   _ilce: string,
-  _mahalle: string
+  _mahalle: string,
 ): Promise<TuikMahalleData | null> {
   // TODO: Supabase mahalle_enrichment tablo
   return null;

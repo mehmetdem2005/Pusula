@@ -88,7 +88,13 @@ export abstract class OpenAICompatAdapter implements LLMAdapter {
       };
       if (options.maxTokens !== undefined) params.max_tokens = options.maxTokens;
 
-      const stream = await this.client(apiKey).chat.completions.create(params);
+      // stream:true → SDK bir AsyncIterable döner; `any` params nedeniyle overload
+      // non-stream'e çözüldüğünden açıkça stream tipine cast ediyoruz.
+      const stream = (await this.client(apiKey).chat.completions.create(
+        params,
+      )) as unknown as AsyncIterable<{
+        choices: { delta?: { content?: string | null } }[];
+      }>;
       for await (const chunk of stream) {
         const delta = chunk.choices[0]?.delta?.content ?? '';
         if (delta) yield { delta, done: false };

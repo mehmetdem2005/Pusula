@@ -2,7 +2,7 @@
  * NegotiationAgent — Tier 1
  * docs/11-multi-agent-mimarisi.md §4.8
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import { NegotiationRequest, NegotiationResponse } from '../contracts/negotiation.js';
 import type { Logger } from '../runtime/Logger.js';
 import type { LLMGateway } from '@pusula/llm-gateway';
@@ -12,9 +12,14 @@ export class NegotiationAgent {
   static readonly inputSchema = NegotiationRequest;
   static readonly outputSchema = NegotiationResponse;
 
-  constructor(private llmGateway: LLMGateway, private logger: Logger) {}
+  constructor(
+    private llmGateway: LLMGateway,
+    private logger: Logger,
+  ) {}
 
-  async handle(req: z.infer<typeof NegotiationRequest>): Promise<z.infer<typeof NegotiationResponse>> {
+  async handle(
+    req: z.infer<typeof NegotiationRequest>,
+  ): Promise<z.infer<typeof NegotiationResponse>> {
     this.logger.info('NegotiationAgent.handle', { trace_id: req.trace_id });
 
     // TODO: Heuristic marj tahmini + Claude Sonnet 4.6 ile metin

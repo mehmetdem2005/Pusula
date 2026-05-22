@@ -34,7 +34,7 @@ function removeOutliers(values: number[]): number[] {
  */
 export function fiyatAvantajiSkoru(
   ilan: Pick<KonutInput, 'fiyat_tl' | 'net_m2'>,
-  comparables: KomparableIlan[]
+  comparables: KomparableIlan[],
 ): { skor: number; ozet: KomparableOzet; confidence: Confidence } {
   const ilanM2Tl = ilan.fiyat_tl / ilan.net_m2;
 
@@ -60,7 +60,14 @@ export function fiyatAvantajiSkoru(
   if (iqr <= 0) {
     return {
       skor: 50,
-      ozet: { count: m2Fiyatlari.length, median_m2_tl: med, p25_m2_tl: p25, p75_m2_tl: p75, ilan_m2_tl: ilanM2Tl, z_score: 0 },
+      ozet: {
+        count: m2Fiyatlari.length,
+        median_m2_tl: med,
+        p25_m2_tl: p25,
+        p75_m2_tl: p75,
+        ilan_m2_tl: ilanM2Tl,
+        z_score: 0,
+      },
       confidence: 'low',
     };
   }
@@ -69,7 +76,8 @@ export function fiyatAvantajiSkoru(
   const zScore = (med - ilanM2Tl) / iqr;
   const skor = clamp01_100(100 * sigmoid(zScore * PRICE_SIGMOID_SLOPE));
 
-  const confidence: Confidence = comparables.length >= 15 ? 'high' : comparables.length >= 8 ? 'medium' : 'low';
+  const confidence: Confidence =
+    comparables.length >= 15 ? 'high' : comparables.length >= 8 ? 'medium' : 'low';
 
   return {
     skor,

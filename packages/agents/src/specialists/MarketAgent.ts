@@ -2,7 +2,7 @@
  * MarketAgent — Tier 1
  * docs/11-multi-agent-mimarisi.md §4.7, docs/10-aaa-skorlama-spec.md §3.7
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import { MarketRequest, MarketResponse } from '../contracts/market.js';
 import type { Logger } from '../runtime/Logger.js';
 

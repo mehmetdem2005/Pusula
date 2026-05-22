@@ -6,7 +6,7 @@
  *
  * docs/11-multi-agent-mimarisi.md §4.1, docs/10-aaa-skorlama-spec.md
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import { kelepirSkoru, type ScoringContext } from '@pusula/scoring';
 import { ScoringRequest, ScoringResponse } from '../contracts/scoring.js';
 import type { LocationContext } from '../contracts/location.js';
@@ -28,7 +28,7 @@ export class ScoringAgent {
 
   async handle(req: z.infer<typeof ScoringRequest>): Promise<z.infer<typeof ScoringResponse>> {
     const t0 = Date.now();
-    const { ilan, context_options, trace_id } = req;
+    const { ilan, trace_id } = req;
     this.deps.logger.info('ScoringAgent.handle start', {
       trace_id,
       ilan_url: ilan.ilan_url,
@@ -48,7 +48,14 @@ export class ScoringAgent {
     };
 
     // 2. Deterministik skor motoru
-    const ctx: ScoringContext = { comparables, konum, risk };
+    // konum/risk agent sözleşmelerinden gelir (zod .optional() → `T | undefined`);
+    // motorun KonumContext/RiskContext tipleri yapısal olarak uyumlu, sadece
+    // exactOptionalPropertyTypes nedeniyle açık cast gerekir.
+    const ctx: ScoringContext = {
+      comparables,
+      konum: konum as ScoringContext['konum'],
+      risk: risk as ScoringContext['risk'],
+    };
     const result = kelepirSkoru(ilan, ctx);
 
     const total = Date.now() - t0;
@@ -68,10 +75,25 @@ export class ScoringAgent {
   }
 
   /** ComparableAgent çağırılır (yoksa boş). */
-  private async fetchComparables(_req: z.infer<typeof ScoringRequest>): Promise<ScoringContext['comparables']> {
+  private async fetchComparables(
+    _req: z.infer<typeof ScoringRequest>,
+  ): Promise<ScoringContext['comparables']> {
     if (!this.deps.agentBus || !_req.context_options.include_comparables) return [];
     try {
-      const resp = await this.deps.agentBus.call<unknown, { items: Array<{ id: string; m2: number; fiyat_tl: number; bina_yasi: number; oda_sayisi: string; mahalle?: string; ilce: string }> }>(
+      const resp = await this.deps.agentBus.call<
+        unknown,
+        {
+          items: {
+            id: string;
+            m2: number;
+            fiyat_tl: number;
+            bina_yasi: number;
+            oda_sayisi: string;
+            mahalle?: string;
+            ilce: string;
+          }[];
+        }
+      >(
         'comparable',
         {
           ilan_id: _req.ilan.kaynak_id,
@@ -81,15 +103,18 @@ export class ScoringAgent {
         },
         { traceId: _req.trace_id, timeoutMs: 3000 },
       );
-      return resp.items.map((i) => ({
-        id: i.id,
-        m2: i.m2,
-        fiyat_tl: i.fiyat_tl,
-        bina_yasi: i.bina_yasi,
-        oda_sayisi: i.oda_sayisi,
-        mahalle: i.mahalle,
-        ilce: i.ilce,
-      }));
+      return resp.items.map((i) => {
+        const item: ScoringContext['comparables'][number] = {
+          id: i.id,
+          m2: i.m2,
+          fiyat_tl: i.fiyat_tl,
+          bina_yasi: i.bina_yasi,
+          oda_sayisi: i.oda_sayisi,
+          ilce: i.ilce,
+        };
+        if (i.mahalle) item.mahalle = i.mahalle;
+        return item;
+      });
     } catch (err) {
       this.deps.logger.warn('ComparableAgent çağrısı başarısız, boş set ile devam', {
         trace_id: _req.trace_id,
@@ -116,7 +141,10 @@ export class ScoringAgent {
       );
       return resp.context;
     } catch (err) {
-      this.deps.logger.warn('LocationAgent başarısız', { trace_id: _req.trace_id, error: (err as Error).message });
+      this.deps.logger.warn('LocationAgent başarısız', {
+        trace_id: _req.trace_id,
+        error: (err as Error).message,
+      });
       return {};
     }
   }
@@ -135,7 +163,10 @@ export class ScoringAgent {
       );
       return resp.context;
     } catch (err) {
-      this.deps.logger.warn('RiskAgent başarısız', { trace_id: _req.trace_id, error: (err as Error).message });
+      this.deps.logger.warn('RiskAgent başarısız', {
+        trace_id: _req.trace_id,
+        error: (err as Error).message,
+      });
       return {};
     }
   }

@@ -25,22 +25,62 @@ export interface IntentResult {
 const URL_PATTERN = /https?:\/\/[^\s]+/g;
 const SLASH_PATTERN = /^\/(\w+)/;
 
-const KEYWORDS_MAP: Array<{ patterns: RegExp[]; intent: IntentClass; confidence: number }> = [
+const KEYWORDS_MAP: { patterns: RegExp[]; intent: IntentClass; confidence: number }[] = [
   // persona belirleme
-  { patterns: [/\b(alıcı|alıyorum|alacağım|satın al)\b/i], intent: 'persona.buyer', confidence: 0.85 },
-  { patterns: [/\b(emlakçı|satıyorum|satıcı|portföy)\b/i], intent: 'persona.seller', confidence: 0.85 },
-  { patterns: [/\b(yatırım|yatırımcı|kira getirisi|roi)\b/i], intent: 'persona.investor', confidence: 0.85 },
-  { patterns: [/\b(araştır|pazar|trend|makro)\b/i], intent: 'persona.researcher', confidence: 0.75 },
+  {
+    patterns: [/\b(alıcı|alıyorum|alacağım|satın al)\b/i],
+    intent: 'persona.buyer',
+    confidence: 0.85,
+  },
+  {
+    patterns: [/\b(emlakçı|satıyorum|satıcı|portföy)\b/i],
+    intent: 'persona.seller',
+    confidence: 0.85,
+  },
+  {
+    patterns: [/\b(yatırım|yatırımcı|kira getirisi|roi)\b/i],
+    intent: 'persona.investor',
+    confidence: 0.85,
+  },
+  {
+    patterns: [/\b(araştır|pazar|trend|makro)\b/i],
+    intent: 'persona.researcher',
+    confidence: 0.75,
+  },
   // task
-  { patterns: [/\b(pazarlık|müzakere|indirim al)\b/i], intent: 'task.negotiation_advice', confidence: 0.85 },
-  { patterns: [/\b(yaz|metin|post|caption|açıklama)\b/i], intent: 'task.create_marketing', confidence: 0.75 },
-  { patterns: [/\b(karşılaştır|kıyas|hangisi daha)\b/i], intent: 'task.compare_listings', confidence: 0.85 },
-  { patterns: [/\b(mahalle|ilçe|bölge|trend)\b/i], intent: 'task.market_research', confidence: 0.75 },
-  { patterns: [/\b(kira getirisi|roi|geri ödeme)\b/i], intent: 'task.financial_simulation', confidence: 0.85 },
+  {
+    patterns: [/\b(pazarlık|müzakere|indirim al)\b/i],
+    intent: 'task.negotiation_advice',
+    confidence: 0.85,
+  },
+  {
+    patterns: [/\b(yaz|metin|post|caption|açıklama)\b/i],
+    intent: 'task.create_marketing',
+    confidence: 0.75,
+  },
+  {
+    patterns: [/\b(karşılaştır|kıyas|hangisi daha)\b/i],
+    intent: 'task.compare_listings',
+    confidence: 0.85,
+  },
+  {
+    patterns: [/\b(mahalle|ilçe|bölge|trend)\b/i],
+    intent: 'task.market_research',
+    confidence: 0.75,
+  },
+  {
+    patterns: [/\b(kira getirisi|roi|geri ödeme)\b/i],
+    intent: 'task.financial_simulation',
+    confidence: 0.85,
+  },
   { patterns: [/\b(bildirim|uyarı|alarm)\b/i], intent: 'task.set_alert', confidence: 0.85 },
   // meta
   { patterns: [/\b(yardım|nasıl|ne yapabil)\b/i], intent: 'meta.help', confidence: 0.65 },
-  { patterns: [/\b(görüşürüz|sağol|tamam teşekkür)\b/i], intent: 'meta.farewell', confidence: 0.75 },
+  {
+    patterns: [/\b(görüşürüz|sağol|tamam teşekkür)\b/i],
+    intent: 'meta.farewell',
+    confidence: 0.75,
+  },
 ];
 
 export class IntentClassifier {
@@ -48,7 +88,7 @@ export class IntentClassifier {
    * Kural tabanlı + heuristic classifier. LLM fallback için Orchestrator
    * `intent.confidence < 0.65` olduğunda LLM çağırır.
    */
-  classify(message: string, hasPersona: boolean): IntentResult {
+  classify(message: string, _hasPersona: boolean): IntentResult {
     // 1. Slash command
     const slashMatch = SLASH_PATTERN.exec(message);
     if (slashMatch) {

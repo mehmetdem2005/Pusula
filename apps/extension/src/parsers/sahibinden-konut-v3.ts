@@ -41,11 +41,16 @@ function readClassifiedItems(doc: Document): RawClassifiedItem[] {
   const items: RawClassifiedItem[] = [];
 
   // v3 selector
-  const list = doc.querySelector('.classifiedInfoList, [data-testid="info-list"], ul.classified-info-list');
+  const list = doc.querySelector(
+    '.classifiedInfoList, [data-testid="info-list"], ul.classified-info-list',
+  );
   if (list) {
     for (const li of Array.from(list.querySelectorAll('li'))) {
       const label = safeText(li.querySelector('strong, .label'));
-      const value = safeText(li.querySelector('span:not(.label)')) || li.textContent?.replace(label, '').trim() || '';
+      const value =
+        safeText(li.querySelector('span:not(.label)')) ||
+        li.textContent?.replace(label, '').trim() ||
+        '';
       if (label) items.push({ label: label.replace(':', '').trim(), value: value.trim() });
     }
   }
@@ -103,9 +108,9 @@ export function parseKonutDetay(doc: Document, url: string): KonutInput | null {
     if (!fiyat_tl) return null;
 
     // Konum (breadcrumb veya address bloğu)
-    const breadcrumb = Array.from(doc.querySelectorAll('.classifiedBreadCrumb a, .breadcrumb a')).map((a) =>
-      safeText(a)
-    );
+    const breadcrumb = Array.from(
+      doc.querySelectorAll('.classifiedBreadCrumb a, .breadcrumb a'),
+    ).map((a) => safeText(a));
     const il = breadcrumb[breadcrumb.length - 3] ?? '';
     const ilce = breadcrumb[breadcrumb.length - 2] ?? '';
     const mahalle = breadcrumb[breadcrumb.length - 1] ?? undefined;
@@ -136,7 +141,9 @@ export function parseKonutDetay(doc: Document, url: string): KonutInput | null {
     const tapu_durumu = mapTapu(byLabel.get('tapu durumu') ?? '');
 
     // Resimler
-    const foto_urlleri = Array.from(doc.querySelectorAll('.classifiedDetailPhoto img, [data-testid="photo"] img'))
+    const foto_urlleri = Array.from(
+      doc.querySelectorAll('.classifiedDetailPhoto img, [data-testid="photo"] img'),
+    )
       .map((img) => (img as HTMLImageElement).src)
       .filter(Boolean);
 

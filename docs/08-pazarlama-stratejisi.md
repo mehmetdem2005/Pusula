@@ -19,13 +19,13 @@
 
 ### 1.3 Tagline Varyantları
 
-| Uzunluk | Versiyon | Kullanım |
-|---|---|---|
-| Çekirdek | **Karar verirken kaybolma.** | Logo altı, ana mesaj |
-| Kısa | **Yön belli, karar sende.** | Twitter bio, app store başlık |
-| Orta | **Türkiye'nin emlak ve oto ilanları için AI pusulası.** | LinkedIn açıklaması, basın bülteni |
-| Uzun | **Pusula: ilan fiyatlarını mahalle, kalite, risk verisiyle ölçer. Kelepir olanı objektif bir skorla gösterir. AI asistanı sana neyi neden gördüğünü anlatır.** | Landing page hero alt metni |
-| Slogan + CTA | **Karar verirken kaybolma. Pusula'yı dene.** | Reklamlar, banner |
+| Uzunluk      | Versiyon                                                                                                                                                       | Kullanım                           |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Çekirdek     | **Karar verirken kaybolma.**                                                                                                                                   | Logo altı, ana mesaj               |
+| Kısa         | **Yön belli, karar sende.**                                                                                                                                    | Twitter bio, app store başlık      |
+| Orta         | **Türkiye'nin emlak ve oto ilanları için AI pusulası.**                                                                                                        | LinkedIn açıklaması, basın bülteni |
+| Uzun         | **Pusula: ilan fiyatlarını mahalle, kalite, risk verisiyle ölçer. Kelepir olanı objektif bir skorla gösterir. AI asistanı sana neyi neden gördüğünü anlatır.** | Landing page hero alt metni        |
+| Slogan + CTA | **Karar verirken kaybolma. Pusula'yı dene.**                                                                                                                   | Reklamlar, banner                  |
 
 ### 1.4 Marka Kişiliği (5 sıfat)
 
@@ -47,12 +47,12 @@
 
 ### 1.6 Marka Sesi / Ton
 
-| Eksen | Pusula | Kontrast |
-|---|---|---|
-| Resmî / Samimi | Samimi-profesyonel (sen-li ama nezaketli; "evladım" değil, "sen" diye yazarız) | Bankacı dili değil |
-| B2C / B2B | İkisi de — ama dil B2C öncelikli (geniş kitle); B2B için "Profesyonel" mod açılır | Sadece B2B değil |
-| Bilimsel / Pazarlama | Bilimsel — sayı + kaynak gösteririz | "Mucize" demeyiz |
-| Türkçe / İngilizce | Türkçe önceliği — teknik İngilizce terimler (AI, score, dashboard) doğal | Pinglish karışım |
+| Eksen                | Pusula                                                                            | Kontrast           |
+| -------------------- | --------------------------------------------------------------------------------- | ------------------ |
+| Resmî / Samimi       | Samimi-profesyonel (sen-li ama nezaketli; "evladım" değil, "sen" diye yazarız)    | Bankacı dili değil |
+| B2C / B2B            | İkisi de — ama dil B2C öncelikli (geniş kitle); B2B için "Profesyonel" mod açılır | Sadece B2B değil   |
+| Bilimsel / Pazarlama | Bilimsel — sayı + kaynak gösteririz                                               | "Mucize" demeyiz   |
+| Türkçe / İngilizce   | Türkçe önceliği — teknik İngilizce terimler (AI, score, dashboard) doğal          | Pinglish karışım   |
 
 **Yasak kelimeler:** "kesin", "garanti", "muhakkak", "bu fırsat kaçmaz" — agresif satış dili Pusula'nın güven konumlanmasını bozar.
 
@@ -60,16 +60,16 @@
 
 ### 1.7 Renk Paleti
 
-| Renk | Hex | Kullanım |
-|---|---|---|
-| **Lacivert** | `#0F1F4B` | Birincil marka rengi — header, logo background, premium hissi |
-| **Altın** | `#D4A22E` | İkincil aksan — slogan, CTA, "kaçırılmaz" vurgu |
-| **Bulut Beyazı** | `#F8FAFC` | Sayfa arka planı |
-| **Karbon Siyahı** | `#0F172A` | Metin |
-| **Skor yeşili** | `#16A34A` | "Kelepir" / "İyi Fiyat" |
-| **Skor turuncu** | `#EA580C` | "Pahalı" uyarısı |
-| **Skor kırmızı** | `#DC2626` | "Aşırı Pahalı" + risk uyarıları |
-| **Skor gri** | `#6B7280` | "Piyasa" / nötr |
+| Renk              | Hex       | Kullanım                                                      |
+| ----------------- | --------- | ------------------------------------------------------------- |
+| **Lacivert**      | `#0F1F4B` | Birincil marka rengi — header, logo background, premium hissi |
+| **Altın**         | `#D4A22E` | İkincil aksan — slogan, CTA, "kaçırılmaz" vurgu               |
+| **Bulut Beyazı**  | `#F8FAFC` | Sayfa arka planı                                              |
+| **Karbon Siyahı** | `#0F172A` | Metin                                                         |
+| **Skor yeşili**   | `#16A34A` | "Kelepir" / "İyi Fiyat"                                       |
+| **Skor turuncu**  | `#EA580C` | "Pahalı" uyarısı                                              |
+| **Skor kırmızı**  | `#DC2626` | "Aşırı Pahalı" + risk uyarıları                               |
+| **Skor gri**      | `#6B7280` | "Piyasa" / nötr                                               |
 
 > **Renk hikâyesi:** Lacivert güven + olgunluk (havayolu, banka), altın değer + "yön" (pusula iğnesi metaforu). Sky-blue gibi cıvık değil; ciddi karar uygulaması.
 
@@ -90,12 +90,12 @@
 
 ### 1.9 Tipografi
 
-| Kullanım | Font | Alternatif |
-|---|---|---|
+| Kullanım                | Font                              | Alternatif                               |
+| ----------------------- | --------------------------------- | ---------------------------------------- |
 | Marka adı / Hero başlık | **Recoleta Bold** (premium serif) | Söhne, Söhne Breit, Cooper, Saol Display |
-| UI başlık (h1-h3) | **Inter SemiBold/Bold** | DM Sans, Manrope |
-| UI gövde | **Inter Regular** | System UI fallback |
-| Sayı / Skor | **Inter Bold (tabular nums)** | Mono fallback |
+| UI başlık (h1-h3)       | **Inter SemiBold/Bold**           | DM Sans, Manrope                         |
+| UI gövde                | **Inter Regular**                 | System UI fallback                       |
+| Sayı / Skor             | **Inter Bold (tabular nums)**     | Mono fallback                            |
 
 Türkçe karakter desteği (ı, İ, ğ, ş, ç) tam olmalı — Inter ve Recoleta'da var. Recoleta lisanslı, lisans satın alınmalı (~$50/yıl). Söhne daha pahalı (~$200/yıl) ama daha kurumsal. Açık alternatif: **Lora** (Google Fonts, ücretsiz).
 
@@ -174,12 +174,12 @@ Bu cümle her şeyin merkezinde — landing page, reklam, email subject, podcast
 
 ### 3.2 Destek Mesajları (persona-spesifik)
 
-| Persona | Destek Mesajı |
-|---|---|
-| Emlakçı | "Müşterine satarken sen de objektif raporla konuş." |
+| Persona   | Destek Mesajı                                               |
+| --------- | ----------------------------------------------------------- |
+| Emlakçı   | "Müşterine satarken sen de objektif raporla konuş."         |
 | Yatırımcı | "30 ilanı 5 dakikada sırala. En iyi 3'ünü pazarlığa götür." |
-| İlk alıcı | "Hayatının en büyük kararını sayılarla destekle." |
-| Galerici | "TRAMER + donanım + km eğrisi. Tek bakışta doğru fiyat." |
+| İlk alıcı | "Hayatının en büyük kararını sayılarla destekle."           |
+| Galerici  | "TRAMER + donanım + km eğrisi. Tek bakışta doğru fiyat."    |
 
 ### 3.3 "Neden Pusula?" — 5 Fark Argümanı
 
@@ -191,13 +191,13 @@ Bu cümle her şeyin merkezinde — landing page, reklam, email subject, podcast
 
 ### 3.4 Karşı Argüman → Cevap (FAQ Sözlüğü)
 
-| Endişe | Cevap |
-|---|---|
-| "Skorlamaya güvenebilir miyim?" | Skorlama formülü kamuya açık (doküman'da). Hangi parametrenin ne ağırlık aldığını görebilirsin. AI sadece açıklama yazar, sayıyı değiştiremez. |
-| "Toplama / scraping yapıyor musunuz? sahibinden buna izin veriyor mu?" | Pusula otomatik scraping yapmaz. Senin tarayıcında, senin oturumunla, sadece senin açtığın sayfaları okur. ToS açısından "user-assisted ingestion" — kendi gördüğünü organize etmek. |
-| "Kişisel verilerimi neden istiyorsunuz?" | Sadece email + tercih ettiğin LLM key'leri. Key'ler tarayıcında AES-GCM ile şifreli — sunucumuza şifrelenmiş halde gelir, biz açamayız. |
-| "Diğer emlak siteleri (Endeksa, Hepsiemlak) niye değil?" | Onlar fiyat tahminini kapalı kutu olarak verir. Pusula formülü açıktır + AI ile diyalog kurabilir + Türkiye'deki **tüm** sitelerden veri normalize eder. |
-| "Skor 78 dediği daireyi alıp pişman olursam?" | Pusula karar vermez — bilgi verir. Skor + breakdown + AI yorum **gerekçe**dir, garanti değil. Tapu, deprem raporu, ekspertiz mutlaka kontrol et. (Bu cümle hukuki disclaimer olarak ToS'ta da geçer.) |
+| Endişe                                                                 | Cevap                                                                                                                                                                                                 |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Skorlamaya güvenebilir miyim?"                                        | Skorlama formülü kamuya açık (doküman'da). Hangi parametrenin ne ağırlık aldığını görebilirsin. AI sadece açıklama yazar, sayıyı değiştiremez.                                                        |
+| "Toplama / scraping yapıyor musunuz? sahibinden buna izin veriyor mu?" | Pusula otomatik scraping yapmaz. Senin tarayıcında, senin oturumunla, sadece senin açtığın sayfaları okur. ToS açısından "user-assisted ingestion" — kendi gördüğünü organize etmek.                  |
+| "Kişisel verilerimi neden istiyorsunuz?"                               | Sadece email + tercih ettiğin LLM key'leri. Key'ler tarayıcında AES-GCM ile şifreli — sunucumuza şifrelenmiş halde gelir, biz açamayız.                                                               |
+| "Diğer emlak siteleri (Endeksa, Hepsiemlak) niye değil?"               | Onlar fiyat tahminini kapalı kutu olarak verir. Pusula formülü açıktır + AI ile diyalog kurabilir + Türkiye'deki **tüm** sitelerden veri normalize eder.                                              |
+| "Skor 78 dediği daireyi alıp pişman olursam?"                          | Pusula karar vermez — bilgi verir. Skor + breakdown + AI yorum **gerekçe**dir, garanti değil. Tapu, deprem raporu, ekspertiz mutlaka kontrol et. (Bu cümle hukuki disclaimer olarak ToS'ta da geçer.) |
 
 ---
 
@@ -209,23 +209,23 @@ Bu cümle her şeyin merkezinde — landing page, reklam, email subject, podcast
 
 ### 4.2 Edinme Kanalları
 
-| Kanal | Aksiyon | Süre |
-|---|---|---|
-| **LinkedIn outreach** | 200 emlakçı / broker'a kişisel mesaj (1-1 mesaj, template değil) | Hafta 1-2 |
-| **Reddit r/turkey, r/Borsa, r/turkishlanguage** | "Yan proje" tonlu post: "Türkiye'ye özel emlak AI yaptım, beta tester arıyorum" | Hafta 2 |
-| **Facebook emlakçı grupları** | "Emlakçılar Buluşması", "Türkiye Emlakçıları" gibi 10 büyük gruba — ücretsiz beta davetiyesi | Hafta 2-3 |
-| **Twitter/X** | #emlak #yatırım hashtag'lerinde organic etkileşim, viral demo videosu | Hafta 1-12 |
-| **Ekşi Sözlük** | "kelepir ev nasıl bulunur" gibi başlıklarda doğal cevaplama (spam değil, gerçek katkı) | Sürekli |
-| **YouTube emlak kanalları** | 3-5 mid-tier kanal ile affiliate (görüşme: %20 ilk yıl) | Hafta 4-8 |
+| Kanal                                           | Aksiyon                                                                                      | Süre       |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------- | ---------- |
+| **LinkedIn outreach**                           | 200 emlakçı / broker'a kişisel mesaj (1-1 mesaj, template değil)                             | Hafta 1-2  |
+| **Reddit r/turkey, r/Borsa, r/turkishlanguage** | "Yan proje" tonlu post: "Türkiye'ye özel emlak AI yaptım, beta tester arıyorum"              | Hafta 2    |
+| **Facebook emlakçı grupları**                   | "Emlakçılar Buluşması", "Türkiye Emlakçıları" gibi 10 büyük gruba — ücretsiz beta davetiyesi | Hafta 2-3  |
+| **Twitter/X**                                   | #emlak #yatırım hashtag'lerinde organic etkileşim, viral demo videosu                        | Hafta 1-12 |
+| **Ekşi Sözlük**                                 | "kelepir ev nasıl bulunur" gibi başlıklarda doğal cevaplama (spam değil, gerçek katkı)       | Sürekli    |
+| **YouTube emlak kanalları**                     | 3-5 mid-tier kanal ile affiliate (görüşme: %20 ilk yıl)                                      | Hafta 4-8  |
 
 ### 4.3 Beta Aşamaları
 
-| Faz | Tarih | Kullanıcı | Kapı |
-|---|---|---|---|
-| **Closed Alpha** | Ay 1 | 5 kişi (Mehmet'in yakın çevresi) | Davet kodu |
-| **Closed Beta** | Ay 2 | 30 kişi | Bekleme listesi |
-| **Open Beta** | Ay 3 | 50-200 | Self-serve, beta banner görünür |
-| **Public Hunt** | Ay 4 | 500-2000 | Product Hunt + Webrazzi launch |
+| Faz              | Tarih | Kullanıcı                        | Kapı                            |
+| ---------------- | ----- | -------------------------------- | ------------------------------- |
+| **Closed Alpha** | Ay 1  | 5 kişi (Mehmet'in yakın çevresi) | Davet kodu                      |
+| **Closed Beta**  | Ay 2  | 30 kişi                          | Bekleme listesi                 |
+| **Open Beta**    | Ay 3  | 50-200                           | Self-serve, beta banner görünür |
+| **Public Hunt**  | Ay 4  | 500-2000                         | Product Hunt + Webrazzi launch  |
 
 ### 4.4 Erken Kullanıcı İnsentifleri
 
@@ -280,12 +280,12 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 ### 5.2 YouTube
 
-| Format | Sıklık | Konu örnekleri |
-|---|---|---|
-| **Demo videosu** | 1/ay, 8-12 dk | "Ankara Çankaya'da 100 ilan analiz ettim, 7 kelepir buldum" |
+| Format             | Sıklık          | Konu örnekleri                                                 |
+| ------------------ | --------------- | -------------------------------------------------------------- |
+| **Demo videosu**   | 1/ay, 8-12 dk   | "Ankara Çankaya'da 100 ilan analiz ettim, 7 kelepir buldum"    |
 | **Vaka çalışması** | 1/2ay, 15-20 dk | Pilot kullanıcının önce-sonra hikâyesi (yüzü kapalı veya açık) |
-| **Eğitici** | 2/ay, 5-8 dk | "Deprem yönetmeliği kısaca", "Hisseli tapu nedir" |
-| **Reels/Shorts** | 5/hafta, 30-60s | "Ucuz görünen pahalı ev" mini hikâye, viral hook |
+| **Eğitici**        | 2/ay, 5-8 dk    | "Deprem yönetmeliği kısaca", "Hisseli tapu nedir"              |
+| **Reels/Shorts**   | 5/hafta, 30-60s | "Ucuz görünen pahalı ev" mini hikâye, viral hook               |
 
 ### 5.3 Sosyal Medya Takvimi
 
@@ -305,13 +305,13 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 **Anahtar kelime grupları (Türkçe arama hacmi yüksek):**
 
-| Grup | Örnek kelime | Aylık arama (tahmin) | Pusula yaklaşımı |
-|---|---|---|---|
-| Lokal kelepir | "İstanbul kelepir ev", "Ankara kelepir daire" | 1K-10K | Lokasyon sayfaları (mahalle bazlı landing) |
-| Profesyonel araç | "emlakçı yazılım", "emlakçı CRM" | 1K-5K | B2B landing + comparison sayfaları |
-| Fiyat hesap | "ev fiyat hesaplama", "ekspertiz ücreti 2026" | 5K-50K | Calculator + blog |
-| Eğitim | "ev alırken nelere dikkat", "ilk ev alma" | 10K-100K | İçerik blog yazıları |
-| Branded | "pusula emlak", "pusula app" | 0 (yeni marka) | Hedef: 6 ayda 5K |
+| Grup             | Örnek kelime                                  | Aylık arama (tahmin) | Pusula yaklaşımı                           |
+| ---------------- | --------------------------------------------- | -------------------- | ------------------------------------------ |
+| Lokal kelepir    | "İstanbul kelepir ev", "Ankara kelepir daire" | 1K-10K               | Lokasyon sayfaları (mahalle bazlı landing) |
+| Profesyonel araç | "emlakçı yazılım", "emlakçı CRM"              | 1K-5K                | B2B landing + comparison sayfaları         |
+| Fiyat hesap      | "ev fiyat hesaplama", "ekspertiz ücreti 2026" | 5K-50K               | Calculator + blog                          |
+| Eğitim           | "ev alırken nelere dikkat", "ilk ev alma"     | 10K-100K             | İçerik blog yazıları                       |
+| Branded          | "pusula emlak", "pusula app"                  | 0 (yeni marka)       | Hedef: 6 ayda 5K                           |
 
 **Hedef:** 6 ay sonunda blog'a aylık 20K organik trafik.
 
@@ -321,11 +321,11 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 ### 6.1 Google Ads (Aylık ₺5K-15K bütçe)
 
-| Kampanya | Anahtar | Hedef | CPC Tahmini |
-|---|---|---|---|
-| **Kelepir Arama** | "ev fiyat hesaplama", "kelepir daire İstanbul" | İlk alıcı + yatırımcı | ₺3-8 |
-| **Emlakçı Profesyonel** | "emlakçı yazılım", "emlakçı CRM" | Emlakçı | ₺5-15 |
-| **Marka koruma** | "pusula app", "pusula emlak" | Branded — ucuz | ₺1-2 |
+| Kampanya                | Anahtar                                        | Hedef                 | CPC Tahmini |
+| ----------------------- | ---------------------------------------------- | --------------------- | ----------- |
+| **Kelepir Arama**       | "ev fiyat hesaplama", "kelepir daire İstanbul" | İlk alıcı + yatırımcı | ₺3-8        |
+| **Emlakçı Profesyonel** | "emlakçı yazılım", "emlakçı CRM"               | Emlakçı               | ₺5-15       |
+| **Marka koruma**        | "pusula app", "pusula emlak"                   | Branded — ucuz        | ₺1-2        |
 
 ### 6.2 Meta Ads (Facebook + Instagram)
 
@@ -345,13 +345,13 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 ### 6.4 CAC ve LTV Hesabı (V2 abonelik varsayım)
 
-| Parametre | Değer | Not |
-|---|---|---|
-| Ortalama abone başına aylık gelir (ARPU) | ₺350 | Free 0₺ + Starter 149₺ + Pro 499₺ karışım |
-| Beklenen aylık churn | %5 | İlk alıcılar yüksek, emlakçılar düşük |
-| LTV (1 / churn × ARPU) | ₺7.000 | Optimistik |
-| Hedef CAC | ₺2.000 | LTV / 3.5 oranı |
-| Reklam bütçesi (ay 6'da) | ₺50K-100K | 25-50 yeni abone |
+| Parametre                                | Değer     | Not                                       |
+| ---------------------------------------- | --------- | ----------------------------------------- |
+| Ortalama abone başına aylık gelir (ARPU) | ₺350      | Free 0₺ + Starter 149₺ + Pro 499₺ karışım |
+| Beklenen aylık churn                     | %5        | İlk alıcılar yüksek, emlakçılar düşük     |
+| LTV (1 / churn × ARPU)                   | ₺7.000    | Optimistik                                |
+| Hedef CAC                                | ₺2.000    | LTV / 3.5 oranı                           |
+| Reklam bütçesi (ay 6'da)                 | ₺50K-100K | 25-50 yeni abone                          |
 
 ---
 
@@ -359,22 +359,22 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 ### 7.1 Topluluk
 
-| Platform | Rol | Aksiyon |
-|---|---|---|
-| **Discord** | Ana topluluk hub'ı (geliştirici + power user) | Hemen aç, 5 kanal |
-| **Telegram grubu** | Türkiye için güçlü kanal, geniş kitle | Açık grup + duyuru kanalı |
-| **WhatsApp** | Pilot kullanıcılar için VIP grup | 50 kişi max |
+| Platform           | Rol                                           | Aksiyon                   |
+| ------------------ | --------------------------------------------- | ------------------------- |
+| **Discord**        | Ana topluluk hub'ı (geliştirici + power user) | Hemen aç, 5 kanal         |
+| **Telegram grubu** | Türkiye için güçlü kanal, geniş kitle         | Açık grup + duyuru kanalı |
+| **WhatsApp**       | Pilot kullanıcılar için VIP grup              | 50 kişi max               |
 
 ### 7.2 İş Birlikleri
 
-| Partner | Tip | Aksiyon |
-|---|---|---|
-| **Emlakçılar Odası / Federasyon** | Sektörel | Eğitim webinar + üyelere indirim |
-| **Üniversite işletme/finans kulüpleri** | Genç kitle | "Ev alma rehberi" workshop sponsoru |
-| **YouTube emlak kanalları** | Affiliate | Hangimiz Ne Diyor (1M+ sub), Doruk Eralp, Emlak TV, Ahmet Aytekin Emlak Akademisi — 1-1 görüşme + %20 affiliate |
-| **Bankalar (V2+)** | Kredi entegrasyonu | Ekspertiz değer karşılaştırma — Garanti, İş Bankası, QNB potansiyel |
-| **Sigorta** | DASK promosyon | Pusula içinde DASK fiyat tahmini → broker affiliate |
-| **TÜGİAD / TÜRKONFED** | B2B network | Pusula'yı genç girişimci ödüllerine başvur |
+| Partner                                 | Tip                | Aksiyon                                                                                                         |
+| --------------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| **Emlakçılar Odası / Federasyon**       | Sektörel           | Eğitim webinar + üyelere indirim                                                                                |
+| **Üniversite işletme/finans kulüpleri** | Genç kitle         | "Ev alma rehberi" workshop sponsoru                                                                             |
+| **YouTube emlak kanalları**             | Affiliate          | Hangimiz Ne Diyor (1M+ sub), Doruk Eralp, Emlak TV, Ahmet Aytekin Emlak Akademisi — 1-1 görüşme + %20 affiliate |
+| **Bankalar (V2+)**                      | Kredi entegrasyonu | Ekspertiz değer karşılaştırma — Garanti, İş Bankası, QNB potansiyel                                             |
+| **Sigorta**                             | DASK promosyon     | Pusula içinde DASK fiyat tahmini → broker affiliate                                                             |
+| **TÜGİAD / TÜRKONFED**                  | B2B network        | Pusula'yı genç girişimci ödüllerine başvur                                                                      |
 
 ### 7.3 PR Hedefleri
 
@@ -392,20 +392,20 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 ### 8.1 Geçiş Senaryosu (Beta → V2)
 
-| Ay | Aşama | Aksiyon |
-|---|---|---|
-| 6 | Beta sonu duyurusu | "1 ay sonra abonelik açılıyor, beta key'leriniz çalışmaya devam edecek" |
-| 7 | V2 launch | Stripe + Iyzico açık, planlar aktif, beta'ya 3 ay ücretsiz Pro |
-| 8-9 | Onboarding rampası | Pricing A/B testleri (₺149 vs ₺199 Starter), grandfathering test |
-| 10+ | Optimize | LTV/CAC ölçüm, sosyal kanıt artırma |
+| Ay  | Aşama              | Aksiyon                                                                 |
+| --- | ------------------ | ----------------------------------------------------------------------- |
+| 6   | Beta sonu duyurusu | "1 ay sonra abonelik açılıyor, beta key'leriniz çalışmaya devam edecek" |
+| 7   | V2 launch          | Stripe + Iyzico açık, planlar aktif, beta'ya 3 ay ücretsiz Pro          |
+| 8-9 | Onboarding rampası | Pricing A/B testleri (₺149 vs ₺199 Starter), grandfathering test        |
+| 10+ | Optimize           | LTV/CAC ölçüm, sosyal kanıt artırma                                     |
 
 ### 8.2 Pricing A/B Test Önerisi
 
-| Test | A grup | B grup | Beklenen |
-|---|---|---|---|
-| Starter aylık | ₺149 | ₺199 | %30 daha az conversion ama %33 daha yüksek revenue → eşit (₺149 net daha çok kullanıcı, V2'de upgrade için iyi) |
-| Yıllık indirim | %20 | %30 | %30 daha fazla yıllık adoption → cash flow iyi |
-| Free tier ilan limit | 50/ay | 30/ay | 30 daha fazla upgrade trigger |
+| Test                 | A grup | B grup | Beklenen                                                                                                        |
+| -------------------- | ------ | ------ | --------------------------------------------------------------------------------------------------------------- |
+| Starter aylık        | ₺149   | ₺199   | %30 daha az conversion ama %33 daha yüksek revenue → eşit (₺149 net daha çok kullanıcı, V2'de upgrade için iyi) |
+| Yıllık indirim       | %20    | %30    | %30 daha fazla yıllık adoption → cash flow iyi                                                                  |
+| Free tier ilan limit | 50/ay  | 30/ay  | 30 daha fazla upgrade trigger                                                                                   |
 
 ### 8.3 Ödeme Altyapısı
 
@@ -433,47 +433,47 @@ Bu vakalar V2 lansmanında ana satış silahı olacak.
 
 ### 9.1 Beta Dönemi (Ay 0-6)
 
-| Metrik | Hedef Ay 3 | Hedef Ay 6 |
-|---|---|---|
-| Toplam kayıt | 100 | 500 |
-| Haftalık aktif kullanıcı (WAU) | 30 | 200 |
-| Ortalama ilan / kullanıcı / ay | 5 | 15 |
-| NPS | >30 | >40 |
-| Churn (haftalık) | %15 | %8 |
-| Beta → V2 dönüşüm niyet (anket) | %50 | %65 |
+| Metrik                          | Hedef Ay 3 | Hedef Ay 6 |
+| ------------------------------- | ---------- | ---------- |
+| Toplam kayıt                    | 100        | 500        |
+| Haftalık aktif kullanıcı (WAU)  | 30         | 200        |
+| Ortalama ilan / kullanıcı / ay  | 5          | 15         |
+| NPS                             | >30        | >40        |
+| Churn (haftalık)                | %15        | %8         |
+| Beta → V2 dönüşüm niyet (anket) | %50        | %65        |
 
 ### 9.2 V2 Sonrası (Ay 7+)
 
-| Metrik | Hedef Ay 9 | Hedef Ay 12 |
-|---|---|---|
-| Ödeyen abone | 100 | 500 |
-| Aylık tekrarlanan gelir (MRR) | ₺25K | ₺150K |
-| CAC | ₺2.500 | ₺1.500 |
-| LTV / CAC oranı | 2.5 | 4.0 |
-| Yıllık abonelik oranı | %30 | %45 |
+| Metrik                        | Hedef Ay 9 | Hedef Ay 12 |
+| ----------------------------- | ---------- | ----------- |
+| Ödeyen abone                  | 100        | 500         |
+| Aylık tekrarlanan gelir (MRR) | ₺25K       | ₺150K       |
+| CAC                           | ₺2.500     | ₺1.500      |
+| LTV / CAC oranı               | 2.5        | 4.0         |
+| Yıllık abonelik oranı         | %30        | %45         |
 
 ### 9.3 Marka KPI
 
-| Metrik | Hedef Ay 6 | Hedef Ay 12 |
-|---|---|---|
-| Instagram takipçi | 2K | 15K |
-| LinkedIn takipçi (Mehmet kişisel + Pusula sayfa) | 1K + 500 | 5K + 3K |
-| Blog organik aylık trafik | 2K | 25K |
-| Branded search / toplam search | %10 | %25 |
-| Discord üye | 100 | 1K |
-| YouTube abone | 500 | 5K |
+| Metrik                                           | Hedef Ay 6 | Hedef Ay 12 |
+| ------------------------------------------------ | ---------- | ----------- |
+| Instagram takipçi                                | 2K         | 15K         |
+| LinkedIn takipçi (Mehmet kişisel + Pusula sayfa) | 1K + 500   | 5K + 3K     |
+| Blog organik aylık trafik                        | 2K         | 25K         |
+| Branded search / toplam search                   | %10        | %25         |
+| Discord üye                                      | 100        | 1K          |
+| YouTube abone                                    | 500        | 5K          |
 
 ### 9.4 Ölçümleme Stack
 
-| Tool | Amaç |
-|---|---|
-| **PostHog** | Ürün analitik, funnel, retention, session replay |
-| **GA4** | Web trafiği, kanal performans |
-| **Meta Pixel** | Reklam conversion |
-| **Google Tag Manager** | Tag yönetimi (tek lokasyondan) |
-| **Sentry** | Hata + performance |
-| **Stripe Dashboard** | Gelir, churn, ARR/MRR |
-| **Linear / Notion** | KPI dashboard, OKR tracking |
+| Tool                   | Amaç                                             |
+| ---------------------- | ------------------------------------------------ |
+| **PostHog**            | Ürün analitik, funnel, retention, session replay |
+| **GA4**                | Web trafiği, kanal performans                    |
+| **Meta Pixel**         | Reklam conversion                                |
+| **Google Tag Manager** | Tag yönetimi (tek lokasyondan)                   |
+| **Sentry**             | Hata + performance                               |
+| **Stripe Dashboard**   | Gelir, churn, ARR/MRR                            |
+| **Linear / Notion**    | KPI dashboard, OKR tracking                      |
 
 ---
 

@@ -31,11 +31,7 @@ export const viewport: Viewport = {
   themeColor: '#0F1F4B',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement {
+export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
   return (
     <html lang="tr">
       <body>{children}</body>

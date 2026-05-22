@@ -5,5 +5,5 @@ import { SidePanel } from './SidePanel.js';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <SidePanel />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

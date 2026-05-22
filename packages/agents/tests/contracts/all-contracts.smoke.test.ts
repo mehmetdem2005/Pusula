@@ -25,28 +25,39 @@ const traceId = crypto.randomUUID();
 describe('Agent contracts — smoke', () => {
   it('Tüm contract şemaları import edilebilir', () => {
     const schemas = [
-      ScoringRequest, ScoringResponse,
-      ComparableRequest, ComparableResponse,
-      LocationRequest, LocationResponse,
-      RiskRequest, RiskResponse,
-      VisionRequest, VisionResponse,
-      NLPRequest, NLPResponse,
-      MarketRequest, MarketResponse,
-      NegotiationRequest, NegotiationResponse,
-      MarketingRequest, MarketingResponse,
+      ScoringRequest,
+      ScoringResponse,
+      ComparableRequest,
+      ComparableResponse,
+      LocationRequest,
+      LocationResponse,
+      RiskRequest,
+      RiskResponse,
+      VisionRequest,
+      VisionResponse,
+      NLPRequest,
+      NLPResponse,
+      MarketRequest,
+      MarketResponse,
+      NegotiationRequest,
+      NegotiationResponse,
+      MarketingRequest,
+      MarketingResponse,
     ];
     expect(schemas.every((s) => typeof s.safeParse === 'function')).toBe(true);
   });
 
   it('LocationRequest — minimal valid', () => {
-    expect(LocationRequest.safeParse({ il: 'İstanbul', ilce: 'Beşiktaş', trace_id: traceId }).success).toBe(true);
+    expect(
+      LocationRequest.safeParse({ il: 'İstanbul', ilce: 'Beşiktaş', trace_id: traceId }).success,
+    ).toBe(true);
   });
 
   it('RiskRequest — boş optional alanlar ile valid', () => {
     expect(RiskRequest.safeParse({ trace_id: traceId }).success).toBe(true);
   });
 
-  it('ComparableRequest — strategy default \'hybrid\'', () => {
+  it("ComparableRequest — strategy default 'hybrid'", () => {
     const parsed = ComparableRequest.parse({ ilan_id: crypto.randomUUID(), trace_id: traceId });
     expect(parsed.strategy).toBe('hybrid');
     expect(parsed.k).toBe(20);
@@ -78,6 +89,9 @@ describe('Agent contracts — smoke', () => {
   });
 
   it('Trace_id UUID değilse reject', () => {
-    expect(LocationRequest.safeParse({ il: 'İstanbul', ilce: 'Beşiktaş', trace_id: 'not-a-uuid' }).success).toBe(false);
+    expect(
+      LocationRequest.safeParse({ il: 'İstanbul', ilce: 'Beşiktaş', trace_id: 'not-a-uuid' })
+        .success,
+    ).toBe(false);
   });
 });

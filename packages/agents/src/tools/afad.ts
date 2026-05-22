@@ -15,7 +15,7 @@ export type DepremTehlikeBandi = 1 | 2 | 3 | 4;
  */
 export async function depremTehlikeBandi(
   _enlem: number,
-  _boylam: number
+  _boylam: number,
 ): Promise<DepremTehlikeBandi | null> {
   // TODO: koordinat → raster lookup veya ilçe ortalaması
   return null;
@@ -27,7 +27,7 @@ export async function depremTehlikeBandi(
  */
 export async function fayMesafesi(
   _enlem: number,
-  _boylam: number
+  _boylam: number,
 ): Promise<{ distance_m: number; fault_name: string } | null> {
   // TODO: MTA diri fay shapefile + spatial query
   return null;

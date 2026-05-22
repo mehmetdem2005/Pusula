@@ -1,20 +1,38 @@
 import { readFileSync } from 'node:fs';
 import { Client } from 'pg';
 
-const password = '89F8agS22MGApRQu47dAbHVW3CtJ8KjE';
-const projectRef = 'zbjxkyiyqpesdpyimcmx';
+/**
+ * Supabase migration uygulayıcı.
+ *
+ * Kimlik bilgileri ENV'den okunur — repoya asla hardcode edilmez:
+ *   - DATABASE_URL                (tam bağlantı dizesi; varsa doğrudan kullanılır)
+ *   veya
+ *   - SUPABASE_PROJECT_REF + SUPABASE_DB_PASSWORD  (pooler adayları üretilir)
+ */
+const password = process.env.SUPABASE_DB_PASSWORD;
+const projectRef = process.env.SUPABASE_PROJECT_REF;
+const directUrl = process.env.DATABASE_URL;
 
-// Supabase pooler (transaction mode için 6543, session için 5432)
-const candidates = [
-  `postgresql://postgres:${password}@db.${projectRef}.supabase.co:5432/postgres`,
-  `postgresql://postgres.${projectRef}:${password}@aws-0-eu-central-1.pooler.supabase.com:5432/postgres`,
-  `postgresql://postgres.${projectRef}:${password}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres`,
-];
+function buildCandidates() {
+  if (directUrl) return [directUrl];
+  if (!password || !projectRef) {
+    console.error(
+      '✗ Eksik env. DATABASE_URL ya da SUPABASE_PROJECT_REF + SUPABASE_DB_PASSWORD tanımla.',
+    );
+    process.exit(2);
+  }
+  const enc = encodeURIComponent(password);
+  return [
+    `postgresql://postgres:${enc}@db.${projectRef}.supabase.co:5432/postgres`,
+    `postgresql://postgres.${projectRef}:${enc}@aws-0-eu-central-1.pooler.supabase.com:5432/postgres`,
+    `postgresql://postgres.${projectRef}:${enc}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres`,
+  ];
+}
 
 const files = ['packages/db/migrations/0001_init.sql', 'packages/db/migrations/0002_hardening.sql'];
 
-for (const conn of candidates) {
-  const host = conn.match(/@([^/]+)/)[1];
+for (const conn of buildCandidates()) {
+  const host = conn.match(/@([^/]+)/)?.[1] ?? '(bilinmeyen host)';
   console.log(`\n=== Deneme: ${host}`);
   const c = new Client({ connectionString: conn, ssl: { rejectUnauthorized: false } });
   try {
@@ -36,7 +54,7 @@ for (const conn of candidates) {
     process.exit(0);
   } catch (e) {
     console.log(`  ✗ ${e.message}`);
-    await c.end().catch(() => {});
+    await c.end().catch(() => undefined);
   }
 }
 

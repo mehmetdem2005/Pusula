@@ -115,4 +115,9 @@ body {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  curs
+  cursor: pointer;
+}
+.chat-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

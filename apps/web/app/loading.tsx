@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 
 export default function Loading(): ReactElement {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50">
       <div className="text-center">
-        <div className="inline-block animate-pulse text-5xl mb-3" aria-hidden>
+        <div className="mb-3 inline-block animate-pulse text-5xl" aria-hidden>
           🧭
         </div>
         <p className="text-sm text-slate-500">Yükleniyor...</p>

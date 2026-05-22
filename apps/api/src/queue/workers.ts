@@ -8,8 +8,12 @@
 import type { Logger } from '@nestjs/common';
 import { Q, ListBatchJob, EnrichmentJob, NotificationJob } from './queue.tokens.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Job<T> = { id?: string; name: string; data: T; attemptsMade?: number };
+interface Job<T> {
+  id?: string;
+  name: string;
+  data: T;
+  attemptsMade?: number;
+}
 
 export function listBatchWorker(logger: Logger) {
   return async (job: Job<unknown>) => {
@@ -38,8 +42,4 @@ export function notificationWorker(logger: Logger) {
   };
 }
 
-export const WORKER_QUEUES = [
-  Q.LIST_BATCH_INGEST,
-  Q.ENRICHMENT,
-  Q.NOTIFICATION,
-];
+export const WORKER_QUEUES = [Q.LIST_BATCH_INGEST, Q.ENRICHMENT, Q.NOTIFICATION];

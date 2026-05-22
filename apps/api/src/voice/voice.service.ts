@@ -32,7 +32,7 @@ export class VoiceService {
 
     const ext = contentType.includes('webm') ? 'webm' : contentType.includes('mp3') ? 'mp3' : 'wav';
     const form = new FormData();
-    form.append('file', new Blob([audio], { type: contentType }), `audio.${ext}`);
+    form.append('file', new Blob([new Uint8Array(audio)], { type: contentType }), `audio.${ext}`);
     form.append('model', 'whisper-large-v3-turbo');
     form.append('response_format', 'json');
     form.append('temperature', '0');
@@ -70,7 +70,7 @@ export class VoiceService {
     const apiKey = process.env.MANAGED_GEMINI_KEY;
     if (!apiKey) throw new BadRequestException('Gemini key yok (MANAGED_GEMINI_KEY)');
 
-    const valid = VoiceService.AVAILABLE_VOICES.find((v) => v.id === voice) ?? VoiceService.AVAILABLE_VOICES[0];
+    const voiceName = VoiceService.AVAILABLE_VOICES.find((v) => v.id === voice)?.id ?? 'Kore';
 
     const body = {
       contents: [{ parts: [{ text }] }],
@@ -78,7 +78,7 @@ export class VoiceService {
         responseModalities: ['AUDIO'],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: valid.id },
+            prebuiltVoiceConfig: { voiceName },
           },
         },
       },
@@ -98,7 +98,7 @@ export class VoiceService {
       throw new BadRequestException(`TTS başarısız: ${res.status}`);
     }
     const data = (await res.json()) as {
-      candidates: Array<{ content: { parts: Array<{ inlineData: { data: string; mimeType: string } }> } }>;
+      candidates: { content: { parts: { inlineData: { data: string; mimeType: string } }[] } }[];
     };
     const part = data.candidates[0]?.content?.parts?.[0]?.inlineData;
     if (!part) throw new BadRequestException('TTS boş yanıt');
@@ -111,7 +111,12 @@ export class VoiceService {
 }
 
 /** Raw PCM → WAV (header eklemek için minimal helper). */
-function wrapPcmAsWav(pcm: Buffer, sampleRate: number, channels: number, bitsPerSample: number): Buffer {
+function wrapPcmAsWav(
+  pcm: Buffer,
+  sampleRate: number,
+  channels: number,
+  bitsPerSample: number,
+): Buffer {
   const byteRate = (sampleRate * channels * bitsPerSample) / 8;
   const blockAlign = (channels * bitsPerSample) / 8;
   const dataSize = pcm.length;

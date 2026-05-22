@@ -80,8 +80,10 @@ export function kelepirSkoru(
   };
 
   const altBilesenler: Record<string, { deger: number; agirlik: number }> = {};
-  for (const b of kq.breakdown) altBilesenler[`kalite.${b.key}`] = { deger: b.deger, agirlik: b.agirlik };
-  for (const b of ks.breakdown) altBilesenler[`konum.${b.key}`] = { deger: b.deger, agirlik: b.agirlik };
+  for (const b of kq.breakdown)
+    altBilesenler[`kalite.${b.key}`] = { deger: b.deger, agirlik: b.agirlik };
+  for (const b of ks.breakdown)
+    altBilesenler[`konum.${b.key}`] = { deger: b.deger, agirlik: b.agirlik };
   for (const b of rs.breakdown) altBilesenler[`risk.${b.key}`] = { deger: b.deger, agirlik: 0 };
 
   return {

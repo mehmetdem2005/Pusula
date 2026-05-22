@@ -2,7 +2,7 @@
  * LocationAgent — Tier 1
  * docs/11-multi-agent-mimarisi.md §4.3
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import { LocationRequest, LocationResponse } from '../contracts/location.js';
 import type { Logger } from '../runtime/Logger.js';
 

@@ -10,15 +10,15 @@
 
 ## 1. Hızlı Karar Matrisi
 
-| Görev tipi | 1. Tercih | 2. Tercih (failover) | 3. Tercih | Gerekçe |
-|---|---|---|---|---|
-| **Hızlı chat / kısa cevap** | Groq `llama-3.3-70b-versatile` | Gemini `2.5-flash-lite` | DeepSeek `chat` | Hız + ucuzluk |
-| **Skor açıklaması** | DeepSeek `chat` (V3) | Groq `llama-3.3-70b-versatile` | Claude `haiku-4.5` | Düşük maliyet, yapılandırılmış çıktı iyi |
-| **Pazarlama metni** | Claude `sonnet-4-6` | Gemini `2.5-pro` | DeepSeek `chat` | Türkçe yazım kalitesi |
-| **Akıl yürütme (kelepir mantığı)** | DeepSeek `reasoner` (R1) | Claude `opus-4-7` | Gemini `2.5-pro` | Reasoning + en ucuz reasoning modeli |
-| **Fotoğraf analizi (vision)** | Gemini `2.5-flash` | Claude `haiku-4.5` | Claude `sonnet-4-6` | Vision + ucuz |
-| **Uzun rapor (50+ ilan toplu)** | Gemini `2.5-pro` (1M ctx) | Claude `sonnet-4-6` (1M ctx) | DeepSeek (131K) | Geniş context |
-| **Tool use / agent loop** | Claude `sonnet-4-6` | DeepSeek V3.2 | Gemini `2.5-pro` | Tool use güvenilirliği |
+| Görev tipi                         | 1. Tercih                      | 2. Tercih (failover)           | 3. Tercih           | Gerekçe                                  |
+| ---------------------------------- | ------------------------------ | ------------------------------ | ------------------- | ---------------------------------------- |
+| **Hızlı chat / kısa cevap**        | Groq `llama-3.3-70b-versatile` | Gemini `2.5-flash-lite`        | DeepSeek `chat`     | Hız + ucuzluk                            |
+| **Skor açıklaması**                | DeepSeek `chat` (V3)           | Groq `llama-3.3-70b-versatile` | Claude `haiku-4.5`  | Düşük maliyet, yapılandırılmış çıktı iyi |
+| **Pazarlama metni**                | Claude `sonnet-4-6`            | Gemini `2.5-pro`               | DeepSeek `chat`     | Türkçe yazım kalitesi                    |
+| **Akıl yürütme (kelepir mantığı)** | DeepSeek `reasoner` (R1)       | Claude `opus-4-7`              | Gemini `2.5-pro`    | Reasoning + en ucuz reasoning modeli     |
+| **Fotoğraf analizi (vision)**      | Gemini `2.5-flash`             | Claude `haiku-4.5`             | Claude `sonnet-4-6` | Vision + ucuz                            |
+| **Uzun rapor (50+ ilan toplu)**    | Gemini `2.5-pro` (1M ctx)      | Claude `sonnet-4-6` (1M ctx)   | DeepSeek (131K)     | Geniş context                            |
+| **Tool use / agent loop**          | Claude `sonnet-4-6`            | DeepSeek V3.2                  | Gemini `2.5-pro`    | Tool use güvenilirliği                   |
 
 ---
 
@@ -28,16 +28,17 @@
 
 Çok hızlı inference (300+ TPS). Free tier cömert. Vision sınırlı.
 
-| Model | Whitelist? | Input ($/M) | Output ($/M) | Context | Vision | JSON | Tools | Hız | Türkçe |
-|---|---|---|---|---|---|---|---|---|---|
-| `llama-3.3-70b-versatile` | ✅ default | $0.59 | $0.79 | 131K | ❌ | ✅ | ✅ | ⚡⚡⚡ | İyi |
-| `llama-3.1-8b-instant` | ✅ | $0.05 | $0.08 | 131K | ❌ | ✅ | ⚠️ | ⚡⚡⚡⚡ | Orta |
-| `mixtral-8x7b-32768` | ⚠️ legacy | $0.24 | $0.24 | 32K | ❌ | ✅ | ⚠️ | ⚡⚡⚡ | Orta |
-| `gemma2-9b-it` | ❌ skip | — | — | — | ❌ | — | — | — | Zayıf |
+| Model                     | Whitelist? | Input ($/M) | Output ($/M) | Context | Vision | JSON | Tools | Hız      | Türkçe |
+| ------------------------- | ---------- | ----------- | ------------ | ------- | ------ | ---- | ----- | -------- | ------ |
+| `llama-3.3-70b-versatile` | ✅ default | $0.59       | $0.79        | 131K    | ❌     | ✅   | ✅    | ⚡⚡⚡   | İyi    |
+| `llama-3.1-8b-instant`    | ✅         | $0.05       | $0.08        | 131K    | ❌     | ✅   | ⚠️    | ⚡⚡⚡⚡ | Orta   |
+| `mixtral-8x7b-32768`      | ⚠️ legacy  | $0.24       | $0.24        | 32K     | ❌     | ✅   | ⚠️    | ⚡⚡⚡   | Orta   |
+| `gemma2-9b-it`            | ❌ skip    | —           | —            | —       | ❌     | —    | —     | —        | Zayıf  |
 
 **Free tier:** 30 RPM / 6K TPM / 14.4K RPD (most models). Developer tier (free with credit card): 10x limit + 25% discount.
 
 **Notlar:**
+
 - Türkçe için `llama-3.3-70b` mükemmel olmasa da yeterli, hız avantajı büyük.
 - Vision modeli yok şu an. Vision görevleri Gemini/Claude'a yönlendir.
 - "Forever free" plan mevcut, ama production için Developer tier şart.
@@ -51,23 +52,25 @@
 
 ⚠️ **DİKKAT:** Gemini 2.0 Flash **18 Şubat 2026'da deprecate edildi, 1 Haziran 2026'da kapanıyor.** Whitelist'imiz 2.5 ve 3.x serisi olmalı.
 
-| Model | Whitelist? | Input ($/M) | Output ($/M) | Context | Vision | JSON | Tools | Hız | Türkçe |
-|---|---|---|---|---|---|---|---|---|---|
-| `gemini-2.5-pro` | ✅ premium | $1.25 | $5.00 (paid only) | 2M | ✅ | ✅ | ✅ | ⚡⚡ | Çok iyi |
-| `gemini-2.5-flash` | ✅ default | $0.30 | $2.50 | 1M | ✅ | ✅ | ✅ | ⚡⚡⚡ | İyi |
-| `gemini-2.5-flash-lite` | ✅ ucuz | $0.10 | $0.40 | 1M | ✅ | ✅ | ✅ | ⚡⚡⚡ | İyi |
-| `gemini-3-flash` | ✅ yeni | TBD | TBD | 1M | ✅ | ✅ | ✅ | ⚡⚡⚡ | İyi |
-| `gemini-3.1-flash-lite` | ✅ ucuz+ | TBD | TBD | 1M | ✅ | ✅ | ✅ | ⚡⚡⚡⚡ | İyi |
-| `gemini-2.0-flash` | ❌ deprecated | — | — | — | — | — | — | — | — |
-| `gemini-1.5-pro` | ❌ deprecated | — | — | — | — | — | — | — | — |
+| Model                   | Whitelist?    | Input ($/M) | Output ($/M)      | Context | Vision | JSON | Tools | Hız      | Türkçe  |
+| ----------------------- | ------------- | ----------- | ----------------- | ------- | ------ | ---- | ----- | -------- | ------- |
+| `gemini-2.5-pro`        | ✅ premium    | $1.25       | $5.00 (paid only) | 2M      | ✅     | ✅   | ✅    | ⚡⚡     | Çok iyi |
+| `gemini-2.5-flash`      | ✅ default    | $0.30       | $2.50             | 1M      | ✅     | ✅   | ✅    | ⚡⚡⚡   | İyi     |
+| `gemini-2.5-flash-lite` | ✅ ucuz       | $0.10       | $0.40             | 1M      | ✅     | ✅   | ✅    | ⚡⚡⚡   | İyi     |
+| `gemini-3-flash`        | ✅ yeni       | TBD         | TBD               | 1M      | ✅     | ✅   | ✅    | ⚡⚡⚡   | İyi     |
+| `gemini-3.1-flash-lite` | ✅ ucuz+      | TBD         | TBD               | 1M      | ✅     | ✅   | ✅    | ⚡⚡⚡⚡ | İyi     |
+| `gemini-2.0-flash`      | ❌ deprecated | —           | —                 | —       | —      | —    | —     | —        | —       |
+| `gemini-1.5-pro`        | ❌ deprecated | —           | —                 | —       | —      | —    | —     | —        | —       |
 
 **Free tier (Mayıs 2026):**
+
 - Sadece Flash ve Flash-Lite modellerde
 - 5-15 RPM, 100-1.500 RPD
 - 250K TPM (tüm modeller)
 - **Pro modeller artık paid only** (April 2026'dan beri)
 
 **Notlar:**
+
 - Vision desteği tüm 2.5 serisinde mevcut — fotoğraf analizi için ideal.
 - 1M-2M context window — uzun rapor / batch analiz için tek seçenek (Claude 1M ile rekabet eder).
 - API key Google AI Studio'dan **ücretsiz** alınabilir.
@@ -80,18 +83,20 @@
 
 Çin merkezli, OpenAI-uyumlu API, **çok ucuz**, off-peak %50-75 indirim. Reasoning modeli (R1) eşsiz değer.
 
-| Model | Whitelist? | Input ($/M) | Output ($/M) | Context | Vision | JSON | Tools | Hız | Türkçe |
-|---|---|---|---|---|---|---|---|---|---|
-| `deepseek-chat` (V3) | ✅ default | $0.14 | $0.28 | 131K | ❌ | ✅ | ✅ | ⚡⚡ | İyi |
-| `deepseek-reasoner` (R1) | ✅ reasoning | $0.55 | $2.19 | 131K | ❌ | ✅ | ⚠️ | ⚡ | İyi |
-| `deepseek-v3.2` | ✅ yeni | $0.14 | $0.28 | 131K-1M | ❌ | ✅ | ✅ | ⚡⚡ | İyi |
-| `deepseek-v4-flash` | ⚠️ test | $0.14 | $0.28 | 1M | ❌ | ✅ | ✅ | ⚡⚡ | TBD |
+| Model                    | Whitelist?   | Input ($/M) | Output ($/M) | Context | Vision | JSON | Tools | Hız  | Türkçe |
+| ------------------------ | ------------ | ----------- | ------------ | ------- | ------ | ---- | ----- | ---- | ------ |
+| `deepseek-chat` (V3)     | ✅ default   | $0.14       | $0.28        | 131K    | ❌     | ✅   | ✅    | ⚡⚡ | İyi    |
+| `deepseek-reasoner` (R1) | ✅ reasoning | $0.55       | $2.19        | 131K    | ❌     | ✅   | ⚠️    | ⚡   | İyi    |
+| `deepseek-v3.2`          | ✅ yeni      | $0.14       | $0.28        | 131K-1M | ❌     | ✅   | ✅    | ⚡⚡ | İyi    |
+| `deepseek-v4-flash`      | ⚠️ test      | $0.14       | $0.28        | 1M      | ❌     | ✅   | ✅    | ⚡⚡ | TBD    |
 
 **İndirimler:**
+
 - Cache hit fiyatı = launch price'ın 1/10'u (Nisan 2026'dan beri)
 - Off-peak (16:30-00:30 GMT): R1 için %75, V3 için %50 indirim
 
 **Notlar:**
+
 - OpenAI uyumlu — adapter en kolay yazılır (Groq ile aynı).
 - Vision yok. Foto için Gemini/Claude.
 - Reasoning model (R1), kelepir analizinde "neden bu fiyat ucuz" mantık zinciri için **en ucuz reasoning modeli** (Claude Opus'tan ~10x ucuz).
@@ -106,18 +111,20 @@
 
 En kaliteli yazım çıktısı, en güvenilir tool use, vision Haiku/Sonnet/Opus'ta var. En pahalı seçenek.
 
-| Model | Whitelist? | Input ($/M) | Output ($/M) | Context | Vision | JSON | Tools | Hız | Türkçe |
-|---|---|---|---|---|---|---|---|---|---|
-| `claude-opus-4-7` | ✅ premium | $5.00 | $25.00 | 1M | ✅ (2576px) | ✅ | ✅ | ⚡ | En iyi |
-| `claude-sonnet-4-6` | ✅ default | $3.00 | $15.00 | 1M | ✅ | ✅ | ✅ | ⚡⚡ | Mükemmel |
-| `claude-haiku-4-5` | ✅ ucuz | $1.00 | $5.00 | 200K | ✅ | ✅ | ✅ | ⚡⚡⚡ | Çok iyi |
-| `claude-opus-4-6` | ⚠️ legacy | $5.00 | $25.00 | 1M | ✅ | ✅ | ✅ | ⚡ | En iyi |
+| Model               | Whitelist? | Input ($/M) | Output ($/M) | Context | Vision      | JSON | Tools | Hız    | Türkçe   |
+| ------------------- | ---------- | ----------- | ------------ | ------- | ----------- | ---- | ----- | ------ | -------- |
+| `claude-opus-4-7`   | ✅ premium | $5.00       | $25.00       | 1M      | ✅ (2576px) | ✅   | ✅    | ⚡     | En iyi   |
+| `claude-sonnet-4-6` | ✅ default | $3.00       | $15.00       | 1M      | ✅          | ✅   | ✅    | ⚡⚡   | Mükemmel |
+| `claude-haiku-4-5`  | ✅ ucuz    | $1.00       | $5.00        | 200K    | ✅          | ✅   | ✅    | ⚡⚡⚡ | Çok iyi  |
+| `claude-opus-4-6`   | ⚠️ legacy  | $5.00       | $25.00       | 1M      | ✅          | ✅   | ✅    | ⚡     | En iyi   |
 
 **İndirimler:**
+
 - Prompt cache: cached input -%90
 - Batch processing: -%50 tüm modellerde
 
 **Notlar:**
+
 - **CORS yok** — browser-direct çağrı çalışmaz, backend proxy şart.
 - Tool use ve structured output en güvenilir.
 - Türkçe en kaliteli — pazarlama metni, müşteri mesajı, profesyonel iletişim için tartışmasız 1.
@@ -132,28 +139,28 @@ En kaliteli yazım çıktısı, en güvenilir tool use, vision Haiku/Sonnet/Opus
 
 Bir konut ilanı analizi için tipik LLM çağrı seti:
 
-| İşlem | Input token (avg) | Output token (avg) |
-|---|---|---|
-| Skor açıklaması | 800 | 250 |
-| AI chat (3 mesaj turu) | 1.500 | 600 |
-| Pazarlama metni (kısa) | 600 | 400 |
-| Pazarlama metni (sosyal post) | 600 | 200 |
-| Vision (1 foto analizi) | 1.200 (image+text) | 200 |
-| **TOPLAM** | **4.700** | **1.650** |
+| İşlem                         | Input token (avg)  | Output token (avg) |
+| ----------------------------- | ------------------ | ------------------ |
+| Skor açıklaması               | 800                | 250                |
+| AI chat (3 mesaj turu)        | 1.500              | 600                |
+| Pazarlama metni (kısa)        | 600                | 400                |
+| Pazarlama metni (sosyal post) | 600                | 200                |
+| Vision (1 foto analizi)       | 1.200 (image+text) | 200                |
+| **TOPLAM**                    | **4.700**          | **1.650**          |
 
-| Provider/Model | Toplam Maliyet (1 ilan) | 100 ilan | 1.000 ilan |
-|---|---|---|---|
-| Groq Llama 3.3 70B (vision yok) | $0.0040 | $0.40 | $4.00 |
-| Gemini 2.5 Flash | $0.0055 | $0.55 | $5.50 |
-| Gemini 2.5 Flash-Lite | $0.0011 | $0.11 | $1.10 |
-| DeepSeek V3 | $0.0011 | $0.11 | $1.10 |
-| DeepSeek V3 (off-peak) | $0.00055 | $0.055 | $0.55 |
-| Claude Haiku 4.5 | $0.0130 | $1.30 | $13.00 |
-| Claude Sonnet 4.6 | $0.0388 | $3.88 | $38.80 |
-| Claude Opus 4.7 | $0.0648 | $6.48 | $64.80 |
-| **Optimal Mix*** | $0.0027 | $0.27 | $2.70 |
+| Provider/Model                  | Toplam Maliyet (1 ilan) | 100 ilan | 1.000 ilan |
+| ------------------------------- | ----------------------- | -------- | ---------- |
+| Groq Llama 3.3 70B (vision yok) | $0.0040                 | $0.40    | $4.00      |
+| Gemini 2.5 Flash                | $0.0055                 | $0.55    | $5.50      |
+| Gemini 2.5 Flash-Lite           | $0.0011                 | $0.11    | $1.10      |
+| DeepSeek V3                     | $0.0011                 | $0.11    | $1.10      |
+| DeepSeek V3 (off-peak)          | $0.00055                | $0.055   | $0.55      |
+| Claude Haiku 4.5                | $0.0130                 | $1.30    | $13.00     |
+| Claude Sonnet 4.6               | $0.0388                 | $3.88    | $38.80     |
+| Claude Opus 4.7                 | $0.0648                 | $6.48    | $64.80     |
+| **Optimal Mix\***               | $0.0027                 | $0.27    | $2.70      |
 
-> *Optimal Mix: Skor açıklama → DeepSeek V3, Chat → Groq Llama 3.3, Pazarlama → Claude Sonnet, Vision → Gemini 2.5 Flash. Free tier dahil değil — sadece ücretli kısım.
+> \*Optimal Mix: Skor açıklama → DeepSeek V3, Chat → Groq Llama 3.3, Pazarlama → Claude Sonnet, Vision → Gemini 2.5 Flash. Free tier dahil değil — sadece ücretli kısım.
 
 **Yıllık projeksiyon (orta yoğunluklu kullanıcı, 30 ilan/ay):**
 
@@ -249,25 +256,26 @@ packages/llm-gateway/
 
 ## 5. V2 Managed Mode'da Plan-Model Eşleştirme
 
-| Plan | Erişilebilir modeller |
-|---|---|
-| Free (BYOK) | Tümü (kullanıcı key'i ile) |
-| Starter | DeepSeek V3, Groq Llama, Gemini Flash-Lite, Claude Haiku |
-| Pro | + Gemini 2.5 Pro, Claude Sonnet 4.6, DeepSeek R1 |
-| Pro+ / Enterprise | + Claude Opus 4.7, custom fine-tuned, on-prem |
+| Plan              | Erişilebilir modeller                                    |
+| ----------------- | -------------------------------------------------------- |
+| Free (BYOK)       | Tümü (kullanıcı key'i ile)                               |
+| Starter           | DeepSeek V3, Groq Llama, Gemini Flash-Lite, Claude Haiku |
+| Pro               | + Gemini 2.5 Pro, Claude Sonnet 4.6, DeepSeek R1         |
+| Pro+ / Enterprise | + Claude Opus 4.7, custom fine-tuned, on-prem            |
 
 ---
 
 ## 6. Kaynaklar
 
-| Provider | Pricing | Models | Docs |
-|---|---|---|---|
-| Groq | [groq.com/pricing](https://groq.com/pricing) | [console.groq.com/docs/models](https://console.groq.com/docs/models) | [console.groq.com/docs](https://console.groq.com/docs) |
-| Gemini | [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing) | [ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models) | [ai.google.dev](https://ai.google.dev) |
-| DeepSeek | [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing/) | [api-docs.deepseek.com](https://api-docs.deepseek.com) | — |
-| Anthropic | [anthropic.com/pricing](https://www.anthropic.com/pricing) | [docs.claude.com/en/docs/about-claude/models](https://docs.claude.com/en/docs/about-claude/models) | [docs.claude.com](https://docs.claude.com) |
+| Provider  | Pricing                                                                                         | Models                                                                                             | Docs                                                   |
+| --------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Groq      | [groq.com/pricing](https://groq.com/pricing)                                                    | [console.groq.com/docs/models](https://console.groq.com/docs/models)                               | [console.groq.com/docs](https://console.groq.com/docs) |
+| Gemini    | [ai.google.dev/gemini-api/docs/pricing](https://ai.google.dev/gemini-api/docs/pricing)          | [ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)               | [ai.google.dev](https://ai.google.dev)                 |
+| DeepSeek  | [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing/) | [api-docs.deepseek.com](https://api-docs.deepseek.com)                                             | —                                                      |
+| Anthropic | [anthropic.com/pricing](https://www.anthropic.com/pricing)                                      | [docs.claude.com/en/docs/about-claude/models](https://docs.claude.com/en/docs/about-claude/models) | [docs.claude.com](https://docs.claude.com)             |
 
 Sources:
+
 - [Groq Pricing](https://groq.com/pricing)
 - [Groq Rate Limits 2026](https://tokenmix.ai/blog/groq-free-tier-limits-2026)
 - [Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)

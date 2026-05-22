@@ -9,6 +9,7 @@ yönelim fark etmeksizin herkes için tacizden uzak bir ortam sağlamayı taahh�
 ## Standartlarımız
 
 Olumlu davranış örnekleri:
+
 - Empati ve nezaket göstermek
 - Farklı görüş ve deneyimlere saygı
 - Yapıcı geri bildirim vermek ve kabul etmek
@@ -16,6 +17,7 @@ Olumlu davranış örnekleri:
 - Topluluğun yararını gözetmek
 
 Kabul edilemez davranışlar:
+
 - Cinselleştirilmiş dil/görsel kullanımı
 - Trolling, hakaret, siyasi/kişisel saldırılar
 - Kamuya açık veya özel taciz

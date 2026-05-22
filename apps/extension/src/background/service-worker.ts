@@ -8,8 +8,10 @@
  *  4. Side panel açma/kapama action
  */
 
-const API_BASE = (globalThis as { VITE_API_BASE_URL?: string }).VITE_API_BASE_URL ?? 'https://api.pusula.tr';
-const WEB_BASE = (globalThis as { VITE_WEB_BASE_URL?: string }).VITE_WEB_BASE_URL ?? 'https://app.pusula.tr';
+const API_BASE =
+  (globalThis as { VITE_API_BASE_URL?: string }).VITE_API_BASE_URL ?? 'https://api.pusula.tr';
+const WEB_BASE =
+  (globalThis as { VITE_WEB_BASE_URL?: string }).VITE_WEB_BASE_URL ?? 'https://app.pusula.tr';
 
 interface AuthState {
   jwt?: string;
@@ -20,7 +22,6 @@ interface AuthState {
 const state: { auth: AuthState } = { auth: {} };
 
 chrome.runtime.onInstalled.addListener(() => {
-  // eslint-disable-next-line no-console
   console.info('[Pusula] extension installed');
 });
 
@@ -63,11 +64,7 @@ async function ensureAuth(): Promise<string | null> {
   return null;
 }
 
-async function apiPost<TReq, TResp>(
-  path: string,
-  body: TReq,
-  attempts = 3,
-): Promise<TResp> {
+async function apiPost<TReq, TResp>(path: string, body: TReq, attempts = 3): Promise<TResp> {
   let lastErr: unknown = null;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -103,48 +100,51 @@ async function apiPost<TReq, TResp>(
   throw lastErr ?? new Error('apiPost failed');
 }
 
-chrome.runtime.onMessage.addListener((message: { type: string; payload?: unknown }, sender, sendResponse) => {
-  (async () => {
-    try {
-      switch (message.type) {
-        case 'OPEN_SIDE_PANEL': {
-          if (sender.tab?.id) await chrome.sidePanel.open({ tabId: sender.tab.id });
-          sendResponse({ ok: true });
-          break;
+chrome.runtime.onMessage.addListener(
+  (message: { type: string; payload?: unknown }, sender, sendResponse) => {
+    (async () => {
+      try {
+        switch (message.type) {
+          case 'OPEN_SIDE_PANEL': {
+            if (sender.tab?.id) await chrome.sidePanel.open({ tabId: sender.tab.id });
+            sendResponse({ ok: true });
+            break;
+          }
+          case 'INGEST_KONUT': {
+            const resp = await apiPost<unknown, { id: string; score_id: string }>(
+              '/v1/ilanlar/ingest',
+              message.payload,
+            );
+            sendResponse({ ok: true, analyzeId: resp.score_id });
+            break;
+          }
+          case 'INGEST_LIST_BATCH': {
+            await apiPost<unknown, unknown>('/v1/ilanlar/list-batch', {
+              items: message.payload,
+            });
+            sendResponse({ ok: true });
+            break;
+          }
+          case 'BROADCAST_ANALYSIS': {
+            chrome.runtime
+              .sendMessage({ type: 'NEW_ANALYSIS', payload: message.payload })
+              .catch(() => undefined);
+            sendResponse({ ok: true });
+            break;
+          }
+          case 'PARSE_FAILED': {
+            await apiPost('/v1/telemetry/parser-error', message.payload).catch(() => undefined);
+            sendResponse({ ok: true });
+            break;
+          }
+          default:
+            sendResponse({ ok: false, error: 'unknown message type' });
         }
-        case 'INGEST_KONUT': {
-          const resp = await apiPost<unknown, { id: string; score_id: string }>(
-            '/v1/ilanlar/ingest',
-            message.payload,
-          );
-          sendResponse({ ok: true, analyzeId: resp.score_id });
-          break;
-        }
-        case 'INGEST_LIST_BATCH': {
-          await apiPost<unknown, unknown>('/v1/ilanlar/list-batch', {
-            items: message.payload,
-          });
-          sendResponse({ ok: true });
-          break;
-        }
-        case 'BROADCAST_ANALYSIS': {
-          chrome.runtime.sendMessage({ type: 'NEW_ANALYSIS', payload: message.payload }).catch(() => {});
-          sendResponse({ ok: true });
-          break;
-        }
-        case 'PARSE_FAILED': {
-          await apiPost('/v1/telemetry/parser-error', message.payload).catch(() => {});
-          sendResponse({ ok: true });
-          break;
-        }
-        default:
-          sendResponse({ ok: false, error: 'unknown message type' });
+      } catch (err) {
+        console.error('[Pusula SW]', err);
+        sendResponse({ ok: false, error: (err as Error).message });
       }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('[Pusula SW]', err);
-      sendResponse({ ok: false, error: (err as Error).message });
-    }
-  })();
-  return true;
-});
+    })();
+    return true;
+  },
+);

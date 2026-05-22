@@ -20,7 +20,9 @@ export interface VisionPromptResponse<T = unknown> {
   cost_usd: number;
 }
 
-export async function callVisionLLM<T>(_req: VisionPromptRequest): Promise<VisionPromptResponse<T>> {
+export async function callVisionLLM<T>(
+  _req: VisionPromptRequest,
+): Promise<VisionPromptResponse<T>> {
   // TODO: @pusula/llm-gateway üzerinden multi-modal çağrı
   throw new Error('Not yet implemented — V1 sprint');
 }

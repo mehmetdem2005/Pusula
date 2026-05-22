@@ -26,24 +26,28 @@ export class GeminiAdapter implements LLMAdapter {
   }
 
   private convertMessages(messages: ChatMessage[]): {
-    systemInstruction?: { parts: Array<{ text: string }> };
-    contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }>;
+    systemInstruction?: { parts: { text: string }[] };
+    contents: { role: 'user' | 'model'; parts: { text: string }[] }[];
   } {
     const sys = messages.find((m) => m.role === 'system');
     const rest = messages.filter((m) => m.role !== 'system');
-    return {
-      systemInstruction: sys
-        ? {
-            parts: [
-              { text: typeof sys.content === 'string' ? sys.content : JSON.stringify(sys.content) },
-            ],
-          }
-        : undefined,
+    const out: {
+      systemInstruction?: { parts: { text: string }[] };
+      contents: { role: 'user' | 'model'; parts: { text: string }[] }[];
+    } = {
       contents: rest.map((m) => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }],
       })),
     };
+    if (sys) {
+      out.systemInstruction = {
+        parts: [
+          { text: typeof sys.content === 'string' ? sys.content : JSON.stringify(sys.content) },
+        ],
+      };
+    }
+    return out;
   }
 
   async chat(messages: ChatMessage[], options: ChatOptions, apiKey: string): Promise<ChatResponse> {
@@ -79,7 +83,7 @@ export class GeminiAdapter implements LLMAdapter {
         throw new LLMError(`Gemini ${res.status}: ${errText}`, kind, this.provider);
       }
       const data = (await res.json()) as {
-        candidates: Array<{ content: { parts: Array<{ text: string }> }; finishReason: string }>;
+        candidates: { content: { parts: { text: string }[] }; finishReason: string }[];
         usageMetadata: { promptTokenCount: number; candidatesTokenCount: number };
       };
       const text = data.candidates[0]?.content?.parts?.[0]?.text ?? '';
@@ -140,7 +144,7 @@ export class GeminiAdapter implements LLMAdapter {
         if (!line.startsWith('data: ')) continue;
         try {
           const json = JSON.parse(line.slice(6)) as {
-            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+            candidates?: { content?: { parts?: { text?: string }[] } }[];
           };
           const txt = json.candidates?.[0]?.content?.parts?.[0]?.text;
           if (txt) yield { delta: txt, done: false };

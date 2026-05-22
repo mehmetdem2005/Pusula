@@ -13,7 +13,7 @@ export interface TelemetryProvider {
 export class OtelTelemetry implements TelemetryProvider {
   readonly tracer: Tracer;
 
-  constructor(serviceName: string = 'pusula-agents') {
+  constructor(serviceName = 'pusula-agents') {
     this.tracer = trace.getTracer(serviceName);
   }
 

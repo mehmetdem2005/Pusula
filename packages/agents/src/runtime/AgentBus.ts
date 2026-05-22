@@ -3,7 +3,8 @@
  * Async/queue iletişim için BullMQ wrapper, sync için direct call.
  * docs/11-multi-agent-mimarisi.md §7'ye uygun.
  */
-import { z, type ZodTypeAny } from 'zod';
+import type { z } from 'zod';
+import { type ZodTypeAny } from 'zod';
 import type { AgentName } from '../contracts/common.js';
 import type { Logger } from './Logger.js';
 
@@ -20,7 +21,7 @@ export class AgentBus {
   constructor(private logger: Logger) {}
 
   register<TIn extends ZodTypeAny, TOut extends ZodTypeAny>(
-    handler: AgentHandler<TIn, TOut>
+    handler: AgentHandler<TIn, TOut>,
   ): void {
     if (this.handlers.has(handler.name)) {
       throw new Error(`Agent ${handler.name} already registered`);
@@ -31,7 +32,7 @@ export class AgentBus {
   async call<TIn, TOut>(
     targetAgent: AgentName,
     input: TIn,
-    options: { traceId: string; timeoutMs?: number } = { traceId: crypto.randomUUID() }
+    options: { traceId: string; timeoutMs?: number } = { traceId: crypto.randomUUID() },
   ): Promise<TOut> {
     const handler = this.handlers.get(targetAgent);
     if (!handler) {

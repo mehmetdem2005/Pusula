@@ -37,10 +37,7 @@
 
   "content_scripts": [
     {
-      "matches": [
-        "https://www.sahibinden.com/ilan/*",
-        "https://www.sahibinden.com/kategori/*"
-      ],
+      "matches": ["https://www.sahibinden.com/ilan/*", "https://www.sahibinden.com/kategori/*"],
       "js": ["src/content/sahibinden.ts"],
       "run_at": "document_idle",
       "all_frames": false
@@ -56,10 +53,7 @@
   "web_accessible_resources": [
     {
       "resources": ["src/sidepanel/index.html"],
-      "matches": [
-        "https://www.sahibinden.com/*",
-        "https://sahibinden.com/*"
-      ]
+      "matches": ["https://www.sahibinden.com/*", "https://sahibinden.com/*"]
     }
   ],
 

@@ -7,7 +7,8 @@ Tüm önemli değişiklikler bu dosyada listelenir. Format
 ## [Unreleased]
 
 ### Added
-- Monorepo iskeleti (apps/web, apps/api, apps/extension, packages/*)
+
+- Monorepo iskeleti (apps/web, apps/api, apps/extension, packages/\*)
 - Deterministik kelepir skoru motoru (`packages/scoring`)
 - Multi-provider LLM gateway: Groq, Gemini, DeepSeek, Anthropic
 - BYOK (Bring-Your-Own-Key) AES-GCM 256 client-side şifreleme
@@ -18,9 +19,11 @@ Tüm önemli değişiklikler bu dosyada listelenir. Format
 - Kapsamlı dokümantasyon: ADR-001, skorlama modeli, mimari diyagram, roadmap, pazarlama
 
 ### Changed
+
 - (henüz yok)
 
 ### Security
+
 - JWT doğrulama Supabase JWKS ile gerçek RS256/ES256 imza kontrolü (önceki: dummy base64 decode)
 - CORS allowlist artık env tabanlı (`CORS_ALLOWED_ORIGINS`); regex `*.vercel.app` kaldırıldı
 - Gemini API key URL query yerine `x-goog-api-key` header'ında
@@ -31,4 +34,5 @@ Tüm önemli değişiklikler bu dosyada listelenir. Format
 - Random ID üretimi `crypto.randomUUID()` (önceki: `Math.random`)
 
 ## [0.0.1] - 2026-05-21
+
 İlk MVP iskelet teslimi.

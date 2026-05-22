@@ -1,12 +1,12 @@
 # 12 — Konuşmasal Mod Spesifikasyonu
 
-| Alan | Değer |
-|---|---|
-| **Doküman versiyonu** | 1.0 |
-| **Statü** | Proposed |
-| **Son güncelleme** | 22 Mayıs 2026 |
-| **Yazar** | Pusula Mühendislik + UX |
-| **Hedef okuyucu** | Frontend mühendisleri, UX tasarımcı, prompt engineer'lar |
+| Alan                  | Değer                                                    |
+| --------------------- | -------------------------------------------------------- |
+| **Doküman versiyonu** | 1.0                                                      |
+| **Statü**             | Proposed                                                 |
+| **Son güncelleme**    | 22 Mayıs 2026                                            |
+| **Yazar**             | Pusula Mühendislik + UX                                  |
+| **Hedef okuyucu**     | Frontend mühendisleri, UX tasarımcı, prompt engineer'lar |
 
 ## Amaç
 
@@ -221,12 +221,22 @@ export const chatMachine = createMachine<ChatContext>({
     askingLocation: {
       on: { USER_REPLY: { target: 'taskLoop', actions: 'captureLocation' } },
     },
-    analyzing: { /* invoke ScoringAgent */ },
-    comparing: { /* invoke + parallel */ },
+    analyzing: {
+      /* invoke ScoringAgent */
+    },
+    comparing: {
+      /* invoke + parallel */
+    },
     presentingResult: { on: { USER_REPLY: 'taskLoop' } },
-    negotiating: { /* invoke NegotiationAgent */ },
-    marketing: { /* invoke MarketingAgent */ },
-    researching: { /* invoke Market + Location */ },
+    negotiating: {
+      /* invoke NegotiationAgent */
+    },
+    marketing: {
+      /* invoke MarketingAgent */
+    },
+    researching: {
+      /* invoke Market + Location */
+    },
     personaReconfirm: {
       on: {
         CONFIRMED: 'personaLocked',
@@ -242,12 +252,12 @@ export const chatMachine = createMachine<ChatContext>({
 
 ## 4. Persona Modelleri
 
-| Persona | Sembol | Ton | Vurgu | Sayı yoğunluğu |
-|---|---|---|---|---|
-| **Buyer** (alıcı) | 🏠 | Güven verici, anlayışlı, "pişman olma" | Risk + Kalite + Toplam maliyet | Orta |
-| **Agent Seller** (emlakçı/satıcı) | 💼 | Profesyonel, hızlı, "ilanını parlatalım" | Pazarlama + Müzakere marjı + Likidite | Düşük (uzun blok) |
-| **Investor** (yatırımcı) | 📈 | Sayı-yoğun, analitik, "rakamlar konuşur" | ROI, kira getirisi, geri ödeme | Yüksek |
-| **Researcher** (araştırmacı) | 🔍 | Akademik, makro, "veriden bağımsız" | Trend, sosyo-ekonomik, gentrifikasyon | Yüksek |
+| Persona                           | Sembol | Ton                                      | Vurgu                                 | Sayı yoğunluğu    |
+| --------------------------------- | ------ | ---------------------------------------- | ------------------------------------- | ----------------- |
+| **Buyer** (alıcı)                 | 🏠     | Güven verici, anlayışlı, "pişman olma"   | Risk + Kalite + Toplam maliyet        | Orta              |
+| **Agent Seller** (emlakçı/satıcı) | 💼     | Profesyonel, hızlı, "ilanını parlatalım" | Pazarlama + Müzakere marjı + Likidite | Düşük (uzun blok) |
+| **Investor** (yatırımcı)          | 📈     | Sayı-yoğun, analitik, "rakamlar konuşur" | ROI, kira getirisi, geri ödeme        | Yüksek            |
+| **Researcher** (araştırmacı)      | 🔍     | Akademik, makro, "veriden bağımsız"      | Trend, sosyo-ekonomik, gentrifikasyon | Yüksek            |
 
 ### 4.1 Persona System Prompt Template
 
@@ -337,21 +347,21 @@ export type IntentClass =
   | 'persona.researcher'
   | 'persona.unsure'
   // Task intent'leri (TASK_LOOP state'inde)
-  | 'task.analyze_listing'      // tek ilan analizi
-  | 'task.compare_listings'     // 2-5 ilan kıyas
-  | 'task.market_research'      // mahalle/şehir analizi
-  | 'task.negotiation_advice'   // pazarlık tavsiyesi
-  | 'task.create_marketing'     // pazarlama metni
-  | 'task.refine_listing'       // ilan metnini düzelt
-  | 'task.set_alert'            // bildirim kuralı oluştur
-  | 'task.match_customer'       // emlakçı müşteri eşleştirme
+  | 'task.analyze_listing' // tek ilan analizi
+  | 'task.compare_listings' // 2-5 ilan kıyas
+  | 'task.market_research' // mahalle/şehir analizi
+  | 'task.negotiation_advice' // pazarlık tavsiyesi
+  | 'task.create_marketing' // pazarlama metni
+  | 'task.refine_listing' // ilan metnini düzelt
+  | 'task.set_alert' // bildirim kuralı oluştur
+  | 'task.match_customer' // emlakçı müşteri eşleştirme
   | 'task.financial_simulation' // ROI/kredi senaryosu
   // Konuşma yönetim intent'leri
-  | 'meta.help'                 // "ne yapabilirsin?"
-  | 'meta.change_persona'       // "yatırımcı modu açayım"
-  | 'meta.reset'                // "baştan başlayalım"
-  | 'meta.farewell'             // "şimdilik bu kadar"
-  | 'meta.feedback'             // "tavsiye ver"
+  | 'meta.help' // "ne yapabilirsin?"
+  | 'meta.change_persona' // "yatırımcı modu açayım"
+  | 'meta.reset' // "baştan başlayalım"
+  | 'meta.farewell' // "şimdilik bu kadar"
+  | 'meta.feedback' // "tavsiye ver"
   // Belirsiz
   | 'unknown';
 ```
@@ -425,32 +435,32 @@ Ya da kendi cümlenle anlatabilirsin, ben anlamaya çalışırım.
 
 ### 6.1 İyi vs Kötü Örnekler
 
-| Senaryo | ❌ Kötü (formal/robotik) | ✅ İyi (doğal) |
-|---|---|---|
-| Skor sunumu | "Skorunuz 78. Bileşenler: Fiyat: 85, Kalite: 72, Konum: 88, Risk: 55." | "Bu daireyi 78 üzerinden hesapladık — yani 'kelepir' kategorisinde. En çok puanı konum aldı: ana caddeye ve metroya yakın olması büyük artı. En düşük puan ise risk tarafında: bina 2019 yönetmeliğinden önce yapılmış, deprem perspektifinden detaylı kontrol etmeni öneririm." |
-| Karşılaştırma | "Liste:\n1. İlan A - 78\n2. İlan B - 65\n3. İlan C - 70" | "Üçü arasında en güçlü olan A oldu. Hem fiyat anlamında piyasanın altında, hem konum hem de bina yaşı açısından öne çıkıyor. C ikinci sırada ama tapu durumu hisseli görünüyor — bunu kontrol etmeden ilerleme. B üçüncü, ana sorun bina yaşı: 1995 yapımı, deprem riski yüksek." |
-| Pazarlık | "Önerilen indirim: %5-10" | "Bu ilanda pazarlık marjı oldukça açık görünüyor. Benzer dairelerin medyanı 4.85M civarında, ilan 4.25M demiş. Yine de sahibi 6 aydır ilanı açık tutuyor ve son 2 ayda iki kez fiyat düşürmüş. Bu durumda %5-8 arası bir indirim teklifi makul. Daha agresif gitmek istersen %12'yi de deneyebilirsin ama bina kalitesini önce mutlaka gör." |
+| Senaryo       | ❌ Kötü (formal/robotik)                                               | ✅ İyi (doğal)                                                                                                                                                                                                                                                                                                                               |
+| ------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Skor sunumu   | "Skorunuz 78. Bileşenler: Fiyat: 85, Kalite: 72, Konum: 88, Risk: 55." | "Bu daireyi 78 üzerinden hesapladık — yani 'kelepir' kategorisinde. En çok puanı konum aldı: ana caddeye ve metroya yakın olması büyük artı. En düşük puan ise risk tarafında: bina 2019 yönetmeliğinden önce yapılmış, deprem perspektifinden detaylı kontrol etmeni öneririm."                                                             |
+| Karşılaştırma | "Liste:\n1. İlan A - 78\n2. İlan B - 65\n3. İlan C - 70"               | "Üçü arasında en güçlü olan A oldu. Hem fiyat anlamında piyasanın altında, hem konum hem de bina yaşı açısından öne çıkıyor. C ikinci sırada ama tapu durumu hisseli görünüyor — bunu kontrol etmeden ilerleme. B üçüncü, ana sorun bina yaşı: 1995 yapımı, deprem riski yüksek."                                                            |
+| Pazarlık      | "Önerilen indirim: %5-10"                                              | "Bu ilanda pazarlık marjı oldukça açık görünüyor. Benzer dairelerin medyanı 4.85M civarında, ilan 4.25M demiş. Yine de sahibi 6 aydır ilanı açık tutuyor ve son 2 ayda iki kez fiyat düşürmüş. Bu durumda %5-8 arası bir indirim teklifi makul. Daha agresif gitmek istersen %12'yi de deneyebilirsin ama bina kalitesini önce mutlaka gör." |
 
 ### 6.2 Sayı Yerleştirme Kalıpları
 
-| Ham veri | Doğal yerleştirme |
-|---|---|
-| `fiyat_avantaji=85` | "fiyat açısından oldukça avantajlı görünüyor" / "piyasanın yaklaşık %15 altında" |
-| `risk=35` | "deprem ve hukuki açıdan dikkat etmen gereken noktalar var" |
-| `confidence=62` | "bu yorumu %62 güvenle veriyorum — bazı veriler henüz eksik" |
-| `DOM=85 gün` | "ilan yaklaşık 3 aydır açık" |
-| `mahalle_trend=+12%` | "mahalle son bir yılda %12 değer kazanmış" |
-| `kira_getirisi=4.2%` | "yıllık kira getirisi yaklaşık %4.2 — Türkiye ortalamasının biraz üstü" |
+| Ham veri             | Doğal yerleştirme                                                                |
+| -------------------- | -------------------------------------------------------------------------------- |
+| `fiyat_avantaji=85`  | "fiyat açısından oldukça avantajlı görünüyor" / "piyasanın yaklaşık %15 altında" |
+| `risk=35`            | "deprem ve hukuki açıdan dikkat etmen gereken noktalar var"                      |
+| `confidence=62`      | "bu yorumu %62 güvenle veriyorum — bazı veriler henüz eksik"                     |
+| `DOM=85 gün`         | "ilan yaklaşık 3 aydır açık"                                                     |
+| `mahalle_trend=+12%` | "mahalle son bir yılda %12 değer kazanmış"                                       |
+| `kira_getirisi=4.2%` | "yıllık kira getirisi yaklaşık %4.2 — Türkiye ortalamasının biraz üstü"          |
 
 ### 6.3 "Belirsizlik Diliyle" Konuşmak
 
 Pusula asla kesinlik iddia etmez. Şu kalıplar zorunlu:
 
-| Kesinlik seviyesi | Kalıp |
-|---|---|
-| Yüksek güven (>%85) | "büyük olasılıkla", "verilere göre" |
-| Orta güven (%60-85) | "muhtemelen", "görünüyor", "olabilir" |
-| Düşük güven (<%60) | "yetersiz veriyle söylemek zor", "doğrulanması gereken bir nokta" |
+| Kesinlik seviyesi   | Kalıp                                                             |
+| ------------------- | ----------------------------------------------------------------- |
+| Yüksek güven (>%85) | "büyük olasılıkla", "verilere göre"                               |
+| Orta güven (%60-85) | "muhtemelen", "görünüyor", "olabilir"                             |
+| Düşük güven (<%60)  | "yetersiz veriyle söylemek zor", "doğrulanması gereken bir nokta" |
 
 ### 6.4 Yanıt Sonu — Yön Verme
 
@@ -497,14 +507,14 @@ flowchart LR
 
 ### 7.2 Memory'e Yazma Kuralları
 
-| Bilgi | Otomatik mi? | Saklama | Kullanıcı görür mü? |
-|---|---|---|---|
-| Persona | Otomatik (1. turn) | Kalıcı | Evet — Settings'te değiştirilebilir |
-| Bütçe aralığı | Açık beyandan (kullanıcı söyledi) | Profil | Evet — "Tercihlerim" sayfası |
-| Lokasyon | Açık beyandan | Profil | Evet |
-| Beğenilen ilan | Açık aksiyon ("⭐" tıkladı) | Kalıcı | Evet |
-| Konuşma özeti | Otomatik (12 turn sonra) | Session | Hayır (Brain hatırlamak için) |
-| Sohbet logu | Otomatik | 90 gün | Evet — "Geçmiş sohbetler" |
+| Bilgi          | Otomatik mi?                      | Saklama | Kullanıcı görür mü?                 |
+| -------------- | --------------------------------- | ------- | ----------------------------------- |
+| Persona        | Otomatik (1. turn)                | Kalıcı  | Evet — Settings'te değiştirilebilir |
+| Bütçe aralığı  | Açık beyandan (kullanıcı söyledi) | Profil  | Evet — "Tercihlerim" sayfası        |
+| Lokasyon       | Açık beyandan                     | Profil  | Evet                                |
+| Beğenilen ilan | Açık aksiyon ("⭐" tıkladı)       | Kalıcı  | Evet                                |
+| Konuşma özeti  | Otomatik (12 turn sonra)          | Session | Hayır (Brain hatırlamak için)       |
+| Sohbet logu    | Otomatik                          | 90 gün  | Evet — "Geçmiş sohbetler"           |
 
 ### 7.3 Context Window Stratejisi
 
@@ -521,19 +531,19 @@ flowchart LR
 
 Gelişmiş kullanıcılar için. Slash command yazılırsa intent classifier atlanır.
 
-| Komut | Sözdizimi | Davranış |
-|---|---|---|
-| `/analiz` | `/analiz [URL]` | Tek ilan analizi |
-| `/kıyas` | `/kıyas [URL1] [URL2] [URL3]` | 2-5 ilan kıyas |
-| `/pazarla` | `/pazarla [URL] [format=instagram/whatsapp/email]` | Pazarlama metni |
-| `/pazarlık` | `/pazarlık [URL] [oran=5/10/15]` | Pazarlık taktiği |
-| `/uyarıver` | `/uyarıver mahalle:Beşiktaş oda:2+1 fiyat<5M` | Bildirim kuralı |
-| `/mahalle` | `/mahalle [ad]` | Mahalle analizi |
-| `/kredi` | `/kredi [fiyat] [peşin%] [vade ay]` | Kredi simülasyonu |
-| `/persona` | `/persona [buyer/seller/investor/researcher]` | Persona değiştir |
-| `/sıfırla` | `/sıfırla` | Sohbeti sıfırla (onay sorulur) |
-| `/yardım` | `/yardım` | Komut listesi |
-| `/şikayet` | `/şikayet [açıklama]` | Feedback kanalı (Sentry + email) |
+| Komut       | Sözdizimi                                          | Davranış                         |
+| ----------- | -------------------------------------------------- | -------------------------------- |
+| `/analiz`   | `/analiz [URL]`                                    | Tek ilan analizi                 |
+| `/kıyas`    | `/kıyas [URL1] [URL2] [URL3]`                      | 2-5 ilan kıyas                   |
+| `/pazarla`  | `/pazarla [URL] [format=instagram/whatsapp/email]` | Pazarlama metni                  |
+| `/pazarlık` | `/pazarlık [URL] [oran=5/10/15]`                   | Pazarlık taktiği                 |
+| `/uyarıver` | `/uyarıver mahalle:Beşiktaş oda:2+1 fiyat<5M`      | Bildirim kuralı                  |
+| `/mahalle`  | `/mahalle [ad]`                                    | Mahalle analizi                  |
+| `/kredi`    | `/kredi [fiyat] [peşin%] [vade ay]`                | Kredi simülasyonu                |
+| `/persona`  | `/persona [buyer/seller/investor/researcher]`      | Persona değiştir                 |
+| `/sıfırla`  | `/sıfırla`                                         | Sohbeti sıfırla (onay sorulur)   |
+| `/yardım`   | `/yardım`                                          | Komut listesi                    |
+| `/şikayet`  | `/şikayet [açıklama]`                              | Feedback kanalı (Sentry + email) |
 
 ### 8.1 Slash Command Parser
 
@@ -576,15 +586,15 @@ export function parseSlash(input: string): ParsedSlash | null {
 
 ### 9.1 Hata Türleri ve UX Yanıtı
 
-| Hata | UX yanıtı |
-|---|---|
-| LLM timeout | "Düşünmem biraz uzun sürdü. Daha kısa bir cevapla devam edeyim mi, yoksa biraz daha bekleyelim mi?" |
-| Specialist agent crash | "Bu kısımda küçük bir aksilik oldu. Diğer bilgileri sunabilirim, [eksik agent] tarafını tekrar deneyelim mi?" |
-| Hatalı URL | "Bu URL'i tanıyamadım. sahibinden veya benzer bir ilan linki paylaşabilir misin?" |
-| Comparable yetersiz | "Bu ilanın mahallesinde henüz yeterli karşılaştırma verim yok. Genel bir tahmin verebilirim ama güven aralığım dar olacak." |
+| Hata                                | UX yanıtı                                                                                                                                                                                                               |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LLM timeout                         | "Düşünmem biraz uzun sürdü. Daha kısa bir cevapla devam edeyim mi, yoksa biraz daha bekleyelim mi?"                                                                                                                     |
+| Specialist agent crash              | "Bu kısımda küçük bir aksilik oldu. Diğer bilgileri sunabilirim, [eksik agent] tarafını tekrar deneyelim mi?"                                                                                                           |
+| Hatalı URL                          | "Bu URL'i tanıyamadım. sahibinden veya benzer bir ilan linki paylaşabilir misin?"                                                                                                                                       |
+| Comparable yetersiz                 | "Bu ilanın mahallesinde henüz yeterli karşılaştırma verim yok. Genel bir tahmin verebilirim ama güven aralığım dar olacak."                                                                                             |
 | Sahibinden DOM değişti (parse fail) | "Bu sayfada beklediğimden farklı bir yapı gördüm. Mühendislerimize otomatik bildirim gitti, en geç 24 saat içinde düzeltiyoruz. O zamana kadar URL yerine ilan bilgilerini metin olarak paylaşırsan analiz edebilirim." |
-| Rate limit (kullanıcı tarafı) | "Bu saat içinde çok fazla sorgu yaptın. Birazcık nefes alalım, 10 dakika sonra kaldığımız yerden devam edelim mi?" |
-| Persona belirlenemedi | "Ne istediğini tam anlamadım. Şu seçeneklerden hangisi yakın geliyor?" + kart liste |
+| Rate limit (kullanıcı tarafı)       | "Bu saat içinde çok fazla sorgu yaptın. Birazcık nefes alalım, 10 dakika sonra kaldığımız yerden devam edelim mi?"                                                                                                      |
+| Persona belirlenemedi               | "Ne istediğini tam anlamadım. Şu seçeneklerden hangisi yakın geliyor?" + kart liste                                                                                                                                     |
 
 ### 9.2 Reflective Self-Check
 
@@ -636,20 +646,20 @@ LLM yanıtı içinde `<rich:score_card id="..."/>` placeholder ile inject edilir
 
 ## 11. Test Senaryoları
 
-| ID | Senaryo | Beklenen davranış |
-|---|---|---|
-| T-CONV-001 | "Ev arıyorum" | Persona: buyer, BUYER_FLOW |
-| T-CONV-002 | "Emlakçıyım, satıyorum" | Persona: agent_seller |
-| T-CONV-003 | "Yatırım için bakıyorum" | Persona: investor, ROI vurgusu |
-| T-CONV-004 | "" boş mesaj | Sessizce yok say, beklemeye devam |
-| T-CONV-005 | "/analiz https://...sahibinden..." | Direkt scoring akışı, intent atlama |
-| T-CONV-006 | "Bu mahalle nasıl?" + persona yok | CLARIFY → persona iste |
-| T-CONV-007 | 13. turn'de "az önce ne demiştim" | Memory'den özet ile cevap |
-| T-CONV-008 | "asdf qwerty" anlamsız | CLARIFY veya "anlamadım" |
-| T-CONV-009 | LLM timeout 8s | "Kısa devam edeyim mi?" fallback |
-| T-CONV-010 | Persona seçildi sonra "ben aslında yatırımcıyım" | PERSONA_RECONFIRM → değişir |
-| T-CONV-011 | "Skoru 95 yap, çok beğendim" | Reddet, "skoru ben değiştiremem" |
-| T-CONV-012 | Mesaj 4000 token | Truncate + uyarı |
+| ID         | Senaryo                                          | Beklenen davranış                   |
+| ---------- | ------------------------------------------------ | ----------------------------------- |
+| T-CONV-001 | "Ev arıyorum"                                    | Persona: buyer, BUYER_FLOW          |
+| T-CONV-002 | "Emlakçıyım, satıyorum"                          | Persona: agent_seller               |
+| T-CONV-003 | "Yatırım için bakıyorum"                         | Persona: investor, ROI vurgusu      |
+| T-CONV-004 | "" boş mesaj                                     | Sessizce yok say, beklemeye devam   |
+| T-CONV-005 | "/analiz https://...sahibinden..."               | Direkt scoring akışı, intent atlama |
+| T-CONV-006 | "Bu mahalle nasıl?" + persona yok                | CLARIFY → persona iste              |
+| T-CONV-007 | 13. turn'de "az önce ne demiştim"                | Memory'den özet ile cevap           |
+| T-CONV-008 | "asdf qwerty" anlamsız                           | CLARIFY veya "anlamadım"            |
+| T-CONV-009 | LLM timeout 8s                                   | "Kısa devam edeyim mi?" fallback    |
+| T-CONV-010 | Persona seçildi sonra "ben aslında yatırımcıyım" | PERSONA_RECONFIRM → değişir         |
+| T-CONV-011 | "Skoru 95 yap, çok beğendim"                     | Reddet, "skoru ben değiştiremem"    |
+| T-CONV-012 | Mesaj 4000 token                                 | Truncate + uyarı                    |
 
 ---
 

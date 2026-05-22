@@ -78,7 +78,7 @@ export function VoiceChat({
     }
   }
 
-  async function speak(text: string, voice = 'Kore') {
+  async function _speak(text: string, voice = 'Kore') {
     setState('speaking');
     try {
       const token = await getToken();
@@ -115,12 +115,18 @@ export function VoiceChat({
         disabled={state === 'transcribing' || state === 'speaking'}
         className={
           isRecording
-            ? 'bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold animate-pulse'
-            : 'bg-[#0F1F4B] text-white px-3 py-1.5 rounded-full text-sm font-semibold disabled:opacity-50'
+            ? 'animate-pulse rounded-full bg-red-500 px-3 py-1.5 text-sm font-semibold text-white'
+            : 'rounded-full bg-[#0F1F4B] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50'
         }
         aria-label={isRecording ? 'Kaydı durdur' : 'Sesli yaz'}
       >
-        {isRecording ? '⏹ Durdur' : state === 'transcribing' ? '⏳ Yazılıyor...' : state === 'speaking' ? '🔊 Konuşuyor...' : '🎤 Sesli'}
+        {isRecording
+          ? '⏹ Durdur'
+          : state === 'transcribing'
+            ? '⏳ Yazılıyor...'
+            : state === 'speaking'
+              ? '🔊 Konuşuyor...'
+              : '🎤 Sesli'}
       </button>
       {error && <span className="text-xs text-red-600">{error}</span>}
     </div>

@@ -12,7 +12,7 @@ export interface ChatContext {
   active_ilan_id: string | null;
   budget_range: [number, number] | null;
   preferred_locations: string[];
-  message_history: Array<{ role: 'user' | 'assistant'; content: string }>;
+  message_history: { role: 'user' | 'assistant'; content: string }[];
   last_intent: IntentClass | null;
   last_intent_confidence: number;
 }
@@ -55,10 +55,12 @@ export function createChatMachine(initialContext: Partial<ChatContext> = {}) {
         on: {
           INTENT_DETECTED: [
             { target: 'clarify', guard: ({ event }) => event.confidence < 0.65 },
-            { target: 'personaLocked', guard: ({ event }) => !!event.persona,
-              actions: assign({ persona: ({ event }) => event.persona ?? null }) },
-            { target: 'taskLoop',
-              actions: assign({ last_intent: ({ event }) => event.intent }) },
+            {
+              target: 'personaLocked',
+              guard: ({ event }) => !!event.persona,
+              actions: assign({ persona: ({ event }) => event.persona ?? null }),
+            },
+            { target: 'taskLoop', actions: assign({ last_intent: ({ event }) => event.intent }) },
           ],
         },
       },

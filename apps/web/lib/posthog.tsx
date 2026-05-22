@@ -13,7 +13,7 @@ export function PostHogProvider({ children }: { children: ReactNode }): ReactEle
     if (!key) return;
     void (async () => {
       try {
-        const posthog = (await import('posthog-js').catch(() => null)) as typeof import('posthog-js') | null;
+        const posthog = await import('posthog-js').catch(() => null);
         if (!posthog) return;
         posthog.default.init(key, {
           api_host: host,
