@@ -1,0 +1,3 @@
+Last deploy: dep-d87t5ob6s2jc73e9q61g status=build_failed
+
+Log API hata: The remote server returned an error: (400) Bad Request.
