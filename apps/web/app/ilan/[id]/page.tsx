@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState, type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import { Navbar } from '../../../components/Navbar';
-import { useApi, authedFetch } from '../../../lib/api';
+import { useApi } from '../../../lib/api';
 import { scoreBadge, scoreColor, TRY } from '../../../lib/score-ui';
+import { IlanChat } from '../../../components/IlanChat';
 
 interface Bilesen {
   deger: number;
@@ -45,39 +46,22 @@ export default function IlanDetayPage(): ReactElement {
   const id = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '');
   const { data, loading, error } = useApi<IlanDetail>(id ? `/v1/ilanlar/${id}` : null);
 
-  const [aiText, setAiText] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
-
-  async function explain() {
-    if (!data?.skor) return;
-    setAiLoading(true);
-    setAiError(null);
-    try {
-      const s = data.skor;
-      const prompt =
-        `Bir konut ilanı için kelepir skoru ${Math.round(s.toplam)}/100 (${s.etiket}). ` +
-        `Bileşenler — fiyat avantajı: ${Math.round(s.bilesenler.fiyat_avantaji?.deger ?? 0)}, ` +
-        `kalite: ${Math.round(s.bilesenler.kalite?.deger ?? 0)}, konum: ${Math.round(s.bilesenler.konum?.deger ?? 0)}, ` +
-        `risk: ${Math.round(s.bilesenler.risk?.deger ?? 0)}. Fiyat: ${TRY.format(data.fiyat_tl)}, ` +
-        `${data.net_m2 ?? '?'}m², ${data.ilce ?? ''} ${data.mahalle ?? ''}. ` +
-        `Bu skoru kullanıcıya sade Türkçe açıkla, güçlü/zayıf yönleri ve kısa bir pazarlık önerisi ver. Skoru değiştirme.`;
-      const resp = await authedFetch<{ text: string }>('/v1/llm/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: prompt }],
-          options: { taskType: 'score-explanation' },
-        }),
-      });
-      setAiText(resp.text);
-    } catch (e) {
-      setAiError((e as Error).message);
-    } finally {
-      setAiLoading(false);
-    }
-  }
-
   const badge = scoreBadge(data?.skor?.etiket);
+
+  const chatContext = data?.skor
+    ? `Sen Pusula'nın emlak danışmanısın. Aşağıdaki konut ilanı ve kelepir skoru hakkında ` +
+      `kullanıcıya sade, kısa ve net Türkçe yardımcı ol. Skoru DEĞİŞTİRME, yalnız yorumla.\n` +
+      `İlan: ${data.baslik}. Fiyat: ${TRY.format(data.fiyat_tl)}, ${data.net_m2 ?? '?'}m², ` +
+      `${[data.ilce, data.mahalle].filter(Boolean).join(' ')}, ${data.bina_yasi ?? '?'} yaş.\n` +
+      `Kelepir skoru: ${Math.round(data.skor.toplam)}/100 (${data.skor.etiket}, güven: ${data.skor.confidence}). ` +
+      `Pilarlar — fiyat avantajı: ${Math.round(data.skor.bilesenler.fiyat_avantaji?.deger ?? 0)}, ` +
+      `kalite: ${Math.round(data.skor.bilesenler.kalite?.deger ?? 0)}, ` +
+      `konum: ${Math.round(data.skor.bilesenler.konum?.deger ?? 0)}, ` +
+      `risk: ${Math.round(data.skor.bilesenler.risk?.deger ?? 0)}.` +
+      (data.skor.uyarilar && data.skor.uyarilar.length > 0
+        ? `\nUyarılar: ${data.skor.uyarilar.join('; ')}`
+        : '')
+    : '';
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -178,27 +162,7 @@ export default function IlanDetayPage(): ReactElement {
                   </div>
                 )}
 
-                <div className="rounded-lg bg-white p-6">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">AI Açıklaması</h2>
-                    <button
-                      type="button"
-                      onClick={() => void explain()}
-                      disabled={aiLoading}
-                      className="rounded-md bg-[#D4A22E] px-4 py-2 text-sm font-semibold text-[#0F1F4B] disabled:opacity-60"
-                    >
-                      {aiLoading ? 'Düşünüyor...' : aiText ? 'Yeniden açıkla' : 'AI ile açıkla'}
-                    </button>
-                  </div>
-                  {aiError && <p className="text-sm text-red-600">{aiError}</p>}
-                  {aiText ? (
-                    <p className="whitespace-pre-wrap text-sm text-slate-700">{aiText}</p>
-                  ) : (
-                    <p className="text-sm text-slate-500">
-                      Skorun neden böyle olduğunu ve pazarlık önerisini AI ile öğren.
-                    </p>
-                  )}
-                </div>
+                <IlanChat context={chatContext} />
               </>
             ) : (
               <div className="rounded-lg bg-white p-6 text-sm text-slate-500">
