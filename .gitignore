@@ -1,0 +1,52 @@
+# ─── KRİTİK: secret'lar / token'lar (asla commit etme) ───
+_DEVRETME_silinecek/
+_handoff/
+.handoff/
+*.secrets
+*.tokens
+*.env
+!.env.example
+!**/.env.example
+
+# ─── Bağımlılıklar ───────────────────────────────────────
+node_modules/
+.pnpm-store/
+
+# ─── Build çıktıları ─────────────────────────────────────
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+coverage/
+*.lcov
+
+# ─── Turborepo cache ─────────────────────────────────────
+.turbo/
+
+# ─── OS ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── IDE ─────────────────────────────────────────────────
+.idea/
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# ─── Sentry ──────────────────────────────────────────────
+.sentryclirc
+
+# ─── Vercel ──────────────────────────────────────────────
+.vercel/
+
+# ─── Playwright ──────────────────────────────────────────
+playwright-report/
+test-results/
+
+# ─── Geçici / log / pid ──────────────────────────────────
+*.log
+*.pid
+*.swp
+*.swo
+.eslintcache

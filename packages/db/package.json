@@ -1,0 +1,13 @@
+{
+  "name": "@pusula/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate": "supabase db push",
+    "generate": "supabase gen types typescript --local > src/types.ts"
+  },
+  "devDependencies": {
+    "supabase": "^1.226.4"
+  }
+}

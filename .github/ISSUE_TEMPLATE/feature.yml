@@ -1,0 +1,29 @@
+name: ✨ Özellik talebi
+description: Yeni bir özellik / iyileştirme öner
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Çözmek istediğin problem
+    validations:
+      required: true
+
+  - type: textarea
+    id: cozum
+    attributes:
+      label: Önerilen çözüm
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatifler
+    attributes:
+      label: Düşündüğün alternatifler
+
+  - type: dropdown
+    id: kapsam
+    attributes:
+      label: Etkilenen bileşen
+      multiple: true
+      options: [web, extension, api, scoring, llm-gateway, db, docs]
