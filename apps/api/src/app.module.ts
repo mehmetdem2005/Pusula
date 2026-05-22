@@ -14,6 +14,7 @@ import { ChatModule } from './chat/chat.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { TelemetryModule } from './telemetry/telemetry.module.js';
 import { VoiceModule } from './voice/voice.module.js';
+import { AccountModule } from './account/account.module.js';
 
 const env = loadEnv();
 
@@ -34,6 +35,7 @@ const env = loadEnv();
     ChatModule,
     TelemetryModule,
     VoiceModule,
+    AccountModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

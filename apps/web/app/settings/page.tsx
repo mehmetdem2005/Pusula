@@ -9,6 +9,7 @@
 import { useState, type ReactElement } from 'react';
 import type { Provider } from '@pusula/shared';
 import { Navbar } from '../../components/Navbar';
+import { AccountSecurity } from '../../components/auth/AccountSecurity';
 
 interface ProviderConfig {
   provider: Provider;
@@ -139,24 +140,7 @@ export default function SettingsPage(): ReactElement {
           </p>
         </section>
 
-        <section className="rounded-lg bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold">Hesap</h2>
-          <div className="space-y-2 text-sm">
-            <p className="text-slate-600">
-              KVKK politikamızı{' '}
-              <a href="/legal/kvkk" className="text-sky-600 underline">
-                buradan
-              </a>{' '}
-              okuyabilirsin.
-            </p>
-            <button
-              type="button"
-              className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
-            >
-              Hesabımı Sil
-            </button>
-          </div>
-        </section>
+        <AccountSecurity />
       </div>
     </main>
   );
