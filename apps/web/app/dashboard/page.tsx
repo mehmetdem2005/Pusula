@@ -5,6 +5,7 @@ import type { ReactElement } from 'react';
 import { Navbar } from '../../components/Navbar';
 import { useApi } from '../../lib/api';
 import { scoreBadge, scoreColor, TRY } from '../../lib/score-ui';
+import { IlanChat } from '../../components/IlanChat';
 
 interface IlanCard {
   id: string;
@@ -21,6 +22,15 @@ interface IlanCard {
 export default function DashboardPage(): ReactElement {
   const { data, loading, error } = useApi<IlanCard[]>('/v1/ilanlar');
   const ilanlar = data ?? [];
+
+  // Portföy asistanı context'i — API'nin döndürdüğü tüm ilan verisinden dinamik üretilir.
+  const portfolioContext = [
+    "Sen Pusula'nın emlak danışmanısın. Kullanıcının TÜM ilanları ve skorları aşağıdaki JSON'da.",
+    'Sade, kısa Türkçe yardımcı ol: karşılaştır, en iyi/en riskli olanı bul, ortalama hesapla,',
+    'öneride bulun. İleride eklenen yeni metrikleri de kullan. Skoru DEĞİŞTİRME, yalnız yorumla.',
+    '',
+    `İLANLAR (JSON): ${JSON.stringify(ilanlar)}`,
+  ].join('\n');
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -104,6 +114,21 @@ export default function DashboardPage(): ReactElement {
                 </Link>
               );
             })}
+          </div>
+        )}
+
+        {!loading && (
+          <div className="mt-8">
+            <IlanChat
+              context={portfolioContext}
+              intro="Tüm ilanlarını biliyorum — karşılaştırma, en iyi/en riskli olanlar, ortalama skor. Yazarak veya konuşarak sor."
+              suggestions={[
+                'En yüksek skorlu ilanım hangisi?',
+                'Riskli olanları göster',
+                'Ortalama skorum kaç?',
+                'Hangisini almalıyım?',
+              ]}
+            />
           </div>
         )}
       </div>

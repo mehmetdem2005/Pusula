@@ -8,19 +8,29 @@ interface Msg {
   content: string;
 }
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   'Bu skoru açıkla',
   'Pazarlık payı ne olur?',
   'Yatırım için uygun mu?',
   'Riskler neler?',
 ];
 
+interface Props {
+  /** LLM'e verilecek system context (ilan veya portföy verisi). */
+  context: string;
+  /** Boş durumda gösterilecek tanıtım metni. */
+  intro?: string;
+  /** Hazır öneri çipleri. */
+  suggestions?: string[];
+}
+
 /**
- * İlan detay AI sohbet paneli — yazılı + sesli mod.
- * Platform AI (key girişsiz). `context` skor/ilan + TÜM metrik özetini içerir; LLM yorumlar,
- * skoru değiştirmez. Sesli giriş: Groq Whisper (STT). Sesli yanıt: Gemini TTS.
+ * AI sohbet paneli — yazılı + sesli mod. İlan detayında veya dashboard'da (portföy) kullanılır.
+ * Platform AI (key girişsiz). `context` dinamik veriyi içerir; LLM yorumlar, skoru değiştirmez.
+ * Sesli giriş: Groq Whisper (STT). Sesli yanıt: Gemini TTS.
  */
-export function IlanChat({ context }: { context: string }): ReactElement {
+export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
+  const chips = suggestions ?? DEFAULT_SUGGESTIONS;
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -128,8 +138,8 @@ export function IlanChat({ context }: { context: string }): ReactElement {
 
       {messages.length === 0 && (
         <p className="mb-3 text-sm text-slate-500">
-          Skorun her metriğini biliyorum — pazarlık, yatırım, riskler hakkında yazarak veya
-          konuşarak sor.
+          {intro ??
+            'Skorun her metriğini biliyorum — pazarlık, yatırım, riskler hakkında yazarak veya konuşarak sor.'}
         </p>
       )}
 
@@ -151,7 +161,7 @@ export function IlanChat({ context }: { context: string }): ReactElement {
       {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
 
       <div className="mb-2 flex flex-wrap gap-2">
-        {SUGGESTIONS.map((s) => (
+        {chips.map((s) => (
           <button
             key={s}
             type="button"
