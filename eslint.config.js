@@ -50,4 +50,13 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // NestJS DI, enjekte edilen sınıflar için value import gerektirir
+    // (emitDecoratorMetadata). consistent-type-imports bunları type-import'a
+    // çevirip DI'yı bozuyor; bu yüzden apps/api'de kapalı.
+    files: ['apps/api/**/*.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+    },
+  },
 );
