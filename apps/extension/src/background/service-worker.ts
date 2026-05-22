@@ -87,13 +87,19 @@ async function ensureAuth(): Promise<string | null> {
   return null;
 }
 
-async function apiPost<TReq, TResp>(path: string, body: TReq, attempts = 3): Promise<TResp> {
+async function apiPost<TReq, TResp>(
+  path: string,
+  body: TReq,
+  opts: { attempts?: number; timeoutMs?: number } = {},
+): Promise<TResp> {
+  const attempts = opts.attempts ?? 3;
+  const timeoutMs = opts.timeoutMs ?? 15_000;
   let lastErr: unknown = null;
   for (let i = 0; i < attempts; i++) {
     try {
       const jwt = await ensureAuth();
       const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 15_000);
+      const t = setTimeout(() => controller.abort(), timeoutMs);
       const res = await fetch(`${API_BASE}${path}`, {
         method: 'POST',
         headers: {
@@ -121,6 +127,84 @@ async function apiPost<TReq, TResp>(path: string, body: TReq, attempts = 3): Pro
     }
   }
   throw lastErr ?? new Error('apiPost failed');
+}
+
+function detectKaynak(url?: string): string {
+  const u = url ?? '';
+  if (u.includes('sahibinden.com')) return 'sahibinden';
+  if (u.includes('hepsiemlak.com')) return 'hepsiemlak';
+  if (u.includes('emlakjet.com')) return 'emlakjet';
+  return 'manuel';
+}
+
+function bufToBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+/**
+ * Aktif sekmenin TAM SAYFA ekran görüntüsünü al: kademeli scroll + her görünür alanı yakala,
+ * OffscreenCanvas ile birleştir, genişliği 1080px'e indirip JPEG data URL döndür.
+ * captureVisibleTab hız limiti için adımlar arası ~600ms beklenir; en çok 12 segment.
+ */
+async function captureFullPage(tabId: number, windowId: number): Promise<string> {
+  const [metricsRes] = await chrome.scripting.executeScript({
+    target: { tabId },
+    func: () => ({
+      total: Math.max(document.documentElement.scrollHeight, document.body.scrollHeight),
+      vh: window.innerHeight,
+    }),
+  });
+  const { total, vh } = (metricsRes?.result as { total: number; vh: number }) ?? {
+    total: 0,
+    vh: 0,
+  };
+  if (!vh) throw new Error('Sayfa ölçülemedi');
+
+  const steps = Math.min(12, Math.max(1, Math.ceil(total / vh)));
+  const shots: { dataUrl: string; y: number }[] = [];
+  for (let i = 0; i < steps; i++) {
+    const y = i * vh;
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: (yy: number) => window.scrollTo(0, yy),
+      args: [y],
+    });
+    await new Promise((r) => setTimeout(r, 600));
+    const dataUrl = await chrome.tabs.captureVisibleTab(windowId, { format: 'jpeg', quality: 70 });
+    shots.push({ dataUrl, y });
+  }
+  await chrome.scripting
+    .executeScript({ target: { tabId }, func: () => window.scrollTo(0, 0) })
+    .catch(() => undefined);
+
+  const bitmaps = await Promise.all(
+    shots.map(async (s) => createImageBitmap(await (await fetch(s.dataUrl)).blob())),
+  );
+  const first = bitmaps[0];
+  if (!first) throw new Error('Görüntü alınamadı');
+  const w = first.width;
+  const segH = first.height;
+  const scale = segH / vh; // device px / CSS px
+  const fullH = Math.min(Math.round(total * scale), segH * steps);
+  const maxW = 1080;
+  const outScale = w > maxW ? maxW / w : 1;
+
+  const canvas = new OffscreenCanvas(Math.round(w * outScale), Math.round(fullH * outScale));
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas context yok');
+  bitmaps.forEach((bmp, i) => {
+    const destY = Math.round((shots[i]?.y ?? 0) * scale * outScale);
+    ctx.drawImage(bmp, 0, 0, w, segH, 0, destY, w * outScale, segH * outScale);
+    bmp.close();
+  });
+  const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.7 });
+  return `data:image/jpeg;base64,${bufToBase64(await blob.arrayBuffer())}`;
 }
 
 chrome.runtime.onMessage.addListener(
@@ -153,6 +237,25 @@ chrome.runtime.onMessage.addListener(
               .sendMessage({ type: 'NEW_ANALYSIS', payload: message.payload })
               .catch(() => undefined);
             sendResponse({ ok: true });
+            break;
+          }
+          case 'CAPTURE_AND_EXTRACT': {
+            const tab =
+              sender.tab ?? (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0];
+            if (!tab?.id || tab.windowId == null) {
+              sendResponse({ ok: false, error: 'Aktif sekme bulunamadı' });
+              break;
+            }
+            const screenshot = await captureFullPage(tab.id, tab.windowId);
+            const resp = await apiPost<unknown, { id: string; score_id: string }>(
+              '/v1/ilanlar/extract',
+              { screenshot_base64: screenshot, url: tab.url, kaynak: detectKaynak(tab.url) },
+              { attempts: 2, timeoutMs: 60_000 },
+            );
+            chrome.runtime
+              .sendMessage({ type: 'NEW_ANALYSIS', payload: { analyzeId: resp.score_id } })
+              .catch(() => undefined);
+            sendResponse({ ok: true, analyzeId: resp.score_id });
             break;
           }
           case 'PARSE_FAILED': {
