@@ -31,9 +31,7 @@ export type ListBatchJob = z.infer<typeof ListBatchJob>;
 
 export const EnrichmentJob = z.object({
   ilan_id: z.string().uuid(),
-  steps: z
-    .array(z.enum(['comparable', 'location', 'risk', 'vision', 'nlp', 'market']))
-    .min(1),
+  steps: z.array(z.enum(['comparable', 'location', 'risk', 'vision', 'nlp', 'market'])).min(1),
   trace_id: z.string().uuid(),
 });
 export type EnrichmentJob = z.infer<typeof EnrichmentJob>;

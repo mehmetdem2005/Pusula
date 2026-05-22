@@ -12,7 +12,11 @@ export interface RiskContext {
   kentsel_donusum?: 'riskli' | 'donusum_bolgesi' | 'normal';
 }
 
-interface F { key: string; weight: number; adjustment: number | null }
+interface F {
+  key: string;
+  weight: number;
+  adjustment: number | null;
+}
 
 /**
  * Risk skoru — 50 nötr başlar, her bileşen + veya - getirir.
@@ -20,20 +24,20 @@ interface F { key: string; weight: number; adjustment: number | null }
  */
 export function riskSkoru(
   input: KonutInput,
-  ctx: RiskContext
+  ctx: RiskContext,
 ): {
   skor: number;
-  breakdown: Array<{ key: string; deger: number }>;
+  breakdown: { key: string; deger: number }[];
   uyarilar: string[];
   ceza_uygula: boolean;
 } {
   const uyarilar: string[] = [];
-  const inse = ctx.insa_yili ?? (new Date().getFullYear() - input.bina_yasi);
+  const inse = ctx.insa_yili ?? new Date().getFullYear() - input.bina_yasi;
 
   const features: F[] = [
     {
       key: 'deprem_tehlike',
-      weight: 0.40,
+      weight: 0.4,
       adjustment:
         ctx.deprem_tehlike_bandi === undefined
           ? null
@@ -52,13 +56,19 @@ export function riskSkoru(
     },
     {
       key: 'fay_mesafe',
-      weight: 0.10,
+      weight: 0.1,
       adjustment:
-        ctx.fay_mesafe_m === undefined ? null : ctx.fay_mesafe_m < 500 ? -20 : ctx.fay_mesafe_m < 2000 ? -5 : +10,
+        ctx.fay_mesafe_m === undefined
+          ? null
+          : ctx.fay_mesafe_m < 500
+            ? -20
+            : ctx.fay_mesafe_m < 2000
+              ? -5
+              : +10,
     },
     {
       key: 'tapu_durumu',
-      weight: 0.10,
+      weight: 0.1,
       adjustment:
         input.tapu_durumu === undefined
           ? null
@@ -86,7 +96,7 @@ export function riskSkoru(
     },
     {
       key: 'kentsel_donusum',
-      weight: 0.10,
+      weight: 0.1,
       adjustment:
         ctx.kentsel_donusum === undefined
           ? null
@@ -99,7 +109,7 @@ export function riskSkoru(
   ];
 
   let net = 50;
-  const breakdown: Array<{ key: string; deger: number }> = [];
+  const breakdown: { key: string; deger: number }[] = [];
 
   for (const f of features) {
     if (f.adjustment === null) continue;

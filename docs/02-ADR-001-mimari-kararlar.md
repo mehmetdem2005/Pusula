@@ -27,25 +27,25 @@ Türkiye pazarına yönelik, emlakçılar ve galericilerin kullanacağı bir AI 
 
 Aşağıdaki temel mimari kararlar alınmıştır:
 
-| # | Karar | Özet |
-|---|---|---|
-| D1 | Dağıtım modeli | **Web app (ana ürün) + opsiyonel hafif Chrome extension (MV3)** — hibrit "user-assisted ingestion" |
-| D2 | Veri toplama | sahibinden için **client-side, kullanıcı oturumlu DOM okuma**. Diğer kaynaklar (izinli) backend'ten fetch. Açık veri (TÜİK/AFAD/TKGM) backend cache. |
-| D3 | Backend | **Node.js + NestJS + PostgreSQL 16 + pgvector + Redis** (TypeScript monorepo) |
-| D4 | Frontend | **Next.js 15 (App Router) + TypeScript + Tailwind CSS + shadcn/ui + TanStack Query** |
-| D5 | Extension | **Manifest V3, side panel + content script + service worker**, kod paylaşımı için monorepo paketi |
-| D6 | Skorlama | **Deterministik formül** (LLM kullanılmaz). LLM yalnızca skorun bileşenlerini doğal dilde **açıklamak/savunmak** için. |
-| D7 | LLM mimarisi | **Multi-Provider LLM Gateway** — Groq, Gemini, DeepSeek, Anthropic için adapter pattern; OpenAI uyumlu unified interface |
-| D8 | Key güvenliği & ticari model | **BETA (V1): BYOK-only** (key'ler client-side IndexedDB'de AES-GCM şifreli, master password). **GA (V2): BYOK + Managed Subscription** (Stripe-tabanlı haftalık/aylık/yıllık planlar, server-side key pool, kullanıcı key girmek zorunda değil). DB şeması V1'de subscription tablolarını içerir (boş ama hazır). |
-| D9 | Hosting | **Vercel (web)** + **Fly.io / Railway (api)** + **Supabase (Postgres + Auth + Storage)** — MVP için. V2'de gerekirse Hetzner self-host. |
-| D10 | Auth | **Supabase Auth** (email + magic link + Google OAuth). Extension token bridge ile aynı session. |
-| D11 | Monorepo | **pnpm workspaces + Turborepo** — apps/web, apps/extension, apps/api, packages/* |
-| D12 | Observability | **Sentry (errors) + PostHog (product analytics) + OpenTelemetry (traces, V1)** |
-| D13 | Agent orkestrasyonu | **Tier 0-3 multi-agent hiyerarşisi.** Pusula Brain (orchestrator) + 9 specialist + 4 background + tool workers. Function-calling tabanlı sync, BullMQ tabanlı async. |
-| D14 | Skorlama stack | **3-katmanlı AAA skorlama** — Deterministik core + ML enrichment (hedonic + anomaly) + LLM açıklama. 8 pillar, 80+ parametre. LLM hiçbir sayısal skoru değiştiremez. |
-| D15 | Adaptif veri skoru | **Eksik veriye dinamik ağırlık yeniden dağıtımı.** Her parametre fallback chain + confidence loss değerine sahip. Min viable score sınırı (coverage < %30 → skor verme). Async enrichment ile aşamalı sonuç. |
-| D16 | Konuşma modu | **Intent-discovery tabanlı persona-aware sohbet.** XState state machine. İlk turn'de persona kilitlenir; tüm yanıtlar buyer/seller/investor/researcher'a göre özelleşir. |
-| D17 | Multi-vertical core | **`@pusula/scoring-core` + dikey-spesifik paketler** (konut/arsa/oto/ticari). Abstract `AdaptiveScoringEngine` her dikey için ortak interface. |
+| #   | Karar                        | Özet                                                                                                                                                                                                                                                                                                              |
+| --- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Dağıtım modeli               | **Web app (ana ürün) + opsiyonel hafif Chrome extension (MV3)** — hibrit "user-assisted ingestion"                                                                                                                                                                                                                |
+| D2  | Veri toplama                 | sahibinden için **client-side, kullanıcı oturumlu DOM okuma**. Diğer kaynaklar (izinli) backend'ten fetch. Açık veri (TÜİK/AFAD/TKGM) backend cache.                                                                                                                                                              |
+| D3  | Backend                      | **Node.js + NestJS + PostgreSQL 16 + pgvector + Redis** (TypeScript monorepo)                                                                                                                                                                                                                                     |
+| D4  | Frontend                     | **Next.js 15 (App Router) + TypeScript + Tailwind CSS + shadcn/ui + TanStack Query**                                                                                                                                                                                                                              |
+| D5  | Extension                    | **Manifest V3, side panel + content script + service worker**, kod paylaşımı için monorepo paketi                                                                                                                                                                                                                 |
+| D6  | Skorlama                     | **Deterministik formül** (LLM kullanılmaz). LLM yalnızca skorun bileşenlerini doğal dilde **açıklamak/savunmak** için.                                                                                                                                                                                            |
+| D7  | LLM mimarisi                 | **Multi-Provider LLM Gateway** — Groq, Gemini, DeepSeek, Anthropic için adapter pattern; OpenAI uyumlu unified interface                                                                                                                                                                                          |
+| D8  | Key güvenliği & ticari model | **BETA (V1): BYOK-only** (key'ler client-side IndexedDB'de AES-GCM şifreli, master password). **GA (V2): BYOK + Managed Subscription** (Stripe-tabanlı haftalık/aylık/yıllık planlar, server-side key pool, kullanıcı key girmek zorunda değil). DB şeması V1'de subscription tablolarını içerir (boş ama hazır). |
+| D9  | Hosting                      | **Vercel (web)** + **Fly.io / Railway (api)** + **Supabase (Postgres + Auth + Storage)** — MVP için. V2'de gerekirse Hetzner self-host.                                                                                                                                                                           |
+| D10 | Auth                         | **Supabase Auth** (email + magic link + Google OAuth). Extension token bridge ile aynı session.                                                                                                                                                                                                                   |
+| D11 | Monorepo                     | **pnpm workspaces + Turborepo** — apps/web, apps/extension, apps/api, packages/\*                                                                                                                                                                                                                                 |
+| D12 | Observability                | **Sentry (errors) + PostHog (product analytics) + OpenTelemetry (traces, V1)**                                                                                                                                                                                                                                    |
+| D13 | Agent orkestrasyonu          | **Tier 0-3 multi-agent hiyerarşisi.** Pusula Brain (orchestrator) + 9 specialist + 4 background + tool workers. Function-calling tabanlı sync, BullMQ tabanlı async.                                                                                                                                              |
+| D14 | Skorlama stack               | **3-katmanlı AAA skorlama** — Deterministik core + ML enrichment (hedonic + anomaly) + LLM açıklama. 8 pillar, 80+ parametre. LLM hiçbir sayısal skoru değiştiremez.                                                                                                                                              |
+| D15 | Adaptif veri skoru           | **Eksik veriye dinamik ağırlık yeniden dağıtımı.** Her parametre fallback chain + confidence loss değerine sahip. Min viable score sınırı (coverage < %30 → skor verme). Async enrichment ile aşamalı sonuç.                                                                                                      |
+| D16 | Konuşma modu                 | **Intent-discovery tabanlı persona-aware sohbet.** XState state machine. İlk turn'de persona kilitlenir; tüm yanıtlar buyer/seller/investor/researcher'a göre özelleşir.                                                                                                                                          |
+| D17 | Multi-vertical core          | **`@pusula/scoring-core` + dikey-spesifik paketler** (konut/arsa/oto/ticari). Abstract `AdaptiveScoringEngine` her dikey için ortak interface.                                                                                                                                                                    |
 
 ---
 
@@ -55,39 +55,39 @@ Aşağıdaki temel mimari kararlar alınmıştır:
 
 #### Option A: Saf Chrome Extension
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Low |
-| Cost | Low (Chrome Web Store + cloud minimum) |
-| Scalability | Low (toplu sıralama zor) |
-| ToS riski | En düşük |
-| UX zenginliği | Sınırlı (popup/side panel) |
+| Dimension     | Assessment                             |
+| ------------- | -------------------------------------- |
+| Complexity    | Low                                    |
+| Cost          | Low (Chrome Web Store + cloud minimum) |
+| Scalability   | Low (toplu sıralama zor)               |
+| ToS riski     | En düşük                               |
+| UX zenginliği | Sınırlı (popup/side panel)             |
 
 **Pros:** En savunulabilir hukuki konum, hızlı time-to-market.
 **Cons:** Toplu analiz, raporlama, dashboard UX'i sınırlı. "AAA" hissi vermiyor.
 
 #### Option B: Saf Web Dashboard (sahibinden backend'ten fetch)
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Med |
-| Cost | Med (proxy/IP rotation maliyeti) |
-| Scalability | High |
-| ToS riski | **Çok yüksek — yasaklı** |
-| UX zenginliği | Yüksek |
+| Dimension     | Assessment                       |
+| ------------- | -------------------------------- |
+| Complexity    | Med                              |
+| Cost          | Med (proxy/IP rotation maliyeti) |
+| Scalability   | High                             |
+| ToS riski     | **Çok yüksek — yasaklı**         |
+| UX zenginliği | Yüksek                           |
 
 **Pros:** En zengin dashboard, toplu sorgu kolay.
 **Cons:** sahibinden ToS açık ihlali; IP ban + olası dava riski; sürdürülemez.
 
 #### Option C (SEÇİLDİ): Hibrit — Web App + opsiyonel Extension/Bookmarklet
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Med-High |
-| Cost | Med |
-| Scalability | High |
-| ToS riski | Düşük (sahibinden için client-side, kullanıcı oturumlu) |
-| UX zenginliği | Yüksek |
+| Dimension     | Assessment                                              |
+| ------------- | ------------------------------------------------------- |
+| Complexity    | Med-High                                                |
+| Cost          | Med                                                     |
+| Scalability   | High                                                    |
+| ToS riski     | Düşük (sahibinden için client-side, kullanıcı oturumlu) |
+| UX zenginliği | Yüksek                                                  |
 
 **Pros:** En iyi ikisinin birleşimi. Web app AAA UX, extension ToS-safe ingestion. Diğer kaynaklar backend'ten paralel fetch.
 **Cons:** İki ayrı runtime (web + extension), kod paylaşımı için monorepo şart. Auth bridge gerekli.
@@ -255,13 +255,13 @@ export interface ContentPart {
 }
 
 export interface ChatOptions {
-  provider?: Provider;        // override
-  model?: string;             // override
-  taskType: TaskType;         // routing key
+  provider?: Provider; // override
+  model?: string; // override
+  taskType: TaskType; // routing key
   temperature?: number;
   maxTokens?: number;
-  jsonSchema?: object;        // structured output
-  tools?: ToolDefinition[];   // function calling
+  jsonSchema?: object; // structured output
+  tools?: ToolDefinition[]; // function calling
   stream?: boolean;
   signal?: AbortSignal;
 }
@@ -287,14 +287,14 @@ export interface LLMAdapter {
 
 ### Routing Tablosu (varsayılan)
 
-| Task Type | 1. Tercih | 2. Tercih (failover) | 3. Tercih |
-|---|---|---|---|
-| `quick-chat` | Groq `llama-3.3-70b-versatile` | Gemini `2.5-flash` | DeepSeek `chat` |
-| `score-explanation` | DeepSeek `chat` (V3) | Groq `llama-3.3-70b` | Claude Haiku 4.5 |
-| `marketing-copy` | Claude Sonnet 4.6 | Gemini `2.5-pro` | DeepSeek `chat` |
-| `reasoning` | DeepSeek `reasoner` (R1) | Claude Opus 4.7 | Gemini `2.5-pro` |
-| `vision` | Gemini `2.5-flash` | Claude Haiku 4.5 (vision) | — |
-| `long-report` | Gemini `2.5-pro` (1M ctx) | Claude Sonnet 4.6 (1M ctx) | DeepSeek (131K) |
+| Task Type           | 1. Tercih                      | 2. Tercih (failover)       | 3. Tercih        |
+| ------------------- | ------------------------------ | -------------------------- | ---------------- |
+| `quick-chat`        | Groq `llama-3.3-70b-versatile` | Gemini `2.5-flash`         | DeepSeek `chat`  |
+| `score-explanation` | DeepSeek `chat` (V3)           | Groq `llama-3.3-70b`       | Claude Haiku 4.5 |
+| `marketing-copy`    | Claude Sonnet 4.6              | Gemini `2.5-pro`           | DeepSeek `chat`  |
+| `reasoning`         | DeepSeek `reasoner` (R1)       | Claude Opus 4.7            | Gemini `2.5-pro` |
+| `vision`            | Gemini `2.5-flash`             | Claude Haiku 4.5 (vision)  | —                |
+| `long-report`       | Gemini `2.5-pro` (1M ctx)      | Claude Sonnet 4.6 (1M ctx) | DeepSeek (131K)  |
 
 Kullanıcı Settings'te her task type için tercih ettiği model'i override edebilir.
 
@@ -306,11 +306,11 @@ Kullanıcı Settings'te her task type için tercih ettiği model'i override edeb
 
 ### Faz Planı
 
-| Faz | Süre | Model | Kullanıcı maliyeti | Bizim maliyetimiz |
-|---|---|---|---|---|
-| **Beta (V1)** | İlk 6-9 ay | BYOK only | Kendi API faturası | ~$0 (Vercel/Supabase free) |
-| **Public GA (V2)** | 6-9. ay → | BYOK + Managed Subscription | İki seçenek: kendi key'i veya abonelik | Abonelik gelirinden LLM maliyeti çıkar |
-| **Enterprise (V3)** | 12. ay → | Yıllık kontrat + on-prem + white label | Ayrı pazarlık | İmplementasyon + destek |
+| Faz                 | Süre       | Model                                  | Kullanıcı maliyeti                     | Bizim maliyetimiz                      |
+| ------------------- | ---------- | -------------------------------------- | -------------------------------------- | -------------------------------------- |
+| **Beta (V1)**       | İlk 6-9 ay | BYOK only                              | Kendi API faturası                     | ~$0 (Vercel/Supabase free)             |
+| **Public GA (V2)**  | 6-9. ay →  | BYOK + Managed Subscription            | İki seçenek: kendi key'i veya abonelik | Abonelik gelirinden LLM maliyeti çıkar |
+| **Enterprise (V3)** | 12. ay →   | Yıllık kontrat + on-prem + white label | Ayrı pazarlık                          | İmplementasyon + destek                |
 
 ### Beta UI Beklenti Yönetimi
 
@@ -320,13 +320,13 @@ Settings sayfasında üst banner:
 
 ### V2 Subscription Tier Önerisi (Mehmet kararına yardımcı referans)
 
-| Plan | Aylık ücret | Yıllık (₺) | İlan analizi/ay | Modeller | Foto AI | B2B CRM | Kullanıcı sayısı |
-|---|---|---|---|---|---|---|---|
-| **Free (BYOK)** | ₺0 | ₺0 | Sınırsız (kendi key'i) | Tümü (BYOK) | Var | Yok | 1 |
-| **Starter** | ₺149 | ₺1.430 (-20%) | 500 | Ucuz modeller (Haiku 4.5, Gemini Flash, DeepSeek V3) | 50/ay | Yok | 1 |
-| **Pro** | ₺499 | ₺4.790 (-20%) | Sınırsız | Tümü (Sonnet 4.6, Opus 4.7, GPT-4o, Gemini Pro) | Sınırsız | Var | 3 |
-| **Pro Yıllık** | — | ₺4.490 (-25%) | Sınırsız | Tümü | Sınırsız | Var | 3 |
-| **Enterprise** | Özel | Özel | Sınırsız | Tümü + on-prem + custom model | Sınırsız | Var + beyaz etiket | Sınırsız |
+| Plan            | Aylık ücret | Yıllık (₺)    | İlan analizi/ay        | Modeller                                             | Foto AI  | B2B CRM            | Kullanıcı sayısı |
+| --------------- | ----------- | ------------- | ---------------------- | ---------------------------------------------------- | -------- | ------------------ | ---------------- |
+| **Free (BYOK)** | ₺0          | ₺0            | Sınırsız (kendi key'i) | Tümü (BYOK)                                          | Var      | Yok                | 1                |
+| **Starter**     | ₺149        | ₺1.430 (-20%) | 500                    | Ucuz modeller (Haiku 4.5, Gemini Flash, DeepSeek V3) | 50/ay    | Yok                | 1                |
+| **Pro**         | ₺499        | ₺4.790 (-20%) | Sınırsız               | Tümü (Sonnet 4.6, Opus 4.7, GPT-4o, Gemini Pro)      | Sınırsız | Var                | 3                |
+| **Pro Yıllık**  | —           | ₺4.490 (-25%) | Sınırsız               | Tümü                                                 | Sınırsız | Var                | 3                |
+| **Enterprise**  | Özel        | Özel          | Sınırsız               | Tümü + on-prem + custom model                        | Sınırsız | Var + beyaz etiket | Sınırsız         |
 
 **Haftalık** varyantlar pop-up sale için (₺59/hafta gibi) — tatil mevsiminde / Dubai dönüşü vs. one-off kullanım.
 
@@ -440,7 +440,7 @@ interface LLMAdapter {
   chat(
     messages: ChatMessage[],
     options: ChatOptions,
-    keyResolver: KeyResolver  // beta'da user IndexedDB, GA'de platform vault
+    keyResolver: KeyResolver, // beta'da user IndexedDB, GA'de platform vault
   ): Promise<ChatResponse>;
 }
 
@@ -469,31 +469,31 @@ Pusula tek bir monolitik LLM call'la "ilanı analiz et + skorla + öneri ver + p
 
 **A. Monolitik tek LLM çağrısı.** Tek prompt'ta hem analiz hem yorumla.
 
-| Boyut | Değerlendirme |
-|---|---|
-| Karmaşıklık | Düşük |
-| Maliyet | Yüksek (uzun prompt + Claude Opus) |
-| Esneklik | Düşük |
-| Hata izolasyonu | Yok |
+| Boyut           | Değerlendirme                      |
+| --------------- | ---------------------------------- |
+| Karmaşıklık     | Düşük                              |
+| Maliyet         | Yüksek (uzun prompt + Claude Opus) |
+| Esneklik        | Düşük                              |
+| Hata izolasyonu | Yok                                |
 
 **B. ReAct pattern tek agent, çoklu tool.** Tek LLM, function calling ile araç çağırır.
 
-| Boyut | Değerlendirme |
-|---|---|
-| Karmaşıklık | Orta |
-| Maliyet | Orta |
-| Esneklik | Orta |
-| Hata izolasyonu | Kısmen |
+| Boyut           | Değerlendirme |
+| --------------- | ------------- |
+| Karmaşıklık     | Orta          |
+| Maliyet         | Orta          |
+| Esneklik        | Orta          |
+| Hata izolasyonu | Kısmen        |
 
 **C (SEÇİLDİ). 4-katmanlı agent hiyerarşisi.** Tier 0 orchestrator (Brain) + Tier 1 specialist'ler + Tier 2 background + Tier 3 tool workers.
 
-| Boyut | Değerlendirme |
-|---|---|
-| Karmaşıklık | Yüksek (ama yönetilebilir) |
-| Maliyet | Düşük (her görev optimal model) |
-| Esneklik | Yüksek |
-| Hata izolasyonu | Tam |
-| Test edilebilirlik | Yüksek |
+| Boyut              | Değerlendirme                   |
+| ------------------ | ------------------------------- |
+| Karmaşıklık        | Yüksek (ama yönetilebilir)      |
+| Maliyet            | Düşük (her görev optimal model) |
+| Esneklik           | Yüksek                          |
+| Hata izolasyonu    | Tam                             |
+| Test edilebilirlik | Yüksek                          |
 
 ### Decision
 
@@ -533,13 +533,13 @@ D6'da skorlama "deterministik formül" olarak tanımlandı. Ancak prodüksiyon k
 
 **C (SEÇİLDİ). 3-katmanlı: Deterministik core + ML enrichment + LLM açıklama.**
 
-| Boyut | A | B | C |
-|---|---|---|---|
-| Doğruluk | Orta | Yüksek ama tutarsız | Yüksek + tutarlı |
-| Açıklanabilirlik | Yüksek | Düşük | Yüksek |
-| Tekrar üretilebilirlik | Tam | Yok | Tam (LLM sadece açıklama) |
-| Geliştirme maliyeti | Düşük | Orta | Yüksek |
-| Operasyonel maliyet | Düşük | Yüksek | Düşük (deterministik hızlı) |
+| Boyut                  | A      | B                   | C                           |
+| ---------------------- | ------ | ------------------- | --------------------------- |
+| Doğruluk               | Orta   | Yüksek ama tutarsız | Yüksek + tutarlı            |
+| Açıklanabilirlik       | Yüksek | Düşük               | Yüksek                      |
+| Tekrar üretilebilirlik | Tam    | Yok                 | Tam (LLM sadece açıklama)   |
+| Geliştirme maliyeti    | Düşük  | Orta                | Yüksek                      |
+| Operasyonel maliyet    | Düşük  | Yüksek              | Düşük (deterministik hızlı) |
 
 ### Decision
 

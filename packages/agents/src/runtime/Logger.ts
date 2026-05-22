@@ -24,9 +24,19 @@ export interface Logger {
 
 /** Geçici no-op logger — gerçek implementation pino ile. */
 export class NoopLogger implements Logger {
-  debug(): void { /* noop */ }
-  info(): void { /* noop */ }
-  warn(): void { /* noop */ }
-  error(): void { /* noop */ }
-  child(): Logger { return this; }
+  debug(): void {
+    /* noop */
+  }
+  info(): void {
+    /* noop */
+  }
+  warn(): void {
+    /* noop */
+  }
+  error(): void {
+    /* noop */
+  }
+  child(): Logger {
+    return this;
+  }
 }

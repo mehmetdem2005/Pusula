@@ -6,14 +6,17 @@
 const PBKDF2_ITERATIONS = 600_000;
 const SALT_KEY = 'pusula_master_salt_v1';
 
-async function deriveKey(masterPassword: string, salt: Uint8Array): Promise<CryptoKey> {
+async function deriveKey(
+  masterPassword: string,
+  salt: Uint8Array<ArrayBuffer>,
+): Promise<CryptoKey> {
   const enc = new TextEncoder();
   const baseKey = await crypto.subtle.importKey(
     'raw',
     enc.encode(masterPassword),
     'PBKDF2',
     false,
-    ['deriveKey']
+    ['deriveKey'],
   );
   return crypto.subtle.deriveKey(
     {
@@ -25,11 +28,11 @@ async function deriveKey(masterPassword: string, salt: Uint8Array): Promise<Cryp
     baseKey,
     { name: 'AES-GCM', length: 256 },
     false,
-    ['encrypt', 'decrypt']
+    ['encrypt', 'decrypt'],
   );
 }
 
-function getOrCreateSalt(): Uint8Array {
+function getOrCreateSalt(): Uint8Array<ArrayBuffer> {
   const stored = localStorage.getItem(SALT_KEY);
   if (stored) return Uint8Array.from(atob(stored), (c) => c.charCodeAt(0));
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -37,11 +40,18 @@ function getOrCreateSalt(): Uint8Array {
   return salt;
 }
 
-export async function encryptApiKey(masterPassword: string, apiKey: string): Promise<{ ciphertext: string; iv: string }> {
+export async function encryptApiKey(
+  masterPassword: string,
+  apiKey: string,
+): Promise<{ ciphertext: string; iv: string }> {
   const salt = getOrCreateSalt();
   const key = await deriveKey(masterPassword, salt);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(apiKey));
+  const ct = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(apiKey),
+  );
   return {
     ciphertext: btoa(String.fromCharCode(...new Uint8Array(ct))),
     iv: btoa(String.fromCharCode(...iv)),
@@ -51,7 +61,7 @@ export async function encryptApiKey(masterPassword: string, apiKey: string): Pro
 export async function decryptApiKey(
   masterPassword: string,
   ciphertext: string,
-  ivB64: string
+  ivB64: string,
 ): Promise<string> {
   const salt = getOrCreateSalt();
   const key = await deriveKey(masterPassword, salt);

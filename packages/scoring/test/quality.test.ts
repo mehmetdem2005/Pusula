@@ -126,7 +126,7 @@ describe('kaliteSkoru — eksik veri normalize', () => {
     expect(result.skor).toBeLessThanOrEqual(100);
   });
 
-  it('breakdown sadece present feature\'ları içerir', () => {
+  it("breakdown sadece present feature'ları içerir", () => {
     const result = kaliteSkoru(base);
     // brut_m2, asansor, otopark vs. yok → breakdown'da olmayacak
     expect(result.breakdown.find((b) => b.key === 'brut_net_orani')).toBeUndefined();

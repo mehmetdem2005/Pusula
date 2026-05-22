@@ -13,7 +13,7 @@ export function yasScore(yas: number): number {
 /** Net m² → skor (oda sayısına göre beklenen ile karşılaştır). */
 export function m2Score(netM2: number, odaSayisi: string): number {
   const expected: Record<string, number> = {
-    'stüdyo': 35,
+    stüdyo: 35,
     '1+0': 35,
     '1+1': 55,
     '2+1': 90,
@@ -58,20 +58,23 @@ export function katScore(kat: number | string | undefined): number | null {
 
 export function isitmaScore(isitma: KonutInput['isitma']): number {
   const map: Record<KonutInput['isitma'], number> = {
-    'dogalgaz_kombi': 90,
-    'merkezi_pay_olcer': 80,
-    'merkezi': 60,
-    'kat_kalorifer': 70,
-    'yerden_isitma': 95,
-    'klima': 50,
-    'soba': 25,
-    'yok': 15,
-    'bilinmiyor': 50,
+    dogalgaz_kombi: 90,
+    merkezi_pay_olcer: 80,
+    merkezi: 60,
+    kat_kalorifer: 70,
+    yerden_isitma: 95,
+    klima: 50,
+    soba: 25,
+    yok: 15,
+    bilinmiyor: 50,
   };
   return map[isitma];
 }
 
-export function asansorScore(asansor: boolean | undefined, kat: number | string | undefined): number | null {
+export function asansorScore(
+  asansor: boolean | undefined,
+  kat: number | string | undefined,
+): number | null {
   if (asansor === undefined) return null;
   if (asansor) return 90;
   if (typeof kat === 'number' && kat >= 3) return 30;
@@ -81,9 +84,9 @@ export function asansorScore(asansor: boolean | undefined, kat: number | string 
 export function otoparkScore(otopark: KonutInput['otopark']): number | null {
   if (!otopark) return null;
   const map: Record<NonNullable<KonutInput['otopark']>, number> = {
-    'kapali': 90,
-    'acik': 75,
-    'yok': 40,
+    kapali: 90,
+    acik: 75,
+    yok: 40,
   };
   return map[otopark];
 }
@@ -100,22 +103,34 @@ interface Feature {
  */
 export function kaliteSkoru(input: KonutInput): {
   skor: number;
-  breakdown: Array<{ key: string; deger: number; agirlik: number; katki: number }>;
+  breakdown: { key: string; deger: number; agirlik: number; katki: number }[];
 } {
   const features: Feature[] = [
-    { key: 'bina_yasi', weight: 0.20, score: yasScore(input.bina_yasi) },
+    { key: 'bina_yasi', weight: 0.2, score: yasScore(input.bina_yasi) },
     { key: 'net_m2', weight: 0.15, score: m2Score(input.net_m2, input.oda_sayisi) },
-    { key: 'brut_net_orani', weight: 0.10, score: brutNetOraniScore(input.brut_m2, input.net_m2) },
-    { key: 'kat', weight: 0.10, score: katScore(input.bulundugu_kat) },
-    { key: 'isitma', weight: 0.10, score: isitmaScore(input.isitma) },
+    { key: 'brut_net_orani', weight: 0.1, score: brutNetOraniScore(input.brut_m2, input.net_m2) },
+    { key: 'kat', weight: 0.1, score: katScore(input.bulundugu_kat) },
+    { key: 'isitma', weight: 0.1, score: isitmaScore(input.isitma) },
     { key: 'asansor', weight: 0.03, score: asansorScore(input.asansor, input.bulundugu_kat) },
     { key: 'otopark', weight: 0.05, score: otoparkScore(input.otopark) },
-    { key: 'site_icinde', weight: 0.03, score: input.site_icinde === undefined ? null : input.site_icinde ? 85 : 55 },
-    { key: 'esyali', weight: 0.02, score: input.esyali === undefined ? null : input.esyali ? 70 : 50 },
-    { key: 'banyo', weight: 0.05, score: input.banyo_sayisi === undefined ? null : input.banyo_sayisi >= 2 ? 85 : 70 },
+    {
+      key: 'site_icinde',
+      weight: 0.03,
+      score: input.site_icinde === undefined ? null : input.site_icinde ? 85 : 55,
+    },
+    {
+      key: 'esyali',
+      weight: 0.02,
+      score: input.esyali === undefined ? null : input.esyali ? 70 : 50,
+    },
+    {
+      key: 'banyo',
+      weight: 0.05,
+      score: input.banyo_sayisi === undefined ? null : input.banyo_sayisi >= 2 ? 85 : 70,
+    },
   ];
 
-  const present = features.filter((f) => f.score !== null) as Array<Feature & { score: number }>;
+  const present = features.filter((f) => f.score !== null) as (Feature & { score: number })[];
   const totalWeight = present.reduce((s, f) => s + f.weight, 0);
 
   if (totalWeight === 0) {

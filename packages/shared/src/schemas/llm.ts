@@ -18,7 +18,11 @@ export type KeySource = z.infer<typeof KeySource>;
 
 export const ContentPart = z.union([
   z.object({ type: z.literal('text'), text: z.string() }),
-  z.object({ type: z.literal('image'), image_url: z.string().url().optional(), image_base64: z.string().optional() }),
+  z.object({
+    type: z.literal('image'),
+    image_url: z.string().url().optional(),
+    image_base64: z.string().optional(),
+  }),
 ]);
 export type ContentPart = z.infer<typeof ContentPart>;
 

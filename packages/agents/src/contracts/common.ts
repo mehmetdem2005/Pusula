@@ -89,7 +89,15 @@ export const AgentResult = <TOk extends z.ZodTypeAny>(okSchema: TOk) =>
     }),
     z.object({
       status: z.literal('error'),
-      error_kind: z.enum(['timeout', 'rate_limit', 'auth', 'content', 'network', 'server', 'unknown']),
+      error_kind: z.enum([
+        'timeout',
+        'rate_limit',
+        'auth',
+        'content',
+        'network',
+        'server',
+        'unknown',
+      ]),
       error_message: z.string(),
       retryable: z.boolean(),
       duration_ms: z.number().int().min(0),

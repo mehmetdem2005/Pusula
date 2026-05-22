@@ -1,12 +1,12 @@
 # 16 — Test Stratejisi
 
-| Alan | Değer |
-|---|---|
-| **Doküman versiyonu** | 1.0 |
-| **Statü** | Proposed |
-| **Son güncelleme** | 22 Mayıs 2026 |
-| **Yazar** | Pusula Mühendislik / QA |
-| **Hedef okuyucu** | Tüm mühendisler, QA |
+| Alan                  | Değer                   |
+| --------------------- | ----------------------- |
+| **Doküman versiyonu** | 1.0                     |
+| **Statü**             | Proposed                |
+| **Son güncelleme**    | 22 Mayıs 2026           |
+| **Yazar**             | Pusula Mühendislik / QA |
+| **Hedef okuyucu**     | Tüm mühendisler, QA     |
 
 ## Amaç
 
@@ -48,16 +48,16 @@ graph TD
 
 ### 2.1 Kapsam Hedefi
 
-| Paket | Coverage hedef |
-|---|---|
-| `@pusula/scoring` | ≥ 95% line, ≥ 90% branch |
-| `@pusula/scoring-konut` | ≥ 95% |
-| `@pusula/llm-gateway` | ≥ 85% (mock LLM çağrıları) |
-| `@pusula/shared` | ≥ 90% (Zod schemas) |
-| `@pusula/agents` (specialist'ler) | ≥ 80% |
-| `apps/api` (NestJS) | ≥ 75% |
-| `apps/web` (UI) | ≥ 60% (UI test E2E'de) |
-| `apps/extension` | ≥ 70% (DOM parser kritik) |
+| Paket                             | Coverage hedef             |
+| --------------------------------- | -------------------------- |
+| `@pusula/scoring`                 | ≥ 95% line, ≥ 90% branch   |
+| `@pusula/scoring-konut`           | ≥ 95%                      |
+| `@pusula/llm-gateway`             | ≥ 85% (mock LLM çağrıları) |
+| `@pusula/shared`                  | ≥ 90% (Zod schemas)        |
+| `@pusula/agents` (specialist'ler) | ≥ 80%                      |
+| `apps/api` (NestJS)               | ≥ 75%                      |
+| `apps/web` (UI)                   | ≥ 60% (UI test E2E'de)     |
+| `apps/extension`                  | ≥ 70% (DOM parser kritik)  |
 
 ### 2.2 Araçlar
 
@@ -76,21 +76,18 @@ import { fiyatAvantajiSkoru } from '../../src/pillars/fiyat';
 
 describe('FiyatAvantajıSkoru', () => {
   it('medyan fiyat → skor ≈ 50', () => {
-    const result = fiyatAvantajiSkoru(
-      { fiyat_tl: 4_750_000, net_m2: 95 },
-      makeComparables(50_000)
-    );
+    const result = fiyatAvantajiSkoru({ fiyat_tl: 4_750_000, net_m2: 95 }, makeComparables(50_000));
     expect(result.skor).toBeCloseTo(50, 0);
   });
 
   it.each([
-    [40_000, 70, 100],    // %20 ucuz
-    [60_000, 0, 30],      // %20 pahalı
-    [50_000, 35, 65],     // medyanda
+    [40_000, 70, 100], // %20 ucuz
+    [60_000, 0, 30], // %20 pahalı
+    [50_000, 35, 65], // medyanda
   ])('m2 fiyatı %d TL → skor [%d-%d] aralığında', (m2Fiyat, min, max) => {
     const result = fiyatAvantajiSkoru(
       { fiyat_tl: 95 * m2Fiyat, net_m2: 95 },
-      makeComparables(50_000)
+      makeComparables(50_000),
     );
     expect(result.skor).toBeGreaterThanOrEqual(min);
     expect(result.skor).toBeLessThanOrEqual(max);
@@ -105,11 +102,11 @@ describe('FiyatAvantajıSkoru', () => {
         (fiyat, m2, medianM2) => {
           const result = fiyatAvantajiSkoru(
             { fiyat_tl: fiyat, net_m2: m2 },
-            makeComparables(medianM2)
+            makeComparables(medianM2),
           );
           return result.skor >= 0 && result.skor <= 100;
-        }
-      )
+        },
+      ),
     );
   });
 
@@ -125,12 +122,12 @@ describe('FiyatAvantajıSkoru', () => {
 
 ### 2.4 Anti-Patterns
 
-| ❌ Kötü | ✅ İyi |
-|---|---|
+| ❌ Kötü                         | ✅ İyi                       |
+| ------------------------------- | ---------------------------- |
 | Network çağrısı yapan unit test | Mock'la, integration'a bırak |
-| `setTimeout`'la flaky test | `vi.useFakeTimers()` |
-| 200 satır test setup | Helper function veya fixture |
-| Test isimleri "test 1, test 2" | "skoru medyanda 50 vermeli" |
+| `setTimeout`'la flaky test      | `vi.useFakeTimers()`         |
+| 200 satır test setup            | Helper function veya fixture |
+| Test isimleri "test 1, test 2"  | "skoru medyanda 50 vermeli"  |
 
 ---
 
@@ -166,7 +163,7 @@ describe('ScoringAgent contract', () => {
       (description, invalidPayload) => {
         const result = ScoringRequest.safeParse(invalidPayload);
         expect(result.success).toBe(false);
-      }
+      },
     );
   });
 
@@ -202,7 +199,7 @@ Brain → Specialist tipi kontratlar için **pact-style** testler:
 
 describe('Brain → ScoringAgent contract', () => {
   it('Brain tool call definition matches ScoringAgent input', () => {
-    const toolDef = BRAIN_TOOLS.find(t => t.name === 'scoring_agent');
+    const toolDef = BRAIN_TOOLS.find((t) => t.name === 'scoring_agent');
     // toolDef.parameters Zod schema mı? ScoringRequest ile aynı mı?
     expect(toolDef?.parameters).toEqual(ScoringRequest);
   });
@@ -239,7 +236,7 @@ services:
       POSTGRES_DB: pusula_test
       POSTGRES_PASSWORD: test
     tmpfs:
-      - /var/lib/postgresql/data  # in-memory için hızlı
+      - /var/lib/postgresql/data # in-memory için hızlı
 
   redis-test:
     image: redis:7-alpine
@@ -269,7 +266,12 @@ describe('POST /api/scoring/konut (integration)', () => {
     const response = await request(app.getHttpServer())
       .post('/api/scoring/konut')
       .set('Authorization', `Bearer ${testJwt}`)
-      .send({ input: fixtures.konutInput, context_request: { /* ... */ } });
+      .send({
+        input: fixtures.konutInput,
+        context_request: {
+          /* ... */
+        },
+      });
 
     expect(response.status).toBe(200);
     expect(response.body.skor.toplam).toBeGreaterThan(0);
@@ -283,14 +285,14 @@ describe('POST /api/scoring/konut (integration)', () => {
   });
 
   it('handles missing comparable gracefully', async () => {
-    await testDb.query('TRUNCATE ilanlar');  // hiç comparable yok
+    await testDb.query('TRUNCATE ilanlar'); // hiç comparable yok
     const response = await request(app.getHttpServer())
       .post('/api/scoring/konut')
       .send({ input: fixtures.konutInput });
 
     expect(response.body.skor.confidence).toBeLessThan(50);
     expect(response.body.skor.uyarilar).toContainEqual(
-      expect.objectContaining({ kod: 'low_comparable' })
+      expect.objectContaining({ kod: 'low_comparable' }),
     );
   });
 });
@@ -308,18 +310,18 @@ describe('POST /api/scoring/konut (integration)', () => {
 
 ### 5.2 Kapsam (MVP Beta)
 
-| Senaryo | Kritiklik |
-|---|---|
-| Signup + login (magic link) | P0 |
-| Settings → BYOK key ekle + test | P0 |
-| Dashboard → Ilan ekle (manuel URL) → skor görüntüle | P0 |
-| Chat → "bu ilanı analiz et" → skor cevabı | P0 |
-| Extension yan panel açma + sahibinden DOM parse | P0 |
-| Skor kartı → "neden bu skor?" → AI açıklama streaming | P1 |
-| Pazarlama metni üretme | P1 |
-| Settings → persona değiştirme | P2 |
-| Slash command `/analiz` | P2 |
-| Aboneliğe geç → Stripe checkout (test mode) | P1 (V2) |
+| Senaryo                                               | Kritiklik |
+| ----------------------------------------------------- | --------- |
+| Signup + login (magic link)                           | P0        |
+| Settings → BYOK key ekle + test                       | P0        |
+| Dashboard → Ilan ekle (manuel URL) → skor görüntüle   | P0        |
+| Chat → "bu ilanı analiz et" → skor cevabı             | P0        |
+| Extension yan panel açma + sahibinden DOM parse       | P0        |
+| Skor kartı → "neden bu skor?" → AI açıklama streaming | P1        |
+| Pazarlama metni üretme                                | P1        |
+| Settings → persona değiştirme                         | P2        |
+| Slash command `/analiz`                               | P2        |
+| Aboneliğe geç → Stripe checkout (test mode)           | P1 (V2)   |
 
 ### 5.3 Örnek E2E Test
 
@@ -445,22 +447,24 @@ import { check, sleep } from 'k6';
 
 export const options = {
   stages: [
-    { duration: '2m', target: 50 },    // ramp up
-    { duration: '5m', target: 100 },   // steady
-    { duration: '2m', target: 0 },     // ramp down
+    { duration: '2m', target: 50 }, // ramp up
+    { duration: '5m', target: 100 }, // steady
+    { duration: '2m', target: 0 }, // ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<2000'],   // p95 < 2s
-    http_req_failed: ['rate<0.01'],      // <1% error
+    http_req_duration: ['p(95)<2000'], // p95 < 2s
+    http_req_failed: ['rate<0.01'], // <1% error
   },
 };
 
 export default function () {
   const payload = JSON.stringify({
-    input: { /* fixture konut */ },
-    context_request: { include_vision: false }
+    input: {
+      /* fixture konut */
+    },
+    context_request: { include_vision: false },
   });
-  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${__ENV.TOKEN}` };
+  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${__ENV.TOKEN}` };
   const res = http.post('https://api.pusula.tr/api/scoring/konut', payload, { headers });
   check(res, { 'status 200': (r) => r.status === 200 });
   sleep(1);
@@ -469,12 +473,12 @@ export default function () {
 
 ### 7.2 Senaryolar
 
-| Senaryo | RPS hedef | Süre | Beklenen |
-|---|---|---|---|
-| Normal trafik | 10 RPS | 30 dk | Tüm SLO'lar yeşil |
-| Burst (kampanya) | 100 RPS | 5 dk | p95 < 5s, hata < %1 |
-| Stress (capacity bulma) | 500 RPS | 2 dk | Degraded ama crashless |
-| Sustained high | 50 RPS | 6 saat | Memory leak yok |
+| Senaryo                 | RPS hedef | Süre   | Beklenen               |
+| ----------------------- | --------- | ------ | ---------------------- |
+| Normal trafik           | 10 RPS    | 30 dk  | Tüm SLO'lar yeşil      |
+| Burst (kampanya)        | 100 RPS   | 5 dk   | p95 < 5s, hata < %1    |
+| Stress (capacity bulma) | 500 RPS   | 2 dk   | Degraded ama crashless |
+| Sustained high          | 50 RPS    | 6 saat | Memory leak yok        |
 
 ---
 
@@ -484,14 +488,14 @@ export default function () {
 
 ### 8.2 Chaos Senaryoları
 
-| Senaryo | Beklenen davranış |
-|---|---|
-| LLM provider X 30 saniye 500 dönüyor | Failover diğer provider'a, kullanıcı fark etmez |
-| DB %5 latency artışı | Cache hit oranı artar, kullanıcı gözle görmez |
-| Redis tamamen down | Cache miss'ler DB'ye gider, latency artar ama servis sağlam |
-| OSM API timeout | Konum pillar adaptif skip, ağırlık yeniden dağıtılır |
-| Vision agent crash loop | Vision pillar 0 ağırlığa düşer, skor verilir |
-| Network partition (API ↔ DB) | Health check fail → Render auto-restart |
+| Senaryo                              | Beklenen davranış                                           |
+| ------------------------------------ | ----------------------------------------------------------- |
+| LLM provider X 30 saniye 500 dönüyor | Failover diğer provider'a, kullanıcı fark etmez             |
+| DB %5 latency artışı                 | Cache hit oranı artar, kullanıcı gözle görmez               |
+| Redis tamamen down                   | Cache miss'ler DB'ye gider, latency artar ama servis sağlam |
+| OSM API timeout                      | Konum pillar adaptif skip, ağırlık yeniden dağıtılır        |
+| Vision agent crash loop              | Vision pillar 0 ağırlığa düşer, skor verilir                |
+| Network partition (API ↔ DB)         | Health check fail → Render auto-restart                     |
 
 ### 8.3 Chaos Test Örneği
 
@@ -511,7 +515,9 @@ test('Groq 30 saniye down → Gemini failover transparent', async ({ page }) => 
   expect(duration).toBeLessThan(8000);
 
   // Telemetry'de failover log'u var
-  const failovers = await metrics.query('pusula_llm_failover_total{from_provider="groq",to_provider="gemini"}');
+  const failovers = await metrics.query(
+    'pusula_llm_failover_total{from_provider="groq",to_provider="gemini"}',
+  );
   expect(failovers).toBeGreaterThan(0);
 
   await toxiproxy.enable('groq-proxy');
@@ -605,16 +611,16 @@ jobs:
 
 ### 9.2 Merge Gating
 
-| Test türü | PR merge'i bloklar mı? |
-|---|---|
-| Lint + typecheck | ✅ Evet |
-| Unit tests | ✅ Evet |
-| Contract tests | ✅ Evet (kritik) |
-| Integration tests | ✅ Evet |
-| E2E tests | ✅ Evet (sadece kritik path'ler) |
-| ML regression | ✅ Evet (sadece `ml-model` label varsa) |
-| Load tests | ❌ Hayır (haftalık ayrı job) |
-| Chaos tests | ❌ Hayır (staging'de manuel) |
+| Test türü         | PR merge'i bloklar mı?                  |
+| ----------------- | --------------------------------------- |
+| Lint + typecheck  | ✅ Evet                                 |
+| Unit tests        | ✅ Evet                                 |
+| Contract tests    | ✅ Evet (kritik)                        |
+| Integration tests | ✅ Evet                                 |
+| E2E tests         | ✅ Evet (sadece kritik path'ler)        |
+| ML regression     | ✅ Evet (sadece `ml-model` label varsa) |
+| Load tests        | ❌ Hayır (haftalık ayrı job)            |
+| Chaos tests       | ❌ Hayır (staging'de manuel)            |
 
 ---
 
@@ -682,7 +688,7 @@ await expect(page).toHaveScreenshot('score-card.png', {
 test('Snapshot skor — fixture 1', async () => {
   const result = await scoreFixture('konut/kelepir-2plus1-besiktas.json');
   expect(result).toMatchSnapshot({
-    toplam: expect.closeTo(78, 1),  // ±1 puan toleransı
+    toplam: expect.closeTo(78, 1), // ±1 puan toleransı
     etiket: 'kelepir',
     'pillars.fiyat_avantaji.deger': expect.closeTo(85, 2),
   });
@@ -705,11 +711,11 @@ if pass_rate < flaky_threshold:
 
 ### 12.2 Yanıt
 
-| Pass rate | Aksiyon |
-|---|---|
-| < 95% | Issue açılır, flaky label |
-| < 90% | 1 hafta içinde fix veya skip |
-| < 70% | Test silinir (yetersiz) |
+| Pass rate | Aksiyon                      |
+| --------- | ---------------------------- |
+| < 95%     | Issue açılır, flaky label    |
+| < 90%     | 1 hafta içinde fix veya skip |
+| < 70%     | Test silinir (yetersiz)      |
 
 ---
 

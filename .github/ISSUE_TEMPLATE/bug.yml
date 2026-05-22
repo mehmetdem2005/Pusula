@@ -1,6 +1,6 @@
 name: 🐛 Bug raporu
 description: Beklenmeyen bir davranış / hata bildir
-labels: ["bug", "triage"]
+labels: ['bug', 'triage']
 body:
   - type: markdown
     attributes:
@@ -12,7 +12,7 @@ body:
     attributes:
       label: Sürüm
       description: Pusula web / extension / API sürümü
-      placeholder: "web 0.0.1, extension 0.0.1"
+      placeholder: 'web 0.0.1, extension 0.0.1'
     validations:
       required: true
 
@@ -49,4 +49,4 @@ body:
     id: env
     attributes:
       label: Tarayıcı / OS
-      placeholder: "Chrome 130 / macOS 14"
+      placeholder: 'Chrome 130 / macOS 14'

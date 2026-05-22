@@ -18,7 +18,9 @@ export const LocationContext = z.object({
   okul_mesafe_m: z.number().optional(),
   hastane_mesafe_m: z.number().optional(),
   park_mesafe_m: z.number().optional(),
-  mahalle_gelir_quintile: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]).optional(),
+  mahalle_gelir_quintile: z
+    .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)])
+    .optional(),
   mahalle_fiyat_ivmesi_12ay_yuzde: z.number().optional(),
   gentrifikasyon_momentum: z.number().optional(),
   data_freshness: z.string().datetime().optional(),

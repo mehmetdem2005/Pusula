@@ -17,6 +17,7 @@ bash scripts/quickstart.sh
 ```
 
 Bu betik:
+
 1. Node/pnpm/Docker varlığını kontrol eder
 2. `apps/*/.env.local` dosyalarını `.env.example`'dan kopyalar
 3. `pnpm install` çalıştırır
@@ -61,32 +62,32 @@ pnpm --filter @pusula/extension dev # apps/extension/dist
 2. Chrome → `chrome://extensions`
 3. Sağ üstte **Developer mode** açık
 4. **Load unpacked** → `apps/extension/dist/` klasörünü seç
-5. Pusula simgesi araç çubuğunda belirir; sahibinden.com/ilan/* sayfasında otomatik tetiklenir
+5. Pusula simgesi araç çubuğunda belirir; sahibinden.com/ilan/\* sayfasında otomatik tetiklenir
 
 ## Şu An Erişebileceğin Sayfalar
 
-| URL | Durum |
-|---|---|
-| `http://localhost:3000` | ✅ Landing |
-| `/auth/login` | ✅ Magic link UI (stub, gerçek auth V1) |
-| `/auth/signup` | ✅ Beta kayıt UI (stub) |
-| `/dashboard` | ✅ Boş hâliyle "Henüz ilan yok" |
-| `/ilan/[id]` | ✅ İskelet — gerçek veri V1 |
-| `/settings` | ✅ BYOK provider UI (input'lar çalışıyor, save V1) |
-| `/legal/kvkk` | ✅ Statik metin |
-| `/legal/kullanim` | ✅ Statik metin |
-| `/error`, `/loading`, `/not-found` | ✅ Hazır |
+| URL                                | Durum                                              |
+| ---------------------------------- | -------------------------------------------------- |
+| `http://localhost:3000`            | ✅ Landing                                         |
+| `/auth/login`                      | ✅ Magic link UI (stub, gerçek auth V1)            |
+| `/auth/signup`                     | ✅ Beta kayıt UI (stub)                            |
+| `/dashboard`                       | ✅ Boş hâliyle "Henüz ilan yok"                    |
+| `/ilan/[id]`                       | ✅ İskelet — gerçek veri V1                        |
+| `/settings`                        | ✅ BYOK provider UI (input'lar çalışıyor, save V1) |
+| `/legal/kvkk`                      | ✅ Statik metin                                    |
+| `/legal/kullanim`                  | ✅ Statik metin                                    |
+| `/error`, `/loading`, `/not-found` | ✅ Hazır                                           |
 
 ## API Endpoint'leri
 
-| URL | Auth | Durum |
-|---|---|---|
-| `GET /health`, `/healthz` | yok | ✅ Liveness |
-| `GET /v1/readyz` | yok | ✅ DB + Redis check |
-| `POST /v1/ilanlar/ingest` | JWT | ✅ Skor + persistans |
-| `POST /v1/ilanlar/list-batch` | JWT | ✅ Validation, queue (V1) |
-| `POST /v1/llm/chat` | JWT | ✅ BYOK proxy |
-| `POST /v1/telemetry/parser-error` | JWT | ✅ Parse hata logu |
+| URL                               | Auth | Durum                     |
+| --------------------------------- | ---- | ------------------------- |
+| `GET /health`, `/healthz`         | yok  | ✅ Liveness               |
+| `GET /v1/readyz`                  | yok  | ✅ DB + Redis check       |
+| `POST /v1/ilanlar/ingest`         | JWT  | ✅ Skor + persistans      |
+| `POST /v1/ilanlar/list-batch`     | JWT  | ✅ Validation, queue (V1) |
+| `POST /v1/llm/chat`               | JWT  | ✅ BYOK proxy             |
+| `POST /v1/telemetry/parser-error` | JWT  | ✅ Parse hata logu        |
 
 ## Sorun Giderme
 

@@ -83,16 +83,16 @@ pnpm --filter @pusula/extension dev
 
 ## Stack Özeti
 
-| Katman | Teknoloji |
-|---|---|
-| Web | Next.js 15 (App Router) + TypeScript + Tailwind + shadcn/ui + TanStack Query + Zustand |
-| Extension | Manifest V3 + Vite + React + Tailwind |
-| API | NestJS + TypeScript + Prisma (Postgres) + BullMQ (Redis) |
-| Auth | Supabase Auth (email + magic link + Google OAuth) |
-| DB | PostgreSQL 16 + pgvector (Supabase) |
-| LLM | `@pusula/llm-gateway` — Groq + Gemini + DeepSeek + Anthropic |
-| Hosting | Vercel (web) + Render (api) + Supabase (DB) |
-| Observability | Sentry + PostHog |
+| Katman        | Teknoloji                                                                              |
+| ------------- | -------------------------------------------------------------------------------------- |
+| Web           | Next.js 15 (App Router) + TypeScript + Tailwind + shadcn/ui + TanStack Query + Zustand |
+| Extension     | Manifest V3 + Vite + React + Tailwind                                                  |
+| API           | NestJS + TypeScript + Prisma (Postgres) + BullMQ (Redis)                               |
+| Auth          | Supabase Auth (email + magic link + Google OAuth)                                      |
+| DB            | PostgreSQL 16 + pgvector (Supabase)                                                    |
+| LLM           | `@pusula/llm-gateway` — Groq + Gemini + DeepSeek + Anthropic                           |
+| Hosting       | Vercel (web) + Render (api) + Supabase (DB)                                            |
+| Observability | Sentry + PostHog                                                                       |
 
 ---
 
@@ -100,11 +100,11 @@ pnpm --filter @pusula/extension dev
 
 Pusula üç ayrı servise dağıtılır:
 
-| Servis | Hosting | URL (beta) | Maliyet (başlangıç) |
-|---|---|---|---|
-| **Web** (Next.js) | Vercel | `pusula-web.vercel.app` | $0 (Hobby) → $20/ay (Pro) |
-| **API** (NestJS) | Render | `pusula-api.onrender.com` | $7/ay (Starter) + $10/ay Redis |
-| **DB** (Postgres + pgvector) | Supabase | `xxx.supabase.co` | $0 (Free) → $25/ay (Pro) |
+| Servis                       | Hosting  | URL (beta)                | Maliyet (başlangıç)            |
+| ---------------------------- | -------- | ------------------------- | ------------------------------ |
+| **Web** (Next.js)            | Vercel   | `pusula-web.vercel.app`   | $0 (Hobby) → $20/ay (Pro)      |
+| **API** (NestJS)             | Render   | `pusula-api.onrender.com` | $7/ay (Starter) + $10/ay Redis |
+| **DB** (Postgres + pgvector) | Supabase | `xxx.supabase.co`         | $0 (Free) → $25/ay (Pro)       |
 
 ### Web — Vercel
 

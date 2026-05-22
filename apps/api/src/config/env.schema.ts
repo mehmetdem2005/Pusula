@@ -44,9 +44,8 @@ export function loadEnv(): Env {
   if (cached) return cached;
   const parsed = EnvSchema.safeParse(process.env);
   if (!parsed.success) {
-    // eslint-disable-next-line no-console
     console.error('❌ Geçersiz environment değişkenleri:');
-    // eslint-disable-next-line no-console
+
     console.error(JSON.stringify(parsed.error.format(), null, 2));
     process.exit(1);
   }

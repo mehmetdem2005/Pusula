@@ -2,7 +2,7 @@
  * ComparableAgent — Tier 1
  * docs/11-multi-agent-mimarisi.md §4.2
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import { ComparableRequest, ComparableResponse } from '../contracts/comparable.js';
 import type { Logger } from '../runtime/Logger.js';
 
@@ -13,7 +13,9 @@ export class ComparableAgent {
 
   constructor(private logger: Logger) {}
 
-  async handle(req: z.infer<typeof ComparableRequest>): Promise<z.infer<typeof ComparableResponse>> {
+  async handle(
+    req: z.infer<typeof ComparableRequest>,
+  ): Promise<z.infer<typeof ComparableResponse>> {
     this.logger.info('ComparableAgent.handle', { trace_id: req.trace_id });
     const start = Date.now();
 

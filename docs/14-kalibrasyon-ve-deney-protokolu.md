@@ -1,12 +1,12 @@
 # 14 — Kalibrasyon ve Deney Protokolü
 
-| Alan | Değer |
-|---|---|
-| **Doküman versiyonu** | 1.0 |
-| **Statü** | Proposed |
-| **Son güncelleme** | 22 Mayıs 2026 |
-| **Yazar** | Pusula ML / Veri Bilimi |
-| **Hedef okuyucu** | ML mühendisleri, veri bilimcileri, ürün liderliği |
+| Alan                  | Değer                                             |
+| --------------------- | ------------------------------------------------- |
+| **Doküman versiyonu** | 1.0                                               |
+| **Statü**             | Proposed                                          |
+| **Son güncelleme**    | 22 Mayıs 2026                                     |
+| **Yazar**             | Pusula ML / Veri Bilimi                           |
+| **Hedef okuyucu**     | ML mühendisleri, veri bilimcileri, ürün liderliği |
 
 ## Amaç
 
@@ -60,7 +60,7 @@ interface ExpertLabel {
   expert_id: string;
   ilan_id: string;
   verdict: 'kacirilmaz' | 'kelepir' | 'iyi_fiyat' | 'piyasa' | 'pahali' | 'asiri_pahali';
-  confidence: number;  // 1-5
+  confidence: number; // 1-5
   reasoning: string;
   timestamp: string;
 }
@@ -163,11 +163,11 @@ best_weights = study.best_params
 
 ### 2.4 Faz Geçiş Kriterleri
 
-| Phase | Çıkış kriteri |
-|---|---|
-| 1 → 2 | 100 ilan etiketlendi, kappa ≥ 0.6, ilk grid search çalıştı, MVP launch |
-| 2 → 3 | 1.000 ilan + label, Bayesian opt tamamlandı, NDCG@10 ≥ 0.75 |
-| 3 → süreç | 10.000+ ilan, satış verisi akmaya başladı, drift monitor canlı |
+| Phase     | Çıkış kriteri                                                          |
+| --------- | ---------------------------------------------------------------------- |
+| 1 → 2     | 100 ilan etiketlendi, kappa ≥ 0.6, ilk grid search çalıştı, MVP launch |
+| 2 → 3     | 1.000 ilan + label, Bayesian opt tamamlandı, NDCG@10 ≥ 0.75            |
+| 3 → süreç | 10.000+ ilan, satış verisi akmaya başladı, drift monitor canlı         |
 
 ---
 
@@ -249,12 +249,12 @@ def expected_calibration_error(scores: list[float], labels: list[bool], n_bins: 
 
 ### 3.6 Persona-Specific Metrics
 
-| Persona | Ana metrik | Hedef |
-|---|---|---|
-| Buyer | Pişmanlık oranı (skor 80+ alıp pişman olan) | < 10% |
-| Investor | Skor 80+ ROI tahmin vs gerçek MAPE | < 15% |
+| Persona      | Ana metrik                                                  | Hedef                          |
+| ------------ | ----------------------------------------------------------- | ------------------------------ |
+| Buyer        | Pişmanlık oranı (skor 80+ alıp pişman olan)                 | < 10%                          |
+| Investor     | Skor 80+ ROI tahmin vs gerçek MAPE                          | < 15%                          |
 | Agent Seller | Pazarlama metni → ilan yayınlandığında alınan teklif sayısı | +20% (kontrol grubu vs Pusula) |
-| Researcher | Trend tahmininin 3 ay sonra doğrulanma oranı | > 65% |
+| Researcher   | Trend tahmininin 3 ay sonra doğrulanma oranı                | > 65%                          |
 
 ---
 
@@ -299,7 +299,7 @@ export function pickScoreVersion(user_id: string): ScoreVersion {
     const hash = murmurhash3(user_id + 'scoring_v1.2');
     if (hash % 100 < 5) return 'v1.2';
   }
-  return 'v1.1';  // stable
+  return 'v1.1'; // stable
 }
 ```
 
@@ -307,11 +307,11 @@ export function pickScoreVersion(user_id: string): ScoreVersion {
 
 Persona-spesifik ağırlık kalibrasyonu için ayrı A/B'ler.
 
-| Test | Kontrol | Varyant | Metrik |
-|---|---|---|---|
-| Investor için finansal pillar +5% | Default 0.06 | 0.11 | Investor user retention |
-| Buyer için risk pillar +5% | Default 0.10 | 0.15 | Buyer "pişmanlık oranı" |
-| Vision pillar default ağırlığı | 0.08 | 0.05 / 0.12 | NDCG@10 |
+| Test                              | Kontrol      | Varyant     | Metrik                  |
+| --------------------------------- | ------------ | ----------- | ----------------------- |
+| Investor için finansal pillar +5% | Default 0.06 | 0.11        | Investor user retention |
+| Buyer için risk pillar +5%        | Default 0.10 | 0.15        | Buyer "pişmanlık oranı" |
+| Vision pillar default ağırlığı    | 0.08         | 0.05 / 0.12 | NDCG@10                 |
 
 ---
 
@@ -397,13 +397,13 @@ flowchart TB
 
 ### 6.1 Makro Faktör Etkisi
 
-| Faktör | Pusula davranışı |
-|---|---|
-| TCMB faizi %5+ değişti | Finansal pillar yeniden hesap (kredi tahmini etkilenir) |
-| USD/TRY ±%15 | Lüks segment yatırımcı ilgisi değişir, persona ağırlık ayarı |
-| Mevsim (yaz/kış) | DOM beklentisi mevsimsel adjusted |
-| Salgın / Doğal afet | Tüm pazar drift olur, manuel intervention |
-| Yeni vergi yasası | Risk pillar parametre update |
+| Faktör                 | Pusula davranışı                                             |
+| ---------------------- | ------------------------------------------------------------ |
+| TCMB faizi %5+ değişti | Finansal pillar yeniden hesap (kredi tahmini etkilenir)      |
+| USD/TRY ±%15           | Lüks segment yatırımcı ilgisi değişir, persona ağırlık ayarı |
+| Mevsim (yaz/kış)       | DOM beklentisi mevsimsel adjusted                            |
+| Salgın / Doğal afet    | Tüm pazar drift olur, manuel intervention                    |
+| Yeni vergi yasası      | Risk pillar parametre update                                 |
 
 ---
 
@@ -411,38 +411,38 @@ flowchart TB
 
 Kalibrasyon kararları kim verir?
 
-| Karar tipi | Otomatik mi? | Onay | SLA |
-|---|---|---|---|
-| Hedonic retrain (drift varsa) | Otomatik trigger, manuel canary | ML mühendisi | 48 saat |
-| Ağırlık ayarı (küçük, < %2) | Otomatik canary | İzleme yeterli | 7 gün |
-| Ağırlık büyük değişim (> %5) | Manuel | Mehmet + ML lider | 30 gün |
-| Yeni pillar ekleme | Manuel | Mehmet + tüm ekip | ADR + 90 gün |
-| Persona algoritma değişimi | Manuel | Ürün + Mehmet | A/B test min 14 gün |
+| Karar tipi                    | Otomatik mi?                    | Onay              | SLA                 |
+| ----------------------------- | ------------------------------- | ----------------- | ------------------- |
+| Hedonic retrain (drift varsa) | Otomatik trigger, manuel canary | ML mühendisi      | 48 saat             |
+| Ağırlık ayarı (küçük, < %2)   | Otomatik canary                 | İzleme yeterli    | 7 gün               |
+| Ağırlık büyük değişim (> %5)  | Manuel                          | Mehmet + ML lider | 30 gün              |
+| Yeni pillar ekleme            | Manuel                          | Mehmet + tüm ekip | ADR + 90 gün        |
+| Persona algoritma değişimi    | Manuel                          | Ürün + Mehmet     | A/B test min 14 gün |
 
 ---
 
 ## 8. Tablo: Faz Bazlı Kalibrasyon Hedefleri
 
-| Metrik | Phase 1 hedef | Phase 2 hedef | Phase 3 hedef |
-|---|---|---|---|
-| NDCG@10 | 0.65 | 0.75 | 0.85 |
-| Spearman ρ | 0.60 | 0.70 | 0.80 |
-| Precision@10 (kelepir) | 0.70 | 0.80 | 0.90 |
-| MAPE (hedonic) | 18% | 12% | 8% |
-| Calibration error | 0.20 | 0.10 | 0.05 |
-| User trust (NPS-style) | 30 | 50 | 65 |
+| Metrik                 | Phase 1 hedef | Phase 2 hedef | Phase 3 hedef |
+| ---------------------- | ------------- | ------------- | ------------- |
+| NDCG@10                | 0.65          | 0.75          | 0.85          |
+| Spearman ρ             | 0.60          | 0.70          | 0.80          |
+| Precision@10 (kelepir) | 0.70          | 0.80          | 0.90          |
+| MAPE (hedonic)         | 18%           | 12%           | 8%            |
+| Calibration error      | 0.20          | 0.10          | 0.05          |
+| User trust (NPS-style) | 30            | 50            | 65            |
 
 ---
 
 ## 9. Veri Setleri
 
-| Set | Kullanım | Boyut hedef | Saklama |
-|---|---|---|---|
-| `expert_labels` | Phase 1 + ongoing validation | 500+ etiketli ilan | Postgres |
-| `user_feedback` | Pasif feedback (kullanıcı "doğru" / "yanlış" tıkladı) | 5K+ etkileşim | Postgres |
-| `actual_sales` | Phase 3 ground truth | 1K+ doğrulanmış satış | Postgres + audit log |
-| `synthetic_test` | Edge case test seti | 200 hand-crafted | Git repo'da fixture |
-| `drift_baseline` | Model eğitim verisi snapshot | 100K+ ilan özelliği | S3 / object storage |
+| Set              | Kullanım                                              | Boyut hedef           | Saklama              |
+| ---------------- | ----------------------------------------------------- | --------------------- | -------------------- |
+| `expert_labels`  | Phase 1 + ongoing validation                          | 500+ etiketli ilan    | Postgres             |
+| `user_feedback`  | Pasif feedback (kullanıcı "doğru" / "yanlış" tıkladı) | 5K+ etkileşim         | Postgres             |
+| `actual_sales`   | Phase 3 ground truth                                  | 1K+ doğrulanmış satış | Postgres + audit log |
+| `synthetic_test` | Edge case test seti                                   | 200 hand-crafted      | Git repo'da fixture  |
+| `drift_baseline` | Model eğitim verisi snapshot                          | 100K+ ilan özelliği   | S3 / object storage  |
 
 ---
 

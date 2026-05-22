@@ -23,12 +23,14 @@ export class LLMService {
     options: ChatOptions,
     providerKeysFromBody: Partial<Record<Provider, string>>,
   ): Promise<ChatResponse> {
-    const merged: Partial<Record<Provider, string>> = {
-      groq: providerKeysFromBody.groq ?? process.env.MANAGED_GROQ_KEY,
-      gemini: providerKeysFromBody.gemini ?? process.env.MANAGED_GEMINI_KEY,
-      deepseek: providerKeysFromBody.deepseek ?? process.env.MANAGED_DEEPSEEK_KEY,
-      anthropic: providerKeysFromBody.anthropic ?? process.env.MANAGED_ANTHROPIC_KEY,
+    const merged: Partial<Record<Provider, string>> = {};
+    const assign = (p: Provider, value: string | undefined): void => {
+      if (value) merged[p] = value;
     };
+    assign('groq', providerKeysFromBody.groq ?? process.env.MANAGED_GROQ_KEY);
+    assign('gemini', providerKeysFromBody.gemini ?? process.env.MANAGED_GEMINI_KEY);
+    assign('deepseek', providerKeysFromBody.deepseek ?? process.env.MANAGED_DEEPSEEK_KEY);
+    assign('anthropic', providerKeysFromBody.anthropic ?? process.env.MANAGED_ANTHROPIC_KEY);
 
     const gateway = new LLMGateway({
       keyResolver: new ByokKeyResolver(merged),

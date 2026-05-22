@@ -3,13 +3,15 @@ import type { ReactElement } from 'react';
 
 export default function KullanimPage(): ReactElement {
   return (
-    <main className="min-h-screen bg-white py-12 px-6">
-      <article className="container mx-auto max-w-3xl prose prose-slate">
+    <main className="min-h-screen bg-white px-6 py-12">
+      <article className="prose prose-slate container mx-auto max-w-3xl">
         <div className="mb-6 text-sm">
-          <Link href="/" className="text-sky-600 underline">← Anasayfa</Link>
+          <Link href="/" className="text-sky-600 underline">
+            ← Anasayfa
+          </Link>
         </div>
         <h1>Kullanım Şartları</h1>
-        <p className="text-slate-500 text-sm">Son güncelleme: 22 Mayıs 2026 — Beta sürümü</p>
+        <p className="text-sm text-slate-500">Son güncelleme: 22 Mayıs 2026 — Beta sürümü</p>
 
         <h2>1. Hizmet</h2>
         <p>
@@ -22,13 +24,15 @@ export default function KullanimPage(): ReactElement {
         <ul>
           <li>İlan kaynaklarının kullanım şartlarına uymak kullanıcıya aittir.</li>
           <li>BYOK modunda kullanıcı kendi AI sağlayıcı sözleşmelerinden sorumludur.</li>
-          <li>Skor ve AI yorumları <strong>yatırım veya hukuki tavsiye değildir.</strong></li>
+          <li>
+            Skor ve AI yorumları <strong>yatırım veya hukuki tavsiye değildir.</strong>
+          </li>
         </ul>
 
         <h2>3. Beta Statüsü</h2>
         <p>
-          Pusula şu an Beta&apos;dadır; formül, ağırlıklar ve özellikler değişebilir. Skor
-          versiyonu her sonuçta gösterilir (örn. <code>v0.1</code>).
+          Pusula şu an Beta&apos;dadır; formül, ağırlıklar ve özellikler değişebilir. Skor versiyonu
+          her sonuçta gösterilir (örn. <code>v0.1</code>).
         </p>
 
         <h2>4. Fikri Mülkiyet</h2>
@@ -39,20 +43,19 @@ export default function KullanimPage(): ReactElement {
 
         <h2>5. Sorumluluğun Sınırlandırılması</h2>
         <p>
-          Hizmet &quot;olduğu gibi&quot; sunulur. Pusula doğrudan/dolaylı, kâr kaybı dahil
-          herhangi bir zarardan, yürürlükteki mevzuat çerçevesinde, sorumlu tutulamaz.
+          Hizmet &quot;olduğu gibi&quot; sunulur. Pusula doğrudan/dolaylı, kâr kaybı dahil herhangi
+          bir zarardan, yürürlükteki mevzuat çerçevesinde, sorumlu tutulamaz.
         </p>
 
         <h2>6. Hesap Sonlandırma</h2>
         <p>
-          Kullanıcı dilediği zaman hesabını silebilir (<a href="mailto:destek@pusula.tr">destek@pusula.tr</a>);
-          BYOK key&apos;leri ve sohbet geçmişi silinir.
+          Kullanıcı dilediği zaman hesabını silebilir (
+          <a href="mailto:destek@pusula.tr">destek@pusula.tr</a>); BYOK key&apos;leri ve sohbet
+          geçmişi silinir.
         </p>
 
         <h2>7. İhtilaflar</h2>
-        <p>
-          Türkiye hukuku uygulanır. İstanbul mahkemeleri yetkilidir.
-        </p>
+        <p>Türkiye hukuku uygulanır. İstanbul mahkemeleri yetkilidir.</p>
       </article>
     </main>
   );

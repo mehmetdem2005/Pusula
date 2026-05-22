@@ -32,18 +32,20 @@ describe('ComparableResponse contract', () => {
 
   it('similarity_score 0-1 dışı reject', () => {
     const r = ComparableResponse.safeParse({
-      items: [{
-        id: crypto.randomUUID(),
-        ilan_url: 'https://www.sahibinden.com/ilan/1',
-        baslik: 'Test',
-        fiyat_tl: 1_000_000,
-        m2: 90,
-        fiyat_per_m2: 11111.11,
-        bina_yasi: 5,
-        oda_sayisi: '2+1',
-        ilce: 'Beşiktaş',
-        similarity_score: 1.5, // INVALID
-      }],
+      items: [
+        {
+          id: crypto.randomUUID(),
+          ilan_url: 'https://www.sahibinden.com/ilan/1',
+          baslik: 'Test',
+          fiyat_tl: 1_000_000,
+          m2: 90,
+          fiyat_per_m2: 11111.11,
+          bina_yasi: 5,
+          oda_sayisi: '2+1',
+          ilce: 'Beşiktaş',
+          similarity_score: 1.5, // INVALID
+        },
+      ],
       total_count: 1,
       strategy_used: 'hybrid',
       duration_ms: 0,

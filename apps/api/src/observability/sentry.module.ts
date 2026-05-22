@@ -2,6 +2,29 @@ import { Global, Logger, Module, type OnModuleInit } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { loadEnv } from '../config/env.schema.js';
 
+/** @sentry/node'un kullandığımız minimal yüzeyi. */
+interface SentryEvent {
+  request?: { headers?: Record<string, unknown> };
+}
+interface SentryLike {
+  init(options: Record<string, unknown>): void;
+  captureException(err: unknown, hint?: { extra?: Record<string, unknown> }): void;
+}
+
+/**
+ * @sentry/node opsiyonel bağımlılık olduğundan specifier'ı değişken üzerinden
+ * import ediyoruz; böylece TS modülü statik olarak çözmeye çalışmaz ve paket
+ * yüklü değilse build/typecheck kırılmaz.
+ */
+async function loadSentry(): Promise<SentryLike | null> {
+  const specifier = '@sentry/node';
+  try {
+    return (await import(specifier)) as unknown as SentryLike;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Sentry wrapper. DSN tanımlıysa runtime'da @sentry/node ile init eder; yoksa no-op.
  *
@@ -20,7 +43,7 @@ export class SentryService implements OnModuleInit {
       return;
     }
     try {
-      const Sentry = await import('@sentry/node').catch(() => null);
+      const Sentry = await loadSentry();
       if (!Sentry) {
         this.logger.warn('@sentry/node yüklü değil — error reporting devre dışı');
         return;
@@ -31,7 +54,7 @@ export class SentryService implements OnModuleInit {
         release: env.APP_VERSION,
         tracesSampleRate: env.NODE_ENV === 'production' ? 0.1 : 1.0,
         profilesSampleRate: env.NODE_ENV === 'production' ? 0.1 : 0,
-        beforeSend(event) {
+        beforeSend(event: SentryEvent) {
           // PII redaksiyon — Authorization header'larını ve email'i sterilize
           if (event.request?.headers) {
             delete event.request.headers.authorization;
@@ -50,9 +73,9 @@ export class SentryService implements OnModuleInit {
   captureException(err: unknown, context?: Record<string, unknown>): void {
     if (!this.initialized) return;
     void (async () => {
-      const Sentry = await import('@sentry/node').catch(() => null);
+      const Sentry = await loadSentry();
       if (!Sentry) return;
-      Sentry.captureException(err, { extra: context });
+      Sentry.captureException(err, context ? { extra: context } : undefined);
     })();
   }
 }

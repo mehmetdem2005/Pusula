@@ -83,7 +83,7 @@ async function handleDetayPage(): Promise<void> {
  */
 function setupPassiveCollector(): void {
   const seen = new Set<string>();
-  const batch: Array<{ url: string; baslik: string; fiyat: string }> = [];
+  const batch: { url: string; baslik: string; fiyat: string }[] = [];
   let flushTimer: number | undefined;
 
   const cardSelector = '[data-id], .classifiedItem, [data-testid="listing-card"]';
@@ -113,7 +113,7 @@ function setupPassiveCollector(): void {
         flushTimer = window.setTimeout(flush, 1500);
       }
     },
-    { threshold: 0.5 }
+    { threshold: 0.5 },
   );
 
   // İlk kartları ve mutation ile sonradan gelenleri observe et

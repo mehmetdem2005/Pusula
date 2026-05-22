@@ -17,7 +17,10 @@ export interface KonumContext {
   mahalle_fiyat_ivmesi_12ay_yuzde?: number;
 }
 
-function mesafeScore(mesafe: number | undefined, thresholds: [number, number, number, number]): number | null {
+function mesafeScore(
+  mesafe: number | undefined,
+  thresholds: [number, number, number, number],
+): number | null {
   if (mesafe === undefined) return null;
   const [t1, t2, t3, t4] = thresholds;
   if (mesafe < t1) return 95;
@@ -27,32 +30,58 @@ function mesafeScore(mesafe: number | undefined, thresholds: [number, number, nu
   return 25;
 }
 
-interface F { key: string; weight: number; score: number | null }
+interface F {
+  key: string;
+  weight: number;
+  score: number | null;
+}
 
 export function konumSkoru(
   _input: KonutInput,
-  ctx: KonumContext
-): { skor: number; breakdown: Array<{ key: string; deger: number; agirlik: number; katki: number }> } {
+  ctx: KonumContext,
+): { skor: number; breakdown: { key: string; deger: number; agirlik: number; katki: number }[] } {
   const features: F[] = [
-    { key: 'ana_cadde', weight: 0.15, score: mesafeScore(ctx.ana_caddeye_mesafe_m, [100, 300, 500, 1000]) },
-    { key: 'metro', weight: 0.20, score: mesafeScore(ctx.metro_metrobus_mesafe_m, [500, 1000, 2000, 5000]) },
+    {
+      key: 'ana_cadde',
+      weight: 0.15,
+      score: mesafeScore(ctx.ana_caddeye_mesafe_m, [100, 300, 500, 1000]),
+    },
+    {
+      key: 'metro',
+      weight: 0.2,
+      score: mesafeScore(ctx.metro_metrobus_mesafe_m, [500, 1000, 2000, 5000]),
+    },
     {
       key: 'toplu_tasima_yogunluk',
-      weight: 0.10,
-      score: ctx.toplu_tasima_hat_sayisi === undefined ? null : Math.min(95, 40 + ctx.toplu_tasima_hat_sayisi * 10),
+      weight: 0.1,
+      score:
+        ctx.toplu_tasima_hat_sayisi === undefined
+          ? null
+          : Math.min(95, 40 + ctx.toplu_tasima_hat_sayisi * 10),
     },
-    { key: 'market', weight: 0.10, score: mesafeScore(ctx.market_mesafe_m, [200, 500, 1000, 2000]) },
-    { key: 'okul', weight: 0.10, score: mesafeScore(ctx.okul_mesafe_m, [300, 500, 1000, 2000]) },
-    { key: 'hastane', weight: 0.05, score: mesafeScore(ctx.hastane_mesafe_m, [500, 1500, 3000, 5000]) },
-    { key: 'park', weight: 0.05, score: ctx.park_mesafe_m === undefined ? null : ctx.park_mesafe_m < 500 ? 85 : 50 },
+    { key: 'market', weight: 0.1, score: mesafeScore(ctx.market_mesafe_m, [200, 500, 1000, 2000]) },
+    { key: 'okul', weight: 0.1, score: mesafeScore(ctx.okul_mesafe_m, [300, 500, 1000, 2000]) },
+    {
+      key: 'hastane',
+      weight: 0.05,
+      score: mesafeScore(ctx.hastane_mesafe_m, [500, 1500, 3000, 5000]),
+    },
+    {
+      key: 'park',
+      weight: 0.05,
+      score: ctx.park_mesafe_m === undefined ? null : ctx.park_mesafe_m < 500 ? 85 : 50,
+    },
     {
       key: 'mahalle_gelir',
       weight: 0.15,
-      score: ctx.mahalle_gelir_quintile === undefined ? null : 30 + (ctx.mahalle_gelir_quintile - 1) * 15,
+      score:
+        ctx.mahalle_gelir_quintile === undefined
+          ? null
+          : 30 + (ctx.mahalle_gelir_quintile - 1) * 15,
     },
     {
       key: 'mahalle_fiyat_ivme',
-      weight: 0.10,
+      weight: 0.1,
       score:
         ctx.mahalle_fiyat_ivmesi_12ay_yuzde === undefined
           ? null
@@ -64,7 +93,7 @@ export function konumSkoru(
     },
   ];
 
-  const present = features.filter((f) => f.score !== null) as Array<F & { score: number }>;
+  const present = features.filter((f) => f.score !== null) as (F & { score: number })[];
   const totalWeight = present.reduce((s, f) => s + f.weight, 0);
 
   if (totalWeight === 0) return { skor: 50, breakdown: [] };

@@ -16,7 +16,7 @@ interface AnalysisState {
 export function SidePanel(): ReactElement {
   const [state, setState] = useState<AnalysisState>({ loading: true });
   const [chatMessages, setChatMessages] = useState<
-    Array<{ role: 'user' | 'assistant'; content: string }>
+    { role: 'user' | 'assistant'; content: string }[]
   >([]);
 
   const fetchAnalysis = useCallback(async (id: string): Promise<void> => {
@@ -67,10 +67,7 @@ export function SidePanel(): ReactElement {
         ]);
       }
     } catch (e) {
-      setChatMessages((m) => [
-        ...m,
-        { role: 'assistant', content: `⚠️ ${(e as Error).message}` },
-      ]);
+      setChatMessages((m) => [...m, { role: 'assistant', content: `⚠️ ${(e as Error).message}` }]);
     }
   }
 

@@ -13,6 +13,7 @@ export default tseslint.config(
       '**/coverage/**',
       '_DEVRETME_silinecek/**',
       'node_modules/**',
+      '**/next-env.d.ts',
     ],
   },
   ...tseslint.configs.recommended,

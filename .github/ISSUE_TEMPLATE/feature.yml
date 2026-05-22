@@ -1,6 +1,6 @@
 name: ✨ Özellik talebi
 description: Yeni bir özellik / iyileştirme öner
-labels: ["enhancement"]
+labels: ['enhancement']
 body:
   - type: textarea
     id: problem

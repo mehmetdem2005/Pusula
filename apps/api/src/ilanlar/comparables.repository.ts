@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { KonutInput } from '@pusula/shared';
 import { COMPARABLE_CONFIG } from '@pusula/shared';
-import type { KomparableIlan } from '@pusula/scoring/dist/price-advantage.js';
+import type { KomparableIlan } from '@pusula/scoring';
 import { SUPABASE } from '../supabase/supabase.module.js';
 
 /**
@@ -55,14 +55,18 @@ export class ComparablesRepository {
 
     return (data ?? [])
       .filter((r) => r.net_m2 != null && r.fiyat_tl != null)
-      .map((r) => ({
-        id: r.id as string,
-        m2: r.net_m2 as number,
-        fiyat_tl: r.fiyat_tl as number,
-        bina_yasi: (r.bina_yasi as number) ?? 0,
-        oda_sayisi: r.oda_sayisi as string,
-        mahalle: (r.mahalle as string | null) ?? undefined,
-        ilce: r.ilce as string,
-      }));
+      .map((r) => {
+        const item: KomparableIlan = {
+          id: r.id as string,
+          m2: r.net_m2 as number,
+          fiyat_tl: r.fiyat_tl as number,
+          bina_yasi: (r.bina_yasi as number) ?? 0,
+          oda_sayisi: r.oda_sayisi as string,
+          ilce: r.ilce as string,
+        };
+        const mahalle = r.mahalle as string | null;
+        if (mahalle) item.mahalle = mahalle;
+        return item;
+      });
   }
 }

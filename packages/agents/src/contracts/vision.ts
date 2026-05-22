@@ -2,12 +2,14 @@ import { z } from 'zod';
 
 export const VisionRequest = z.object({
   foto_urlleri: z.array(z.string().url()),
-  ilan_attrs: z.object({
-    balkon: z.boolean().optional(),
-    asansor: z.boolean().optional(),
-    site_icinde: z.boolean().optional(),
-    oda_sayisi: z.string().optional(),
-  }).optional(),
+  ilan_attrs: z
+    .object({
+      balkon: z.boolean().optional(),
+      asansor: z.boolean().optional(),
+      site_icinde: z.boolean().optional(),
+      oda_sayisi: z.string().optional(),
+    })
+    .optional(),
   trace_id: z.string().uuid(),
 });
 export type VisionRequest = z.infer<typeof VisionRequest>;

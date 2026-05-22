@@ -22,7 +22,11 @@ export const BrainInput = z.object({
 export type BrainInput = z.infer<typeof BrainInput>;
 
 export const RichComponent = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('score_card'), ilan_id: z.string().uuid(), show_breakdown: z.boolean() }),
+  z.object({
+    type: z.literal('score_card'),
+    ilan_id: z.string().uuid(),
+    show_breakdown: z.boolean(),
+  }),
   z.object({ type: z.literal('comparison_table'), ilan_ids: z.array(z.string().uuid()) }),
   z.object({ type: z.literal('price_timeline'), mahalle: z.string() }),
   z.object({ type: z.literal('map_preview'), enlem: z.number(), boylam: z.number() }),

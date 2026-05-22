@@ -29,29 +29,29 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50 px-6">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
       <div className="max-w-md text-center">
-        <div className="text-6xl mb-4" aria-hidden>
+        <div className="mb-4 text-6xl" aria-hidden>
           🧭
         </div>
-        <h1 className="text-2xl font-bold mb-2 text-[#0F1F4B]">Beklenmedik bir hata oluştu</h1>
-        <p className="text-slate-600 mb-2">
+        <h1 className="mb-2 text-2xl font-bold text-[#0F1F4B]">Beklenmedik bir hata oluştu</h1>
+        <p className="mb-2 text-slate-600">
           Sorunu kaydettik. Birkaç saniye sonra tekrar denemek genellikle işe yarar.
         </p>
         {error.digest && (
-          <p className="text-xs text-slate-400 font-mono mb-6">Hata kimliği: {error.digest}</p>
+          <p className="mb-6 font-mono text-xs text-slate-400">Hata kimliği: {error.digest}</p>
         )}
-        <div className="flex gap-3 justify-center">
+        <div className="flex justify-center gap-3">
           <button
             type="button"
             onClick={reset}
-            className="bg-[#0F1F4B] text-white px-5 py-2 rounded-full text-sm font-semibold hover:opacity-90"
+            className="rounded-full bg-[#0F1F4B] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
           >
             Tekrar Dene
           </button>
           <a
             href="/"
-            className="border border-slate-300 text-slate-700 px-5 py-2 rounded-full text-sm font-semibold hover:bg-slate-100"
+            className="rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
           >
             Anasayfa
           </a>

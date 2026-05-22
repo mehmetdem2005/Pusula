@@ -20,7 +20,7 @@ export const PRICING: Record<Provider, Record<string, { input: number; output: n
     'deepseek-reasoner': { input: 0.55, output: 2.19 },
     'deepseek-v3.2': { input: 0.14, output: 0.28 },
     'deepseek-coder': { input: 0.14, output: 0.28 },
-    'deepseek-vl2': { input: 0.20, output: 0.40 },
+    'deepseek-vl2': { input: 0.2, output: 0.4 },
   },
   anthropic: {
     'claude-haiku-4-5': { input: 1.0, output: 5.0 },

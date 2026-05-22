@@ -1,6 +1,4 @@
-import {
-  Body, Controller, Get, Logger, Post, Query, Req, Res, UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard, type AuthedUser, CurrentUser } from '../auth/jwt.guard.js';

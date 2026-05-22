@@ -35,7 +35,13 @@ const PROVIDERS: ProviderConfig[] = [
     provider: 'deepseek',
     label: 'DeepSeek (V3 + R1 reasoning)',
     signupUrl: 'https://platform.deepseek.com',
-    whitelist: ['deepseek-chat', 'deepseek-reasoner', 'deepseek-v3.2', 'deepseek-coder', 'deepseek-vl2'],
+    whitelist: [
+      'deepseek-chat',
+      'deepseek-reasoner',
+      'deepseek-v3.2',
+      'deepseek-coder',
+      'deepseek-vl2',
+    ],
     warning: 'DeepSeek Çin merkezli — hassas kişisel veri göndermeyin.',
   },
   {
@@ -68,21 +74,21 @@ export default function SettingsPage(): ReactElement {
   return (
     <main className="min-h-screen bg-slate-50">
       <Navbar />
-      <div className="container mx-auto px-6 max-w-3xl py-8">
-        <h1 className="text-2xl font-bold mb-2">Ayarlar</h1>
+      <div className="container mx-auto max-w-3xl px-6 py-8">
+        <h1 className="mb-2 text-2xl font-bold">Ayarlar</h1>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm">
+        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm">
           🚧 <strong>Beta sürümü.</strong> Şu an kendi API key&apos;inizi kullanıyorsunuz. Yakında
           abonelik sistemi geldiğinde key girmek zorunda olmadan tüm modellere erişebileceksiniz.
           Beta kullanıcılarına %50 ilk yıl indirimi ve <em>Erken Destekçi</em> rozeti.
         </div>
 
-        <section className="bg-white rounded-lg p-6 mb-4">
-          <h2 className="text-lg font-semibold mb-4">AI Provider Key&apos;leri (BYOK)</h2>
+        <section className="mb-4 rounded-lg bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold">AI Provider Key&apos;leri (BYOK)</h2>
 
           {PROVIDERS.map((p) => (
-            <div key={p.provider} className="border-b last:border-b-0 py-4">
-              <div className="flex justify-between items-start mb-2">
+            <div key={p.provider} className="border-b py-4 last:border-b-0">
+              <div className="mb-2 flex items-start justify-between">
                 <div>
                   <div className="font-medium">{p.label}</div>
                   <a
@@ -96,18 +102,18 @@ export default function SettingsPage(): ReactElement {
                 </div>
               </div>
 
-              <div className="flex gap-2 mb-2">
+              <div className="mb-2 flex gap-2">
                 <input
                   type="password"
                   placeholder={`${p.provider} API key`}
-                  className="flex-1 px-3 py-2 border rounded-md text-sm font-mono"
+                  className="flex-1 rounded-md border px-3 py-2 font-mono text-sm"
                   value={keys[p.provider] ?? ''}
                   onChange={(e) => updateKey(p.provider, e.target.value)}
                 />
                 <button
                   type="button"
                   onClick={() => testKey(p.provider)}
-                  className="px-4 py-2 bg-sky-500 text-white rounded-md text-sm font-medium"
+                  className="rounded-md bg-sky-500 px-4 py-2 text-sm font-medium text-white"
                 >
                   Test
                 </button>
@@ -115,34 +121,37 @@ export default function SettingsPage(): ReactElement {
 
               <div className="flex flex-wrap gap-1">
                 {p.whitelist.map((m) => (
-                  <span key={m} className="text-xs bg-slate-100 px-2 py-1 rounded-full">
+                  <span key={m} className="rounded-full bg-slate-100 px-2 py-1 text-xs">
                     {m}
                   </span>
                 ))}
               </div>
 
-              {p.warning && <p className="text-xs text-amber-600 mt-2">⚠️ {p.warning}</p>}
+              {p.warning && <p className="mt-2 text-xs text-amber-600">⚠️ {p.warning}</p>}
             </div>
           ))}
         </section>
 
-        <section className="bg-white rounded-lg p-6 mb-4">
-          <h2 className="text-lg font-semibold mb-4">Görev → Model Varsayılanları</h2>
+        <section className="mb-4 rounded-lg bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold">Görev → Model Varsayılanları</h2>
           <p className="text-sm text-slate-500">
             Yakında her görev tipi için ayrı varsayılan model seçimi.
           </p>
         </section>
 
-        <section className="bg-white rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Hesap</h2>
-          <div className="text-sm space-y-2">
+        <section className="rounded-lg bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold">Hesap</h2>
+          <div className="space-y-2 text-sm">
             <p className="text-slate-600">
-              KVKK politikamızı <a href="/legal/kvkk" className="text-sky-600 underline">buradan</a>{' '}
+              KVKK politikamızı{' '}
+              <a href="/legal/kvkk" className="text-sky-600 underline">
+                buradan
+              </a>{' '}
               okuyabilirsin.
             </p>
             <button
               type="button"
-              className="px-4 py-2 bg-red-50 text-red-700 rounded-md text-sm font-medium border border-red-200 hover:bg-red-100"
+              className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
             >
               Hesabımı Sil
             </button>

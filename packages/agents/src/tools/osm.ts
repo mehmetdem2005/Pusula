@@ -18,8 +18,8 @@ export interface OsmPoi {
 export async function nearbyPois(
   _lat: number,
   _lon: number,
-  _radiusM: number = 1000,
-  _types: ReadonlyArray<OsmPoi['type']> = ['metro_station', 'school', 'hospital', 'park']
+  _radiusM = 1000,
+  _types: readonly OsmPoi['type'][] = ['metro_station', 'school', 'hospital', 'park'],
 ): Promise<OsmPoi[]> {
   // TODO: Overpass API call with proper query
   // Endpoint: https://overpass-api.de/api/interpreter

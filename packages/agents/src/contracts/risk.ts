@@ -11,7 +11,9 @@ export const RiskRequest = z.object({
 export type RiskRequest = z.infer<typeof RiskRequest>;
 
 export const RiskContext = z.object({
-  deprem_tehlike_bandi: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+  deprem_tehlike_bandi: z
+    .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
+    .optional(),
   fay_mesafe_m: z.number().optional(),
   fay_adi: z.string().optional(),
   kentsel_donusum: z.enum(['riskli', 'donusum_bolgesi', 'normal']).optional(),

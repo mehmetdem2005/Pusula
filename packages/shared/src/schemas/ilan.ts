@@ -27,7 +27,17 @@ export const TapuDurumu = z.enum([
 ]);
 export type TapuDurumu = z.infer<typeof TapuDurumu>;
 
-export const Cephe = z.enum(['kuzey', 'guney', 'dogu', 'bati', 'kuzeydogu', 'kuzeybati', 'guneydogu', 'guneybati', 'bilinmiyor']);
+export const Cephe = z.enum([
+  'kuzey',
+  'guney',
+  'dogu',
+  'bati',
+  'kuzeydogu',
+  'kuzeybati',
+  'guneydogu',
+  'guneybati',
+  'bilinmiyor',
+]);
 export type Cephe = z.infer<typeof Cephe>;
 
 /**
@@ -63,7 +73,9 @@ export const KonutInput = z.object({
   banyo_sayisi: z.number().int().min(0).max(10).optional(),
   bina_yasi: z.number().int().min(0).max(200),
   bina_kat_sayisi: z.number().int().min(1).max(100).optional(),
-  bulundugu_kat: z.union([z.number().int(), z.enum(['zemin', 'bahce_kati', 'cati_kati', 'mustakil'])]).optional(),
+  bulundugu_kat: z
+    .union([z.number().int(), z.enum(['zemin', 'bahce_kati', 'cati_kati', 'mustakil'])])
+    .optional(),
 
   // Özellikler
   isitma: IsitmaTipi,

@@ -1,4 +1,10 @@
-import { Global, Logger, Module, type OnApplicationShutdown, type OnModuleInit } from '@nestjs/common';
+import {
+  Global,
+  Logger,
+  Module,
+  type OnApplicationShutdown,
+  type OnModuleInit,
+} from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { loadEnv } from '../config/env.schema.js';
 import { Q, type QueueName } from './queue.tokens.js';
@@ -79,12 +85,12 @@ export class QueueService implements OnModuleInit, OnApplicationShutdown {
 
   async onApplicationShutdown(): Promise<void> {
     for (const w of this.workers) {
-      await w.close().catch(() => {});
+      await w.close().catch(() => undefined);
     }
     for (const q of this.queues.values()) {
-      await q.close().catch(() => {});
+      await q.close().catch(() => undefined);
     }
-    await this.connection?.quit().catch(() => {});
+    await this.connection?.quit().catch(() => undefined);
   }
 }
 

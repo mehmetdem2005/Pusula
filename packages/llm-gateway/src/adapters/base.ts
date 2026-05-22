@@ -14,7 +14,7 @@ export interface LLMAdapter {
   chatStream(
     messages: ChatMessage[],
     options: ChatOptions,
-    apiKey: string
+    apiKey: string,
   ): AsyncIterable<{ delta: string; done: boolean; usage?: ChatResponse['usage'] }>;
 
   /** Model belirli bir feature'ı destekliyor mu? */
@@ -28,7 +28,7 @@ export class LLMError extends Error {
     message: string,
     public readonly kind: 'auth' | 'rate_limit' | 'content' | 'network' | 'server' | 'unknown',
     public readonly provider: Provider,
-    public readonly cause?: unknown
+    public override readonly cause?: unknown,
   ) {
     super(message);
   }

@@ -8,13 +8,13 @@
 
 ## Faz Özet
 
-| Faz | Hedef Süre | Distribution | Ticari Model | Ana Hedef |
-|---|---|---|---|---|
-| **MVP / Beta v0.1** | 3-4 ay | Web (private beta) + Extension (dev mode) | BYOK | Bir konut ilanını uçtan uca analiz edebilen ürün |
-| **MVP / Beta v0.2** | 5-6 ay | Web (public beta) + Extension (Chrome Web Store) | BYOK | İlk 100-500 emlakçı kullanıcı, feedback döngüsü |
-| **V1 — Closed GA** | 7-9 ay | Web + Extension | BYOK (managed proxy hazır ama henüz satılmıyor) | Premium feature seti, foto AI, ROI hesabı |
-| **V2 — Public GA** | 10-12 ay | Web + Extension + Mobile (read-only) | **Subscription** (Stripe) + BYOK | Para kazanmaya başla, scale-out |
-| **V3 — Enterprise** | 13-18 ay | Web + Extension + Mobile + On-prem | Enterprise kontrat | B2B firma müşterileri |
+| Faz                 | Hedef Süre | Distribution                                     | Ticari Model                                    | Ana Hedef                                        |
+| ------------------- | ---------- | ------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------ |
+| **MVP / Beta v0.1** | 3-4 ay     | Web (private beta) + Extension (dev mode)        | BYOK                                            | Bir konut ilanını uçtan uca analiz edebilen ürün |
+| **MVP / Beta v0.2** | 5-6 ay     | Web (public beta) + Extension (Chrome Web Store) | BYOK                                            | İlk 100-500 emlakçı kullanıcı, feedback döngüsü  |
+| **V1 — Closed GA**  | 7-9 ay     | Web + Extension                                  | BYOK (managed proxy hazır ama henüz satılmıyor) | Premium feature seti, foto AI, ROI hesabı        |
+| **V2 — Public GA**  | 10-12 ay   | Web + Extension + Mobile (read-only)             | **Subscription** (Stripe) + BYOK                | Para kazanmaya başla, scale-out                  |
+| **V3 — Enterprise** | 13-18 ay   | Web + Extension + Mobile + On-prem               | Enterprise kontrat                              | B2B firma müşterileri                            |
 
 ---
 
@@ -278,27 +278,27 @@
 
 ## Risk & Bağımlılık Matrisi
 
-| Risk | Etki | Olasılık | Hafifletme |
-|---|---|---|---|
-| sahibinden DOM değişikliği | Yüksek (parser kırılır) | Yüksek | Versiyonlu selector + Sentry alarm + manuel hotfix < 24h |
-| sahibinden hukuki uyarı | Çok yüksek (ürün durur) | Orta | Avukat görüşü; "user-assisted ingestion" konumlanması; ihtarname akış planı |
-| LLM provider fiyat artışı / model deprecation | Orta | Yüksek (Gemini 2.0 zaten deprecate oldu!) | Multi-provider abstraction + günlük fiyat monitor + 30 günlük migration buffer |
-| Stripe TR kullanılamazsa | Yüksek (V2 kilidi) | Düşük | Iyzico / Paratika backup planı |
-| Kullanıcı master password kaybı | Orta | Orta | Recovery code (16 karakter) + güvenli wallet'a yedekleme önerisi |
-| AAA UX gecikmesi (tek geliştirici) | Yüksek | Yüksek | Tasarım sistemini erken kilitle, shadcn/ui hazır bileşen kullan, custom component yapma |
+| Risk                                          | Etki                    | Olasılık                                  | Hafifletme                                                                              |
+| --------------------------------------------- | ----------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------- |
+| sahibinden DOM değişikliği                    | Yüksek (parser kırılır) | Yüksek                                    | Versiyonlu selector + Sentry alarm + manuel hotfix < 24h                                |
+| sahibinden hukuki uyarı                       | Çok yüksek (ürün durur) | Orta                                      | Avukat görüşü; "user-assisted ingestion" konumlanması; ihtarname akış planı             |
+| LLM provider fiyat artışı / model deprecation | Orta                    | Yüksek (Gemini 2.0 zaten deprecate oldu!) | Multi-provider abstraction + günlük fiyat monitor + 30 günlük migration buffer          |
+| Stripe TR kullanılamazsa                      | Yüksek (V2 kilidi)      | Düşük                                     | Iyzico / Paratika backup planı                                                          |
+| Kullanıcı master password kaybı               | Orta                    | Orta                                      | Recovery code (16 karakter) + güvenli wallet'a yedekleme önerisi                        |
+| AAA UX gecikmesi (tek geliştirici)            | Yüksek                  | Yüksek                                    | Tasarım sistemini erken kilitle, shadcn/ui hazır bileşen kullan, custom component yapma |
 
 ---
 
 ## KPI Hedefleri
 
-| Metric | MVP v0.1 | MVP v0.2 | V1 | V2 (yıl sonu) |
-|---|---|---|---|---|
-| Kayıtlı kullanıcı | 10 (private) | 100 | 500 | 2.500 |
-| Haftalık aktif kullanıcı (WAU) | 5 | 50 | 200 | 1.000 |
-| Analiz edilen ilan / ay | 100 | 2.000 | 10.000 | 50.000 |
-| MRR (₺) | 0 | 0 | 0 | 100.000 |
-| NPS | n/a | >30 | >40 | >50 |
-| Parser doğruluk | 95% | 97% | 98% | 99% |
+| Metric                         | MVP v0.1     | MVP v0.2 | V1     | V2 (yıl sonu) |
+| ------------------------------ | ------------ | -------- | ------ | ------------- |
+| Kayıtlı kullanıcı              | 10 (private) | 100      | 500    | 2.500         |
+| Haftalık aktif kullanıcı (WAU) | 5            | 50       | 200    | 1.000         |
+| Analiz edilen ilan / ay        | 100          | 2.000    | 10.000 | 50.000        |
+| MRR (₺)                        | 0            | 0        | 0      | 100.000       |
+| NPS                            | n/a          | >30      | >40    | >50           |
+| Parser doğruluk                | 95%          | 97%      | 98%    | 99%           |
 
 ---
 

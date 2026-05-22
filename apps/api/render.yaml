@@ -6,10 +6,10 @@ services:
   - type: web
     name: pusula-api
     runtime: node
-    region: frankfurt          # Türkiye'ye en yakın Render bölgesi
-    plan: starter              # $7/ay, MVP için yeter; V1+ "standard" $25
+    region: frankfurt # Türkiye'ye en yakın Render bölgesi
+    plan: starter # $7/ay, MVP için yeter; V1+ "standard" $25
     branch: main
-    rootDir: .                 # Monorepo root'tan build et
+    rootDir: . # Monorepo root'tan build et
     buildCommand: |
       corepack enable
       pnpm install --no-frozen-lockfile
@@ -22,9 +22,9 @@ services:
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
-        value: "20"
+        value: '20'
       - key: PORT
-        value: "10000"          # Render varsayılan
+        value: '10000' # Render varsayılan
       - key: NODE_ENV
         value: production
       # Aşağıdakileri Render Dashboard → Environment'tan elle gir (secret):
@@ -44,6 +44,6 @@ services:
   - type: redis
     name: pusula-redis
     region: frankfurt
-    plan: starter              # $10/ay
-    ipAllowList: []            # internal only
+    plan: starter # $10/ay
+    ipAllowList: [] # internal only
     maxmemoryPolicy: allkeys-lru

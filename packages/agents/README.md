@@ -68,7 +68,9 @@ import { Orchestrator } from '@pusula/agents/orchestrator';
 import { LLMGateway } from '@pusula/llm-gateway';
 
 const brain = new Orchestrator({
-  llmGateway: new LLMGateway({ /* ... */ }),
+  llmGateway: new LLMGateway({
+    /* ... */
+  }),
   logger,
   telemetry,
 });

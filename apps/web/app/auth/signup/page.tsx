@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { getSupabaseBrowser } from '../../../lib/supabase';
 
 export default function SignupPage(): ReactElement {
-  const [form, setForm] = useState<{ email: string; display_name: string; role: 'individual' | 'agent' | 'dealer' }>({
+  const [form, setForm] = useState<{
+    email: string;
+    display_name: string;
+    role: 'individual' | 'agent' | 'dealer';
+  }>({
     email: '',
     display_name: '',
     role: 'individual',
@@ -37,55 +41,57 @@ export default function SignupPage(): ReactElement {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0F1F4B] to-[#1a2d5e] px-6">
-      <div className="w-full max-w-sm bg-white rounded-2xl p-8 shadow-xl">
-        <div className="text-center mb-6">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#0F1F4B] to-[#1a2d5e] px-6">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
+        <div className="mb-6 text-center">
           <Link href="/" className="text-2xl font-bold text-[#0F1F4B]">
             🧭 Pusula
           </Link>
-          <p className="text-sm text-[#D4A22E] font-semibold mt-1">Karar verirken kaybolma.</p>
+          <p className="mt-1 text-sm font-semibold text-[#D4A22E]">Karar verirken kaybolma.</p>
         </div>
 
         {sent ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-3" aria-hidden>🎉</div>
-            <h2 className="text-lg font-bold mb-2">Beta&apos;ya hoş geldin</h2>
+          <div className="py-8 text-center">
+            <div className="mb-3 text-4xl" aria-hidden>
+              🎉
+            </div>
+            <h2 className="mb-2 text-lg font-bold">Beta&apos;ya hoş geldin</h2>
             <p className="text-sm text-slate-600">
               <strong>{form.email}</strong> adresine onay bağlantısı yolladık. Tıkla, başla.
             </p>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
-            <h2 className="text-xl font-bold text-center">Beta&apos;ya Katıl</h2>
+            <h2 className="text-center text-xl font-bold">Beta&apos;ya Katıl</h2>
 
             <label className="block">
-              <span className="text-sm text-slate-700 font-medium">İsim</span>
+              <span className="text-sm font-medium text-slate-700">İsim</span>
               <input
                 type="text"
                 required
                 value={form.display_name}
                 onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-                className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
               />
             </label>
             <label className="block">
-              <span className="text-sm text-slate-700 font-medium">E-posta</span>
+              <span className="text-sm font-medium text-slate-700">E-posta</span>
               <input
                 type="email"
                 required
                 autoComplete="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md"
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
                 placeholder="ornek@pusula.tr"
               />
             </label>
             <label className="block">
-              <span className="text-sm text-slate-700 font-medium">Profil</span>
+              <span className="text-sm font-medium text-slate-700">Profil</span>
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value as typeof form.role })}
-                className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md bg-white"
+                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2"
               >
                 <option value="individual">Bireysel (alıcı / yatırımcı)</option>
                 <option value="agent">Emlakçı</option>
@@ -98,17 +104,17 @@ export default function SignupPage(): ReactElement {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#D4A22E] text-[#0F1F4B] py-2.5 rounded-md font-bold disabled:opacity-60"
+              className="w-full rounded-md bg-[#D4A22E] py-2.5 font-bold text-[#0F1F4B] disabled:opacity-60"
             >
               {loading ? 'Hesap oluşturuluyor...' : 'Beta’ya Katıl'}
             </button>
-            <p className="text-xs text-center text-slate-500 mt-3">
+            <p className="mt-3 text-center text-xs text-slate-500">
               Hesabın var mı?{' '}
               <Link href="/auth/login" className="text-sky-600 underline">
                 Giriş yap
               </Link>
             </p>
-            <p className="text-[10px] text-center text-slate-400 mt-2">
+            <p className="mt-2 text-center text-[10px] text-slate-400">
               Devam ederek{' '}
               <Link href="/legal/kullanim" className="underline">
                 Kullanım Şartları

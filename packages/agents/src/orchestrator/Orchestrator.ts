@@ -11,9 +11,10 @@
  *
  * NOT: Bu MVP iskelet. Gerçek LLM sentez ve tool routing V1'de tamamlanacak.
  */
-import { z } from 'zod';
+import type { z } from 'zod';
 import type { LLMGateway } from '@pusula/llm-gateway';
-import { BrainInput, BrainOutput } from './types.js';
+import type { BrainOutput } from './types.js';
+import { BrainInput } from './types.js';
 import { IntentClassifier } from './IntentClassifier.js';
 import type { AgentBus } from '../runtime/AgentBus.js';
 import type { Logger } from '../runtime/Logger.js';
@@ -30,7 +31,7 @@ export interface OrchestratorDeps {
 
 export class Orchestrator {
   private classifier = new IntentClassifier();
-  private guards = new GuardedExecution({ timeoutMs: 12000, maxCostUsd: 0.50, maxDepth: 6 });
+  private guards = new GuardedExecution({ timeoutMs: 12000, maxCostUsd: 0.5, maxDepth: 6 });
 
   constructor(private deps: OrchestratorDeps) {}
 
@@ -53,7 +54,8 @@ export class Orchestrator {
       });
 
       // 2. Persona belirleme
-      const persona: UserPersona = parsed.persona ?? this.intentToPersona(intentResult.intent) ?? 'buyer';
+      const persona: UserPersona =
+        parsed.persona ?? this.intentToPersona(intentResult.intent) ?? 'buyer';
 
       // 3. Agent dispatch (MVP'de tek tip - V1'de full function calling)
       const agentsInvoked: string[] = [];
@@ -104,7 +106,7 @@ export class Orchestrator {
   private async synthesizeReply(
     userMessage: string,
     intent: ReturnType<IntentClassifier['classify']>,
-    persona: UserPersona
+    persona: UserPersona,
   ): Promise<string> {
     // MVP placeholder. V1'de:
     //   - System prompt persona'ya göre
@@ -118,7 +120,7 @@ export class Orchestrator {
     return `[STUB] Persona: ${persona}, Intent: ${intent.intent}. Bu mesaj MVP iskelet — gerçek LLM sentez V1 sprint'inde tamamlanacak.`;
   }
 
-  private suggestNext(intent: string, persona: UserPersona): string[] {
+  private suggestNext(intent: string, _persona: UserPersona): string[] {
     const suggestions: Record<string, string[]> = {
       'task.analyze_listing': [
         'Bu ilana benzer fırsatları da getireyim mi?',

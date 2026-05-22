@@ -1,12 +1,12 @@
 # 13 — Veri Mevcudiyeti ve Dinamik Skor
 
-| Alan | Değer |
-|---|---|
-| **Doküman versiyonu** | 1.0 |
-| **Statü** | Proposed |
-| **Son güncelleme** | 22 Mayıs 2026 |
-| **Yazar** | Pusula Mühendislik |
-| **Hedef okuyucu** | Backend mühendisleri, ML mühendisleri, ürün liderliği |
+| Alan                  | Değer                                                 |
+| --------------------- | ----------------------------------------------------- |
+| **Doküman versiyonu** | 1.0                                                   |
+| **Statü**             | Proposed                                              |
+| **Son güncelleme**    | 22 Mayıs 2026                                         |
+| **Yazar**             | Pusula Mühendislik                                    |
+| **Hedef okuyucu**     | Backend mühendisleri, ML mühendisleri, ürün liderliği |
 
 ## Amaç
 
@@ -41,10 +41,10 @@ export interface DataSourceChain<T> {
   secondary?: DataSource<T>;
   tertiary?: DataSource<T>;
   confidence_loss: {
-    secondary: number;  // 0-100, primary kullanılamazsa confidence ne kadar düşer
+    secondary: number; // 0-100, primary kullanılamazsa confidence ne kadar düşer
     tertiary: number;
   };
-  required: boolean;    // Eğer hiçbir fallback çalışmıyorsa hata mı, devam mı?
+  required: boolean; // Eğer hiçbir fallback çalışmıyorsa hata mı, devam mı?
 }
 
 export interface DataSource<T> {
@@ -59,23 +59,23 @@ export interface DataSource<T> {
 
 ### 2.2 Kritik Parametreler için Fallback Tablosu
 
-| Parametre | Primary | Secondary | Tertiary | Confidence loss | Required |
-|---|---|---|---|---|---|
-| `deprem_tehlike_bandi` | AFAD koordinat lookup | İlçe ortalaması (önceden çekilmiş) | İl ortalaması | -10 / -25 | Hayır |
-| `mahalle_gelir_quintile` | TÜİK mahalle | TÜİK ilçe | TÜİK il | -5 / -15 | Hayır |
-| `mahalle_fiyat_ivmesi` | İç havuz son 12 ay | İç havuz son 6 ay (daha az veri) | İlçe ortalaması | -15 / -30 | Hayır |
-| `comparable_set` | Aynı mahalle ±20% m² 90g | Aynı ilçe ±25% m² 180g | Aynı il ±30% m² 365g | -10 / -25 | Evet (min 5) |
-| `bina_yasi` | İlan | LLM extract from text | OSM yapı yaşı (varsa) | -20 / -40 | Evet |
-| `net_m2` | İlan structured | LLM extract from text | — | -10 / N/A | Evet |
-| `oda_sayisi` | İlan | LLM extract | Vision (oda say) | -10 / -30 | Evet |
-| `kat` | İlan | LLM extract | Vision (kat tahmini) | -15 / -50 | Hayır |
-| `isitma` | İlan | LLM extract from text | Default: "bilinmiyor" | -10 / 0 | Hayır |
-| `metro_mesafe_m` | OSM Overpass | Google Maps | Mahalle ortalaması | -5 / -25 | Hayır |
-| `school_mesafe_m` | MEB + OSM | OSM tek başına | İlçe ortalaması | -5 / -20 | Hayır |
-| `hedonic_tahmin` | XGBoost model | Median fallback | Yok (sadece Yöntem A) | -20 / -40 | Hayır |
-| `vision_analizi` | Gemini 2.5 Flash | Claude Haiku vision | OpenCV basic features | -15 / -50 | Hayır |
-| `nlp_analizi` | DeepSeek V3 | Groq Llama 3.3 | Lexicon-only | -10 / -30 | Hayır |
-| `tapu_durumu` | İlan | LLM extract | Default "bilinmiyor" + uyarı | -20 / -40 | Hayır |
+| Parametre                | Primary                  | Secondary                          | Tertiary                     | Confidence loss | Required     |
+| ------------------------ | ------------------------ | ---------------------------------- | ---------------------------- | --------------- | ------------ |
+| `deprem_tehlike_bandi`   | AFAD koordinat lookup    | İlçe ortalaması (önceden çekilmiş) | İl ortalaması                | -10 / -25       | Hayır        |
+| `mahalle_gelir_quintile` | TÜİK mahalle             | TÜİK ilçe                          | TÜİK il                      | -5 / -15        | Hayır        |
+| `mahalle_fiyat_ivmesi`   | İç havuz son 12 ay       | İç havuz son 6 ay (daha az veri)   | İlçe ortalaması              | -15 / -30       | Hayır        |
+| `comparable_set`         | Aynı mahalle ±20% m² 90g | Aynı ilçe ±25% m² 180g             | Aynı il ±30% m² 365g         | -10 / -25       | Evet (min 5) |
+| `bina_yasi`              | İlan                     | LLM extract from text              | OSM yapı yaşı (varsa)        | -20 / -40       | Evet         |
+| `net_m2`                 | İlan structured          | LLM extract from text              | —                            | -10 / N/A       | Evet         |
+| `oda_sayisi`             | İlan                     | LLM extract                        | Vision (oda say)             | -10 / -30       | Evet         |
+| `kat`                    | İlan                     | LLM extract                        | Vision (kat tahmini)         | -15 / -50       | Hayır        |
+| `isitma`                 | İlan                     | LLM extract from text              | Default: "bilinmiyor"        | -10 / 0         | Hayır        |
+| `metro_mesafe_m`         | OSM Overpass             | Google Maps                        | Mahalle ortalaması           | -5 / -25        | Hayır        |
+| `school_mesafe_m`        | MEB + OSM                | OSM tek başına                     | İlçe ortalaması              | -5 / -20        | Hayır        |
+| `hedonic_tahmin`         | XGBoost model            | Median fallback                    | Yok (sadece Yöntem A)        | -20 / -40       | Hayır        |
+| `vision_analizi`         | Gemini 2.5 Flash         | Claude Haiku vision                | OpenCV basic features        | -15 / -50       | Hayır        |
+| `nlp_analizi`            | DeepSeek V3              | Groq Llama 3.3                     | Lexicon-only                 | -10 / -30       | Hayır        |
+| `tapu_durumu`            | İlan                     | LLM extract                        | Default "bilinmiyor" + uyarı | -20 / -40       | Hayır        |
 
 ---
 
@@ -136,12 +136,12 @@ Bu değer kullanıcıya gösterilen ana confidence göstergesidir.
 
 ### 3.4 Confidence → UI Etiket
 
-| Range | Etiket | UI davranışı |
-|---|---|---|
-| 85-100 | Yüksek güven | Yeşil rozet "Skor güvenilir" |
-| 65-84 | Orta güven | Sarı rozet "Bazı veriler eksik" |
-| 40-64 | Düşük güven | Turuncu rozet "Çok veri eksik" |
-| 0-39 | Çok düşük | Kırmızı + "Skor verme" önerisi |
+| Range  | Etiket       | UI davranışı                    |
+| ------ | ------------ | ------------------------------- |
+| 85-100 | Yüksek güven | Yeşil rozet "Skor güvenilir"    |
+| 65-84  | Orta güven   | Sarı rozet "Bazı veriler eksik" |
+| 40-64  | Düşük güven  | Turuncu rozet "Çok veri eksik"  |
+| 0-39   | Çok düşük    | Kırmızı + "Skor verme" önerisi  |
 
 Eğer global_confidence < 40 ise, Brain "bu ilan için yeterli veri toplayamadım" uyarısı verir ve skoru asla göstermez.
 
@@ -172,7 +172,7 @@ Persona belirlendiyse, persona-spesifik ağırlık çarpanı uygulanır:
 ```typescript
 const PERSONA_MULTIPLIERS: Record<UserPersona, Partial<Record<PillarKey, number>>> = {
   buyer: {
-    risk: 1.5,           // alıcı için risk daha önemli
+    risk: 1.5, // alıcı için risk daha önemli
     kalite: 1.2,
     finansal_model: 1.0,
   },
@@ -183,8 +183,8 @@ const PERSONA_MULTIPLIERS: Record<UserPersona, Partial<Record<PillarKey, number>
     vision: 0.7,
   },
   agent_seller: {
-    pazar_dinamigi: 1.5,  // likidite önemli
-    nlp: 1.3,             // ilan metni
+    pazar_dinamigi: 1.5, // likidite önemli
+    nlp: 1.3, // ilan metni
     vision: 1.2,
   },
   researcher: {
@@ -194,7 +194,10 @@ const PERSONA_MULTIPLIERS: Record<UserPersona, Partial<Record<PillarKey, number>
   },
 };
 
-function applyPersonaWeights(w: Record<PillarKey, number>, persona: UserPersona): Record<PillarKey, number> {
+function applyPersonaWeights(
+  w: Record<PillarKey, number>,
+  persona: UserPersona,
+): Record<PillarKey, number> {
   const mult = PERSONA_MULTIPLIERS[persona] ?? {};
   const result: Record<PillarKey, number> = {} as any;
   let total = 0;
@@ -442,10 +445,10 @@ Kullanıcıya eksik veri durumu samimi dille anlatılır.
 
 ### 7.1 İyi vs Kötü
 
-| ❌ Kötü | ✅ İyi |
-|---|---|
-| "Confidence: 62%. Missing: deprem_data, vision_data" | "Bu skoru %62 güvenle veriyorum — deprem verisini bu mahalle için henüz toplayamadım, fotoğraflar da analize alınmadı. Birkaç saat içinde tamamlanacak, sana bildiririm." |
-| "Data quality: poor" | "Bu ilanda bazı temel bilgiler eksik (kat bilgisi yok, brüt-net oranı belirsiz) — yine de elimde olanlarla bir tahmin verebilirim ama bu sayıların kesinliği düşük." |
+| ❌ Kötü                                                | ✅ İyi                                                                                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Confidence: 62%. Missing: deprem_data, vision_data"   | "Bu skoru %62 güvenle veriyorum — deprem verisini bu mahalle için henüz toplayamadım, fotoğraflar da analize alınmadı. Birkaç saat içinde tamamlanacak, sana bildiririm."            |
+| "Data quality: poor"                                   | "Bu ilanda bazı temel bilgiler eksik (kat bilgisi yok, brüt-net oranı belirsiz) — yine de elimde olanlarla bir tahmin verebilirim ama bu sayıların kesinliği düşük."                 |
 | "Pillar weights redistributed: vision=0, nlp=0.1, ..." | "Bu ilan için fotoğraf ve metin analizini şimdilik dışarıda bıraktım çünkü ilanda hiç fotoğraf yok ve açıklama çok kısa. O yüzden fiyat ve konum bilgisine daha çok ağırlık verdim." |
 
 ### 7.2 Tooltip / Detay Görünüm
@@ -534,44 +537,44 @@ flowchart TB
 
 ## 9. Test Senaryoları
 
-| ID | Senaryo | Beklenen |
-|---|---|---|
-| T-AVA-001 | Tüm parametreler tam | global_confidence ≥ 95 |
-| T-AVA-002 | Sadece fiyat + m² + oda | Skor verilir, conf ~40, "yetersiz" uyarı YOK ama düşük güven |
-| T-AVA-003 | Sadece fiyat + m² (oda yok) | "Veri yetersiz" sonuç (MVS başarısız) |
-| T-AVA-004 | AFAD down | Risk pillar secondary fallback, conf -10 |
-| T-AVA-005 | Sıfır foto | Vision pillar skip, ağırlık diğerlerine dağıtılır |
-| T-AVA-006 | Persona=investor, finansal modeli yok | Persona bonus uygulanır ama coverage düşük → ağırlık yeniden ayarlanır |
-| T-AVA-007 | 50 comparable, hedonic var | Method A+B birleşik, conf=high |
-| T-AVA-008 | 3 comparable, hedonic yok | Fiyat pillar conf çok düşük, MVS sınırı geçti mi kontrol |
-| T-AVA-009 | Mahalle tamamen yeni (cache yok) | Async enrichment queue'ya gider, pass 1 düşük conf ile döner, pass 2'de güncellenir |
-| T-AVA-010 | Pillar yeniden ağırlıklandırma matematiği | sum(normalized_weights) == 1.00 her zaman |
+| ID        | Senaryo                                   | Beklenen                                                                            |
+| --------- | ----------------------------------------- | ----------------------------------------------------------------------------------- |
+| T-AVA-001 | Tüm parametreler tam                      | global_confidence ≥ 95                                                              |
+| T-AVA-002 | Sadece fiyat + m² + oda                   | Skor verilir, conf ~40, "yetersiz" uyarı YOK ama düşük güven                        |
+| T-AVA-003 | Sadece fiyat + m² (oda yok)               | "Veri yetersiz" sonuç (MVS başarısız)                                               |
+| T-AVA-004 | AFAD down                                 | Risk pillar secondary fallback, conf -10                                            |
+| T-AVA-005 | Sıfır foto                                | Vision pillar skip, ağırlık diğerlerine dağıtılır                                   |
+| T-AVA-006 | Persona=investor, finansal modeli yok     | Persona bonus uygulanır ama coverage düşük → ağırlık yeniden ayarlanır              |
+| T-AVA-007 | 50 comparable, hedonic var                | Method A+B birleşik, conf=high                                                      |
+| T-AVA-008 | 3 comparable, hedonic yok                 | Fiyat pillar conf çok düşük, MVS sınırı geçti mi kontrol                            |
+| T-AVA-009 | Mahalle tamamen yeni (cache yok)          | Async enrichment queue'ya gider, pass 1 düşük conf ile döner, pass 2'de güncellenir |
+| T-AVA-010 | Pillar yeniden ağırlıklandırma matematiği | sum(normalized_weights) == 1.00 her zaman                                           |
 
 ---
 
 ## 10. Performance Hedefleri
 
-| Senaryo | p95 latency |
-|---|---|
-| Pass 1 (deterministic) | 200 ms |
-| Pass 2 (with cached enrichment) | 500 ms |
-| Pass 2 (without cache, all fallbacks) | 5 s |
-| Confidence hesabı | 5 ms |
-| Weight redistribution | 1 ms |
+| Senaryo                               | p95 latency |
+| ------------------------------------- | ----------- |
+| Pass 1 (deterministic)                | 200 ms      |
+| Pass 2 (with cached enrichment)       | 500 ms      |
+| Pass 2 (without cache, all fallbacks) | 5 s         |
+| Confidence hesabı                     | 5 ms        |
+| Weight redistribution                 | 1 ms        |
 
 ---
 
 ## 11. Karar Tablosu — Hangi Durumda Skor Ver, Hangi Durumda Verme
 
-| Coverage | comparable_count | net_m2 | Hedonic | Sonuç |
-|---|---|---|---|---|
-| ≥ 0.7 | ≥ 5 | Var | Var | ✅ Tam skor (conf > 85) |
-| 0.5-0.7 | ≥ 5 | Var | Var | ✅ Orta skor (conf 65-85) |
-| 0.5-0.7 | ≥ 5 | Var | Yok | ✅ Orta skor (conf 55-75) |
-| 0.3-0.5 | ≥ 5 | Var | Var/Yok | ⚠️ Düşük skor (conf 40-60), uyarı banner |
-| < 0.3 | herhangi | herhangi | herhangi | ❌ Skor verme, MVS başarısız |
-| herhangi | < 5 | Var | Yok | ❌ MVS başarısız |
-| herhangi | herhangi | Yok | herhangi | ❌ Kritik veri eksik |
+| Coverage | comparable_count | net_m2   | Hedonic  | Sonuç                                    |
+| -------- | ---------------- | -------- | -------- | ---------------------------------------- |
+| ≥ 0.7    | ≥ 5              | Var      | Var      | ✅ Tam skor (conf > 85)                  |
+| 0.5-0.7  | ≥ 5              | Var      | Var      | ✅ Orta skor (conf 65-85)                |
+| 0.5-0.7  | ≥ 5              | Var      | Yok      | ✅ Orta skor (conf 55-75)                |
+| 0.3-0.5  | ≥ 5              | Var      | Var/Yok  | ⚠️ Düşük skor (conf 40-60), uyarı banner |
+| < 0.3    | herhangi         | herhangi | herhangi | ❌ Skor verme, MVS başarısız             |
+| herhangi | < 5              | Var      | Yok      | ❌ MVS başarısız                         |
+| herhangi | herhangi         | Yok      | herhangi | ❌ Kritik veri eksik                     |
 
 ---
 

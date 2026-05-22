@@ -1,12 +1,12 @@
 # 15 — Observability ve SLO
 
-| Alan | Değer |
-|---|---|
-| **Doküman versiyonu** | 1.0 |
-| **Statü** | Proposed |
-| **Son güncelleme** | 22 Mayıs 2026 |
-| **Yazar** | Pusula SRE / Platform |
-| **Hedef okuyucu** | Backend mühendisleri, on-call, ML mühendisleri |
+| Alan                  | Değer                                          |
+| --------------------- | ---------------------------------------------- |
+| **Doküman versiyonu** | 1.0                                            |
+| **Statü**             | Proposed                                       |
+| **Son güncelleme**    | 22 Mayıs 2026                                  |
+| **Yazar**             | Pusula SRE / Platform                          |
+| **Hedef okuyucu**     | Backend mühendisleri, on-call, ML mühendisleri |
 
 ## Amaç
 
@@ -68,9 +68,9 @@ Her log satırı şu alanları içerir:
 ```typescript
 interface LogEntry {
   // Mandatory
-  timestamp: string;          // ISO 8601
+  timestamp: string; // ISO 8601
   level: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-  service: string;            // "pusula-api" | "pusula-web" | "agent-scoring"
+  service: string; // "pusula-api" | "pusula-web" | "agent-scoring"
   message: string;
 
   // Tracing
@@ -79,7 +79,7 @@ interface LogEntry {
   parent_span_id?: string;
 
   // Identity
-  user_id?: string;          // hashed/redacted (last 4 char)
+  user_id?: string; // hashed/redacted (last 4 char)
   session_id?: string;
   thread_id?: string;
 
@@ -120,10 +120,10 @@ const PII_FIELDS = ['email', 'phone', 'tc_no', 'iban', 'card_number', 'api_key',
 
 function redactPII(obj: unknown): unknown {
   if (typeof obj !== 'object' || obj === null) return obj;
-  const clone: Record<string, unknown> = { ...obj as Record<string, unknown> };
+  const clone: Record<string, unknown> = { ...(obj as Record<string, unknown>) };
   for (const key of Object.keys(clone)) {
     const lower = key.toLowerCase();
-    if (PII_FIELDS.some(f => lower.includes(f))) {
+    if (PII_FIELDS.some((f) => lower.includes(f))) {
       clone[key] = '[REDACTED]';
     } else if (typeof clone[key] === 'object') {
       clone[key] = redactPII(clone[key]);
@@ -135,22 +135,22 @@ function redactPII(obj: unknown): unknown {
 
 ### 2.4 Log Levels Kullanım Kuralları
 
-| Level | Ne zaman | Örnek |
-|---|---|---|
-| `debug` | Geliştirme, normal'de off | "Cache miss for key X" |
-| `info` | Normal event'ler | "Skor hesaplandı: ilan_id=xxx, skor=78" |
-| `warn` | Beklenmedik ama recoverable | "Hedonic model NaN döndü, fallback yöntem A kullanılıyor" |
-| `error` | Hata, ama servis ayakta | "LLM provider 429 — failover Gemini'ye" |
-| `fatal` | Servisi durdurabilecek | "DB connection pool exhausted" |
+| Level   | Ne zaman                    | Örnek                                                     |
+| ------- | --------------------------- | --------------------------------------------------------- |
+| `debug` | Geliştirme, normal'de off   | "Cache miss for key X"                                    |
+| `info`  | Normal event'ler            | "Skor hesaplandı: ilan_id=xxx, skor=78"                   |
+| `warn`  | Beklenmedik ama recoverable | "Hedonic model NaN döndü, fallback yöntem A kullanılıyor" |
+| `error` | Hata, ama servis ayakta     | "LLM provider 429 — failover Gemini'ye"                   |
+| `fatal` | Servisi durdurabilecek      | "DB connection pool exhausted"                            |
 
 ### 2.5 Log Backends
 
-| Backend | Kullanım | Tutma |
-|---|---|---|
-| **Sentry** | Error + fatal | 90 gün |
-| **Grafana Loki** | Tüm structured logs | 30 gün hot, 1 yıl cold (S3) |
-| **stdout** | Console (dev) | — |
-| **Render Logs** | Production tail | 7 gün (Render Starter limit) |
+| Backend          | Kullanım            | Tutma                        |
+| ---------------- | ------------------- | ---------------------------- |
+| **Sentry**       | Error + fatal       | 90 gün                       |
+| **Grafana Loki** | Tüm structured logs | 30 gün hot, 1 yıl cold (S3)  |
+| **stdout**       | Console (dev)       | —                            |
+| **Render Logs**  | Production tail     | 7 gün (Render Starter limit) |
 
 ---
 
@@ -160,13 +160,13 @@ function redactPII(obj: unknown): unknown {
 
 **Format:** `pusula_<bilesen>_<olcum>_<birim>`
 
-| Bileşen | Örnek |
-|---|---|
-| `agent` | `pusula_agent_latency_seconds` |
-| `llm` | `pusula_llm_cost_usd_total` |
-| `db` | `pusula_db_query_duration_seconds` |
-| `cache` | `pusula_cache_hit_ratio` |
-| `http` | `pusula_http_requests_total` |
+| Bileşen | Örnek                              |
+| ------- | ---------------------------------- |
+| `agent` | `pusula_agent_latency_seconds`     |
+| `llm`   | `pusula_llm_cost_usd_total`        |
+| `db`    | `pusula_db_query_duration_seconds` |
+| `cache` | `pusula_cache_hit_ratio`           |
+| `http`  | `pusula_http_requests_total`       |
 
 **Label kuralları:**
 
@@ -225,11 +225,11 @@ pusula_mrr_try{tier="pro"}
 
 Cardinality patlaması (her metric noktanın binlerce label kombinasyonu olması) Prometheus'u öldürür.
 
-| Metric | Tahmini cardinality |
-|---|---|
-| `pusula_http_requests_total` | path(20) × method(5) × status(8) = 800 ✓ |
+| Metric                         | Tahmini cardinality                      |
+| ------------------------------ | ---------------------------------------- |
+| `pusula_http_requests_total`   | path(20) × method(5) × status(8) = 800 ✓ |
 | `pusula_agent_latency_seconds` | agent(15) × histogram bucket(10) = 150 ✓ |
-| `pusula_llm_cost_usd_total` | provider(4) × model(15) = 60 ✓ |
+| `pusula_llm_cost_usd_total`    | provider(4) × model(15) = 60 ✓           |
 
 **Yasak (cardinality bomb):**
 
@@ -241,11 +241,11 @@ Bunlar yerine trace'a kayıt et.
 
 ### 3.4 Prometheus Hosting
 
-| Ortam | Tercih |
-|---|---|
-| Beta | **Grafana Cloud Free** (10K series limit) |
-| V1 | Grafana Cloud Pro ($49/ay 50K series) |
-| V2+ | Self-hosted Prometheus + Thanos veya Mimir |
+| Ortam | Tercih                                     |
+| ----- | ------------------------------------------ |
+| Beta  | **Grafana Cloud Free** (10K series limit)  |
+| V1    | Grafana Cloud Pro ($49/ay 50K series)      |
+| V2+   | Self-hosted Prometheus + Thanos veya Mimir |
 
 ---
 
@@ -295,20 +295,20 @@ Her span:
 
 ### 4.3 Trace Sampling
 
-| Ortam | Sampling rate |
-|---|---|
-| Dev | %100 (her trace) |
-| Beta | %100 |
-| V1 prod | %20 |
+| Ortam    | Sampling rate                                   |
+| -------- | ----------------------------------------------- |
+| Dev      | %100 (her trace)                                |
+| Beta     | %100                                            |
+| V1 prod  | %20                                             |
 | V2+ prod | %5 (head-based) + %100 error trace (tail-based) |
 
 ### 4.4 Trace Backend
 
-| Backend | Kullanım |
-|---|---|
-| **Grafana Tempo** (cloud) | Beta + V1 |
-| **Self-hosted Tempo** | V2+ |
-| **Sentry Performance** | Error trace destek |
+| Backend                   | Kullanım           |
+| ------------------------- | ------------------ |
+| **Grafana Tempo** (cloud) | Beta + V1          |
+| **Self-hosted Tempo**     | V2+                |
+| **Sentry Performance**    | Error trace destek |
 
 ---
 
@@ -325,55 +325,55 @@ flowchart TB
 
 ### 5.2 Pusula Brain (Orchestrator)
 
-| SLO | Hedef | Ölçüm penceresi | Error budget |
-|---|---|---|---|
-| Availability | 99.5% | 30 gün rolling | 3h 36m |
-| Latency p50 (ilk token) | < 600 ms | 30 gün | %10 ihlal |
-| Latency p95 (ilk token) | < 1500 ms | 30 gün | %5 ihlal |
-| Latency p95 (tam yanıt) | < 8000 ms | 30 gün | %5 ihlal |
-| Error rate | < 0.5% | 30 gün | 3.6h |
+| SLO                     | Hedef     | Ölçüm penceresi | Error budget |
+| ----------------------- | --------- | --------------- | ------------ |
+| Availability            | 99.5%     | 30 gün rolling  | 3h 36m       |
+| Latency p50 (ilk token) | < 600 ms  | 30 gün          | %10 ihlal    |
+| Latency p95 (ilk token) | < 1500 ms | 30 gün          | %5 ihlal     |
+| Latency p95 (tam yanıt) | < 8000 ms | 30 gün          | %5 ihlal     |
+| Error rate              | < 0.5%    | 30 gün          | 3.6h         |
 
 ### 5.3 Specialist Agents (Tier 1)
 
-| Agent | p50 latency | p95 latency | error rate | availability | error budget/ay |
-|---|---|---|---|---|---|
-| Skorlama | 50 ms | 200 ms | < 0.1% | 99.9% | 43m |
-| Kıyaslama | 150 ms | 400 ms | < 0.2% | 99.5% | 3h 36m |
-| Konum | 100 ms | 600 ms | < 0.5% | 99.0% | 7h 12m |
-| Risk | 80 ms | 300 ms | < 0.3% | 99.5% | 3h 36m |
-| Vision | 2 s | 4 s | < 1.0% | 99.0% | 7h 12m |
-| NLP | 300 ms | 800 ms | < 0.5% | 99.0% | 7h 12m |
-| Pazar | 200 ms | 500 ms | < 0.3% | 99.5% | 3h 36m |
-| Müzakere | 1 s | 2 s | < 0.5% | 99.0% | 7h 12m |
-| Pazarlama | 1.5 s | 3 s | < 0.5% | 99.0% | 7h 12m |
+| Agent     | p50 latency | p95 latency | error rate | availability | error budget/ay |
+| --------- | ----------- | ----------- | ---------- | ------------ | --------------- |
+| Skorlama  | 50 ms       | 200 ms      | < 0.1%     | 99.9%        | 43m             |
+| Kıyaslama | 150 ms      | 400 ms      | < 0.2%     | 99.5%        | 3h 36m          |
+| Konum     | 100 ms      | 600 ms      | < 0.5%     | 99.0%        | 7h 12m          |
+| Risk      | 80 ms       | 300 ms      | < 0.3%     | 99.5%        | 3h 36m          |
+| Vision    | 2 s         | 4 s         | < 1.0%     | 99.0%        | 7h 12m          |
+| NLP       | 300 ms      | 800 ms      | < 0.5%     | 99.0%        | 7h 12m          |
+| Pazar     | 200 ms      | 500 ms      | < 0.3%     | 99.5%        | 3h 36m          |
+| Müzakere  | 1 s         | 2 s         | < 0.5%     | 99.0%        | 7h 12m          |
+| Pazarlama | 1.5 s       | 3 s         | < 0.5%     | 99.0%        | 7h 12m          |
 
 ### 5.4 Background Agents (Tier 2)
 
-| Agent | İşlem completion | Lag | Error rate | Availability |
-|---|---|---|---|---|
-| Toplayıcı | < 30 dk | < 6h | < 2% | 95% |
-| Doğrulayıcı | < 5 s | < 30 s | < 1% | 99% |
-| Trend | < 1 saat | < 24h | < 2% | 95% |
-| Bildirim | < 30 s | < 5 dk | < 1% | 99.5% |
+| Agent       | İşlem completion | Lag    | Error rate | Availability |
+| ----------- | ---------------- | ------ | ---------- | ------------ |
+| Toplayıcı   | < 30 dk          | < 6h   | < 2%       | 95%          |
+| Doğrulayıcı | < 5 s            | < 30 s | < 1%       | 99%          |
+| Trend       | < 1 saat         | < 24h  | < 2%       | 95%          |
+| Bildirim    | < 30 s           | < 5 dk | < 1%       | 99.5%        |
 
 ### 5.5 Tool Workers (Tier 3)
 
-| Tool | p95 latency | Error rate | Availability |
-|---|---|---|---|
-| LLM Gateway | < 5 s | < 1% | 99.5% |
-| OSM client | < 2 s | < 5% | 95% (3rd party) |
-| AFAD | < 1 s | < 5% | 95% |
-| Supabase | < 100 ms | < 0.1% | 99.9% |
-| Embedding | < 500 ms | < 0.5% | 99.5% |
+| Tool        | p95 latency | Error rate | Availability    |
+| ----------- | ----------- | ---------- | --------------- |
+| LLM Gateway | < 5 s       | < 1%       | 99.5%           |
+| OSM client  | < 2 s       | < 5%       | 95% (3rd party) |
+| AFAD        | < 1 s       | < 5%       | 95%             |
+| Supabase    | < 100 ms    | < 0.1%     | 99.9%           |
+| Embedding   | < 500 ms    | < 0.5%     | 99.5%           |
 
 ### 5.6 Web App
 
-| SLO | Hedef |
-|---|---|
-| Sayfa LCP (Largest Contentful Paint) | < 2.5 s p75 |
-| TTI (Time to Interactive) | < 5 s p75 |
-| CLS (Cumulative Layout Shift) | < 0.1 |
-| Availability | 99.9% (Vercel Pro) |
+| SLO                                  | Hedef              |
+| ------------------------------------ | ------------------ |
+| Sayfa LCP (Largest Contentful Paint) | < 2.5 s p75        |
+| TTI (Time to Interactive)            | < 5 s p75          |
+| CLS (Cumulative Layout Shift)        | < 0.1              |
+| Availability                         | 99.9% (Vercel Pro) |
 
 ---
 
@@ -403,12 +403,12 @@ flowchart TB
 
 ### 7.1 Alert Seviyeleri
 
-| Seviye | Kim çağrılır | Yanıt SLA | Örnek |
-|---|---|---|---|
-| **P0** | On-call + Mehmet (telefon) | < 5 dk | Production tamamen down |
-| **P1** | On-call (Slack + email) | < 15 dk | Brain error rate %5+ |
-| **P2** | Slack | < 1 saat | Vision agent yavaş ama çalışıyor |
-| **P3** | Email + Linear ticket | < 1 gün | Cache hit oranı düşmüş |
+| Seviye | Kim çağrılır               | Yanıt SLA | Örnek                            |
+| ------ | -------------------------- | --------- | -------------------------------- |
+| **P0** | On-call + Mehmet (telefon) | < 5 dk    | Production tamamen down          |
+| **P1** | On-call (Slack + email)    | < 15 dk   | Brain error rate %5+             |
+| **P2** | Slack                      | < 1 saat  | Vision agent yavaş ama çalışıyor |
+| **P3** | Email + Linear ticket      | < 1 gün   | Cache hit oranı düşmüş           |
 
 ### 7.2 Alert Tanımları (Prometheus AlertManager)
 
@@ -423,8 +423,8 @@ groups:
         labels:
           severity: P0
         annotations:
-          summary: "Pusula API down"
-          runbook: "https://docs/runbooks/api-down"
+          summary: 'Pusula API down'
+          runbook: 'https://docs/runbooks/api-down'
 
       - alert: BrainErrorRateHigh
         expr: |
@@ -436,7 +436,7 @@ groups:
         labels:
           severity: P1
         annotations:
-          summary: "Brain error rate > 5% (5 dk)"
+          summary: 'Brain error rate > 5% (5 dk)'
 
       - alert: LLMCostBudgetExceeded
         expr: sum(rate(pusula_llm_cost_usd_total[1h])) * 24 * 30 > 1000
@@ -444,7 +444,7 @@ groups:
         labels:
           severity: P2
         annotations:
-          summary: "LLM cost projection > $1000/ay"
+          summary: 'LLM cost projection > $1000/ay'
 
       - alert: ScoringLatencyP95High
         expr: |
@@ -461,8 +461,8 @@ groups:
         labels:
           severity: P0
         annotations:
-          summary: "sahibinden DOM parser bozulmuş — selector güncellenmeli"
-          runbook: "https://docs/runbooks/sahibinden-parser-fix"
+          summary: 'sahibinden DOM parser bozulmuş — selector güncellenmeli'
+          runbook: 'https://docs/runbooks/sahibinden-parser-fix'
 
       - alert: ScoringDrift
         expr: |
@@ -475,7 +475,7 @@ groups:
         labels:
           severity: P2
         annotations:
-          summary: "Skor dağılımı önceki aya göre %15+ kaymış — drift olabilir"
+          summary: 'Skor dağılımı önceki aya göre %15+ kaymış — drift olabilir'
 ```
 
 ### 7.3 Alert Hijyeni
@@ -508,12 +508,12 @@ groups:
 
 ### 9.1 Severity Tanımları (yeniden)
 
-| Sev | Tanım | Örnek |
-|---|---|---|
-| P0 | Tüm kullanıcılar etkilenir, production tamamen down | Vercel + Render aynı anda down |
-| P1 | %25+ kullanıcı veya kritik özellik | Brain çalışmıyor ama dashboard çalışıyor |
-| P2 | Belirli özellik veya küçük segment | Vision agent yavaş ama yedek çalışıyor |
-| P3 | Cosmetic veya minor | UI typo |
+| Sev | Tanım                                               | Örnek                                    |
+| --- | --------------------------------------------------- | ---------------------------------------- |
+| P0  | Tüm kullanıcılar etkilenir, production tamamen down | Vercel + Render aynı anda down           |
+| P1  | %25+ kullanıcı veya kritik özellik                  | Brain çalışmıyor ama dashboard çalışıyor |
+| P2  | Belirli özellik veya küçük segment                  | Vision agent yavaş ama yedek çalışıyor   |
+| P3  | Cosmetic veya minor                                 | UI typo                                  |
 
 ### 9.2 Response Akışı
 
@@ -544,26 +544,32 @@ Her P0/P1 sonrası 48 saat içinde yazılır:
 **Etkilenen:** [kaç kullanıcı, hangi özellikler]
 
 ## Özet
+
 [2-3 cümle]
 
 ## Etki
+
 - Kullanıcı etkisi
 - Gelir etkisi (V2+)
 - SLO error budget tüketimi
 
 ## Zaman çizgisi
+
 - HH:MM — Event A
 - HH:MM — Event B
 
 ## Kök neden
+
 [5 why analysis]
 
 ## Düzeltme
+
 - [ ] Kısa vadeli mitigation
 - [ ] Orta vadeli structural fix
 - [ ] Uzun vadeli prevent
 
 ## Öğrenilen dersler
+
 - Neyin işe yaradığı
 - Neyin daha iyi olabileceği
 - Blame değil sistem odaklı
@@ -573,14 +579,14 @@ Her P0/P1 sonrası 48 saat içinde yazılır:
 
 ## 10. Logging Best Practices
 
-| ✅ Yap | ❌ Yapma |
-|---|---|
-| Structured JSON | Plain string log |
+| ✅ Yap                                          | ❌ Yapma                           |
+| ----------------------------------------------- | ---------------------------------- |
+| Structured JSON                                 | Plain string log                   |
 | `logger.info("ilan_scored", { ilan_id, skor })` | `console.log("ilan ${id} scored")` |
-| PII redact | Raw email/phone log |
-| `trace_id` her log'da | Trace'sız log |
-| Error stack + cause | Sadece message |
-| Cost tracking each LLM call | LLM call'u logsuz | 
+| PII redact                                      | Raw email/phone log                |
+| `trace_id` her log'da                           | Trace'sız log                      |
+| Error stack + cause                             | Sadece message                     |
+| Cost tracking each LLM call                     | LLM call'u logsuz                  |
 
 ---
 

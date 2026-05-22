@@ -1,10 +1,6 @@
 import type { KonutInput, SkorSonucu } from '@pusula/shared';
 import { SCORING_FORMULA_VERSION } from '@pusula/shared';
-import {
-  kelepirSkoru,
-  type ScoringContext,
-  type ScoringOptions,
-} from './scoring-engine.js';
+import { kelepirSkoru, type ScoringContext, type ScoringOptions } from './scoring-engine.js';
 import type { ScoringEngine } from './engine.js';
 import { registerEngine } from './engine.js';
 

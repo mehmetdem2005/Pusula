@@ -45,12 +45,19 @@ export class LLMGateway {
 
       try {
         const apiKey = await this.config.keyResolver.getKey(cand.provider);
-        const resp = await adapter.chat(messages, { ...options, provider: cand.provider, model: cand.model }, apiKey);
+        const resp = await adapter.chat(
+          messages,
+          { ...options, provider: cand.provider, model: cand.model },
+          apiKey,
+        );
         await this.config.onUsage?.(resp, this.config.keyResolver.source);
         return resp;
       } catch (err) {
         lastError = err;
-        if (err instanceof LLMError && (err.kind === 'rate_limit' || err.kind === 'server' || err.kind === 'network')) {
+        if (
+          err instanceof LLMError &&
+          (err.kind === 'rate_limit' || err.kind === 'server' || err.kind === 'network')
+        ) {
           continue; // failover
         }
         throw err; // auth/content → fail fast
@@ -61,14 +68,18 @@ export class LLMGateway {
 
   async *chatStream(
     messages: ChatMessage[],
-    options: ChatOptions
+    options: ChatOptions,
   ): AsyncIterable<{ delta: string; done: boolean }> {
     const candidates = this.candidateRoutes(options);
     const cand = candidates[0];
     if (!cand) throw new Error('No route for taskType: ' + options.taskType);
     const adapter = ADAPTERS[cand.provider];
     const apiKey = await this.config.keyResolver.getKey(cand.provider);
-    yield* adapter.chatStream(messages, { ...options, provider: cand.provider, model: cand.model }, apiKey);
+    yield* adapter.chatStream(
+      messages,
+      { ...options, provider: cand.provider, model: cand.model },
+      apiKey,
+    );
   }
 
   private candidateRoutes(options: ChatOptions) {

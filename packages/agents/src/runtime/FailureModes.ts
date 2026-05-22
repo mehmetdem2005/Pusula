@@ -14,13 +14,13 @@ export interface ExecutionGuards {
   retry?: {
     maxAttempts: number;
     backoffMs: number;
-    retryableErrors: ReadonlyArray<'timeout' | 'rate_limit' | 'server' | 'network'>;
+    retryableErrors: readonly ('timeout' | 'rate_limit' | 'server' | 'network')[];
   };
 }
 
 export const DEFAULT_GUARDS: ExecutionGuards = {
   timeoutMs: 8000,
-  maxCostUsd: 0.20,
+  maxCostUsd: 0.2,
   maxDepth: 6,
   retry: {
     maxAttempts: 2,
@@ -35,7 +35,7 @@ export class GuardedExecution {
   async run<T>(
     name: string,
     fn: () => Promise<T>,
-    overrides: Partial<ExecutionGuards> = {}
+    overrides: Partial<ExecutionGuards> = {},
   ): Promise<T> {
     const g = { ...this.guards, ...overrides };
     return this.withTimeout(g.timeoutMs, () => this.withRetry(g, name, fn));
@@ -45,8 +45,14 @@ export class GuardedExecution {
     return new Promise((resolve, reject) => {
       const t = setTimeout(() => reject(new TimeoutError(ms)), ms);
       fn().then(
-        (val) => { clearTimeout(t); resolve(val); },
-        (err) => { clearTimeout(t); reject(err); }
+        (val) => {
+          clearTimeout(t);
+          resolve(val);
+        },
+        (err) => {
+          clearTimeout(t);
+          reject(err);
+        },
       );
     });
   }
@@ -67,7 +73,7 @@ export class GuardedExecution {
     throw lastErr;
   }
 
-  private isRetryable(err: unknown, retryable: ReadonlyArray<string>): boolean {
+  private isRetryable(err: unknown, retryable: readonly string[]): boolean {
     if (err instanceof TimeoutError) return retryable.includes('timeout');
     const e = err as { kind?: string };
     return !!e.kind && retryable.includes(e.kind);
@@ -86,7 +92,10 @@ export class TimeoutError extends Error {
 }
 
 export class BudgetExceededError extends Error {
-  constructor(public spent: number, public budget: number) {
+  constructor(
+    public spent: number,
+    public budget: number,
+  ) {
     super(`Budget exceeded: spent $${spent} / budget $${budget}`);
     this.name = 'BudgetExceededError';
   }

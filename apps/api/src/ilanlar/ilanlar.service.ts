@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { KonutInput } from '@pusula/shared';
-import { ScoringService } from '../scoring/scoring.service.js';
+import type { ScoringService } from '../scoring/scoring.service.js';
 import { SUPABASE } from '../supabase/supabase.module.js';
 
 interface ListBatchItem {
@@ -27,10 +27,7 @@ export class IlanlarService {
    * - Skor sonucu `scoring_results` tablosuna yazılır
    * - ID'ler `crypto.randomUUID` (Math.random DEĞİL)
    */
-  async ingestKonut(
-    userId: string,
-    input: KonutInput,
-  ): Promise<{ id: string; score_id: string }> {
+  async ingestKonut(userId: string, input: KonutInput): Promise<{ id: string; score_id: string }> {
     // 1. Comparable set — V0.2'de ComparablesRepository
     const score = await this.scoring.scoreKonut(input, {
       comparables: [],
@@ -115,10 +112,7 @@ export class IlanlarService {
    * Liste batch — URL'leri queue'ya at (V1: hemen ack, ingest sonra).
    * Şimdilik sadece sayım döner; BullMQ job ileride.
    */
-  async acceptListBatch(
-    userId: string,
-    batch: ListBatchItem[],
-  ): Promise<{ accepted: number }> {
+  async acceptListBatch(userId: string, batch: ListBatchItem[]): Promise<{ accepted: number }> {
     this.logger.debug(`list-batch from ${userId}: ${batch.length} items`);
     // TODO: BullMQ queue.add('list-batch-ingest', { userId, batch })
     return { accepted: batch.length };

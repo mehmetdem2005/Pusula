@@ -22,14 +22,14 @@ export function Navbar(): ReactElement {
   const pathname = usePathname();
 
   return (
-    <header className="bg-[#0F1F4B] text-white border-b border-white/10 sticky top-0 z-40">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0F1F4B] text-white">
+      <div className="container mx-auto flex items-center justify-between px-6 py-4">
         <Link href="/dashboard" className="flex flex-col leading-tight">
-          <span className="text-xl font-bold flex items-center gap-2">🧭 Pusula</span>
+          <span className="flex items-center gap-2 text-xl font-bold">🧭 Pusula</span>
           <span className="text-xs text-[#D4A22E]">Karar verirken kaybolma.</span>
         </Link>
 
-        <nav className="flex gap-1 items-center text-sm">
+        <nav className="flex items-center gap-1 text-sm">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -38,8 +38,8 @@ export function Navbar(): ReactElement {
                 href={item.href}
                 className={
                   active
-                    ? 'px-3 py-1.5 rounded-full bg-white/10 text-[#D4A22E] font-semibold'
-                    : 'px-3 py-1.5 rounded-full hover:bg-white/5 hover:text-[#D4A22E] transition'
+                    ? 'rounded-full bg-white/10 px-3 py-1.5 font-semibold text-[#D4A22E]'
+                    : 'rounded-full px-3 py-1.5 transition hover:bg-white/5 hover:text-[#D4A22E]'
                 }
                 aria-current={active ? 'page' : undefined}
               >
@@ -49,7 +49,7 @@ export function Navbar(): ReactElement {
           })}
           <Link
             href="/auth/login"
-            className="ml-2 px-3 py-1.5 rounded-full border border-white/20 text-xs hover:bg-white/5"
+            className="ml-2 rounded-full border border-white/20 px-3 py-1.5 text-xs hover:bg-white/5"
           >
             Çıkış
           </Link>

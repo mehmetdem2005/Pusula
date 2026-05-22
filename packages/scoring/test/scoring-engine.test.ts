@@ -31,7 +31,9 @@ function makeComparables(meanM2Tl: number, count = 20, jitter = 0.1): Komparable
   return Array.from({ length: count }, (_, i) => ({
     id: `comp-${i}`,
     m2: 90 + Math.floor(Math.random() * 15),
-    fiyat_tl: Math.round(meanM2Tl * (90 + Math.floor(Math.random() * 15)) * (1 + (Math.random() - 0.5) * jitter)),
+    fiyat_tl: Math.round(
+      meanM2Tl * (90 + Math.floor(Math.random() * 15)) * (1 + (Math.random() - 0.5) * jitter),
+    ),
     bina_yasi: 10 + Math.floor(Math.random() * 6),
     oda_sayisi: '2+1',
     mahalle: 'Sinanpaşa',

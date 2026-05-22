@@ -3,19 +3,40 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./contracts": "./src/contracts/index.ts",
-    "./orchestrator": "./src/orchestrator/index.ts",
-    "./specialists": "./src/specialists/index.ts",
-    "./background": "./src/background/index.ts",
-    "./tools": "./src/tools/index.ts",
-    "./runtime": "./src/runtime/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts/index.d.ts",
+      "default": "./dist/contracts/index.js"
+    },
+    "./orchestrator": {
+      "types": "./dist/orchestrator/index.d.ts",
+      "default": "./dist/orchestrator/index.js"
+    },
+    "./specialists": {
+      "types": "./dist/specialists/index.d.ts",
+      "default": "./dist/specialists/index.js"
+    },
+    "./background": {
+      "types": "./dist/background/index.d.ts",
+      "default": "./dist/background/index.js"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "default": "./dist/tools/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "default": "./dist/runtime/index.js"
+    }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --emitDeclarationOnly false || tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

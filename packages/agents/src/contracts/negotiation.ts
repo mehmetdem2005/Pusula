@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const NegotiationRequest = z.object({
   ilan_id: z.string().uuid(),
-  scoring_summary: z.unknown(),       // SkorSonucu — opaque burada
+  scoring_summary: z.unknown(), // SkorSonucu — opaque burada
   market_dynamics: z.unknown().optional(),
   nlp_result: z.unknown().optional(),
   trace_id: z.string().uuid(),

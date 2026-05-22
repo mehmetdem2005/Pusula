@@ -7,16 +7,16 @@
 
 ## ✅ Tutarlılık Kontrolü
 
-| Karar / İddia | ADR | Roadmap | Skorlama | Provider Mat. | Mimari Dia. | Kod | Durum |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| Hibrit Web + Extension | ✅ | ✅ | n/a | n/a | ✅ | ✅ | Tutarlı |
-| User-Assisted Ingestion (sahibinden) | ✅ | ✅ | n/a | n/a | ✅ | ✅ | Tutarlı |
-| Multi-Provider BYOK (Groq/Gemini/DeepSeek/Anthropic) | ✅ | ✅ | n/a | ✅ | ✅ | ✅ | Tutarlı |
-| Deterministik skorlama + LLM açıklama | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Tutarlı |
-| Beta=BYOK, V2=Subscription | ✅ | ✅ | n/a | ✅ | ✅ | ✅ (DB şema) | Tutarlı |
-| Skor formülü `0.45·FA + 0.25·Q + 0.20·L + 0.10·R` | ✅ | n/a | ✅ | n/a | n/a | ✅ | Tutarlı |
-| Yüksek risk skor cezası (RiskSkoru<25 → ×0.7) | ✅ | n/a | ✅ | n/a | n/a | ✅ | Tutarlı |
-| TBDY 2019 + AFAD risk bantları | n/a | ✅ | ✅ | n/a | n/a | ✅ (risk.ts) | Tutarlı |
+| Karar / İddia                                        | ADR | Roadmap | Skorlama | Provider Mat. | Mimari Dia. |     Kod      |  Durum  |
+| ---------------------------------------------------- | :-: | :-----: | :------: | :-----------: | :---------: | :----------: | :-----: |
+| Hibrit Web + Extension                               | ✅  |   ✅    |   n/a    |      n/a      |     ✅      |      ✅      | Tutarlı |
+| User-Assisted Ingestion (sahibinden)                 | ✅  |   ✅    |   n/a    |      n/a      |     ✅      |      ✅      | Tutarlı |
+| Multi-Provider BYOK (Groq/Gemini/DeepSeek/Anthropic) | ✅  |   ✅    |   n/a    |      ✅       |     ✅      |      ✅      | Tutarlı |
+| Deterministik skorlama + LLM açıklama                | ✅  |   ✅    |    ✅    |      ✅       |     ✅      |      ✅      | Tutarlı |
+| Beta=BYOK, V2=Subscription                           | ✅  |   ✅    |   n/a    |      ✅       |     ✅      | ✅ (DB şema) | Tutarlı |
+| Skor formülü `0.45·FA + 0.25·Q + 0.20·L + 0.10·R`    | ✅  |   n/a   |    ✅    |      n/a      |     n/a     |      ✅      | Tutarlı |
+| Yüksek risk skor cezası (RiskSkoru<25 → ×0.7)        | ✅  |   n/a   |    ✅    |      n/a      |     n/a     |      ✅      | Tutarlı |
+| TBDY 2019 + AFAD risk bantları                       | n/a |   ✅    |    ✅    |      n/a      |     n/a     | ✅ (risk.ts) | Tutarlı |
 
 ---
 
@@ -29,6 +29,7 @@ Web app sayfaları basit Tailwind classes ile yazıldı. shadcn/ui kurulumu (`np
 ### 2. Test kapsamı kısıtlı
 
 `packages/scoring/test/scoring-engine.test.ts` 7 case içeriyor. ADR'da bahsedilen "50+ birim test" hedefine ulaşmak için ekstra coverage gerekli:
+
 - `quality.ts` tek tek mapping fonksiyonları
 - `location.ts` mesafe band'leri
 - `risk.ts` TBDY logic, tapu durum kombinasyonları
@@ -41,6 +42,7 @@ Web app sayfaları basit Tailwind classes ile yazıldı. shadcn/ui kurulumu (`np
 ### 4. AFAD/TÜİK enrichment job'u yok
 
 `mahalle_enrichment` tablosu var ama dolduran job yok. BullMQ + cron ile:
+
 - TÜİK CSV import scripti (ilk seed)
 - AFAD PGA lookup web service (varsa) veya statik shapefile import
 - OpenStreetMap Nominatim/Overpass cache
@@ -100,16 +102,16 @@ pnpm --filter @kelepir/scoring test
 
 ## 📂 Çıktı Manifesti
 
-| # | Dosya | Kullanım |
-|---|---|---|
-| 01 | `01-mimari-ve-yol-haritasi.md` | Ön taslak (önceki konuşmadan) |
-| 02 | `02-ADR-001-mimari-kararlar.md` | **ADR** — Mimari kararlar + Multi-provider LLM Gateway eki + V2 ticarileşme detayları |
-| 03 | `03-skorlama-modeli.md` | **Skor formülü** + parametre listeleri + LLM açıklama protokolü |
-| 04 | `04-provider-model-matrisi.md` | **Provider × Model** karşılaştırma + Settings UI spec'i |
-| 05 | `05-sistem-mimarisi-diyagram.md` | **C4-style Mermaid** diyagramlar (Context, Container, Component, Sequence, Deployment) |
-| 06 | `06-roadmap.md` | **Roadmap** — MVP/V1/V2/V3 + Subscription epic + KPI hedefleri |
-| 07 | `07-dogrulama-notlari.md` | Bu dosya |
-| repo | `kelepir/` | **Monorepo iskelet** (pnpm + Turborepo) |
+| #    | Dosya                            | Kullanım                                                                               |
+| ---- | -------------------------------- | -------------------------------------------------------------------------------------- |
+| 01   | `01-mimari-ve-yol-haritasi.md`   | Ön taslak (önceki konuşmadan)                                                          |
+| 02   | `02-ADR-001-mimari-kararlar.md`  | **ADR** — Mimari kararlar + Multi-provider LLM Gateway eki + V2 ticarileşme detayları  |
+| 03   | `03-skorlama-modeli.md`          | **Skor formülü** + parametre listeleri + LLM açıklama protokolü                        |
+| 04   | `04-provider-model-matrisi.md`   | **Provider × Model** karşılaştırma + Settings UI spec'i                                |
+| 05   | `05-sistem-mimarisi-diyagram.md` | **C4-style Mermaid** diyagramlar (Context, Container, Component, Sequence, Deployment) |
+| 06   | `06-roadmap.md`                  | **Roadmap** — MVP/V1/V2/V3 + Subscription epic + KPI hedefleri                         |
+| 07   | `07-dogrulama-notlari.md`        | Bu dosya                                                                               |
+| repo | `kelepir/`                       | **Monorepo iskelet** (pnpm + Turborepo)                                                |
 
 ---
 
