@@ -27,7 +27,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@sentry/nextjs": "^8.47.0",
+    "@sentry/nextjs": "^10.53.1",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
