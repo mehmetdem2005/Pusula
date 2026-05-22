@@ -19,7 +19,7 @@ export default function LoginPage(): ReactElement {
       const { error: err } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
         },
       });
       if (err) throw err;
