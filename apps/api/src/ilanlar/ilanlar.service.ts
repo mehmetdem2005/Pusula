@@ -102,7 +102,7 @@ export class IlanlarService {
       alt_bilesenler: score.alt_bilesenler,
       comparable: score.comparable,
       confidence: score.confidence,
-      uyarilar: score.uyarilar,
+      uyarilar: [...score.uyarilar, ...this.suspicionWarnings(input)],
       hesap_zamani: score.hesap_zamani,
     });
     if (scoreErr) {
@@ -164,6 +164,26 @@ export class IlanlarService {
         ...(r.mahalle ? { mahalle: r.mahalle as string } : {}),
         ilce: (r.ilce as string | null) ?? input.ilce ?? '',
       }));
+  }
+
+  /**
+   * İlan metni/medyasından şüphe/dolandırıcılık sinyalleri → kullanıcı uyarıları.
+   * Skor matematiğini değiştirmez (ileride engine'e suspicion çarpanı eklenebilir).
+   */
+  private suspicionWarnings(input: KonutInput): string[] {
+    const w: string[] = [];
+    const fotoCount = input.foto_urlleri?.length ?? 0;
+    if (fotoCount < 3) w.push('⚠️ Az fotoğraf (3’ten az) — ilanı dikkatle inceleyin.');
+    if (/\bacil|acele|kelepir|fırsat\b/i.test(input.baslik)) {
+      w.push('⚠️ Başlıkta aciliyet/“kelepir” vurgusu — fiyat doğrulamasını mutlaka yapın.');
+    }
+    if ((input.aciklama?.trim().length ?? 0) < 50) {
+      w.push('⚠️ Çok kısa/eksik açıklama — bilgi yetersiz olabilir.');
+    }
+    if (!input.bulundugu_kat) {
+      w.push('ℹ️ Kat bilgisi belirtilmemiş.');
+    }
+    return w;
   }
 
   /** Kullanıcının ilanları + her birinin son skoru (dashboard listesi). */
