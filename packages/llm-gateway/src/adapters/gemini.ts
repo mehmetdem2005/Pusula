@@ -2,6 +2,8 @@ import type { ChatMessage, ChatOptions, ChatResponse, Provider } from '@pusula/s
 import { LLMError, type LLMAdapter } from './base.js';
 import { tahminiMaliyetUsd } from '../pricing.js';
 
+type GeminiPart = { text: string } | { inlineData: { mimeType: string; data: string } };
+
 /**
  * Google Gemini adapter — minimal HTTP istemcisi.
  *
@@ -25,27 +27,41 @@ export class GeminiAdapter implements LLMAdapter {
     return `https://generativelanguage.googleapis.com/v1beta/models/${model}:${action}`;
   }
 
+  /** ChatMessage içeriğini Gemini parts'a çevir — metin + görsel (inlineData). */
+  private toParts(content: ChatMessage['content']): GeminiPart[] {
+    if (typeof content === 'string') return [{ text: content }];
+    const parts: GeminiPart[] = [];
+    for (const p of content) {
+      if (p.type === 'text') {
+        parts.push({ text: p.text });
+      } else if (p.type === 'image' && p.image_base64) {
+        const m = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/s.exec(p.image_base64);
+        if (m && m[1] && m[2]) parts.push({ inlineData: { mimeType: m[1], data: m[2] } });
+        else parts.push({ inlineData: { mimeType: 'image/jpeg', data: p.image_base64 } });
+      } else if (p.type === 'image' && p.image_url) {
+        parts.push({ text: `[görsel: ${p.image_url}]` });
+      }
+    }
+    return parts.length > 0 ? parts : [{ text: '' }];
+  }
+
   private convertMessages(messages: ChatMessage[]): {
-    systemInstruction?: { parts: { text: string }[] };
-    contents: { role: 'user' | 'model'; parts: { text: string }[] }[];
+    systemInstruction?: { parts: GeminiPart[] };
+    contents: { role: 'user' | 'model'; parts: GeminiPart[] }[];
   } {
     const sys = messages.find((m) => m.role === 'system');
     const rest = messages.filter((m) => m.role !== 'system');
     const out: {
-      systemInstruction?: { parts: { text: string }[] };
-      contents: { role: 'user' | 'model'; parts: { text: string }[] }[];
+      systemInstruction?: { parts: GeminiPart[] };
+      contents: { role: 'user' | 'model'; parts: GeminiPart[] }[];
     } = {
       contents: rest.map((m) => ({
         role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: typeof m.content === 'string' ? m.content : JSON.stringify(m.content) }],
+        parts: this.toParts(m.content),
       })),
     };
     if (sys) {
-      out.systemInstruction = {
-        parts: [
-          { text: typeof sys.content === 'string' ? sys.content : JSON.stringify(sys.content) },
-        ],
-      };
+      out.systemInstruction = { parts: this.toParts(sys.content) };
     }
     return out;
   }

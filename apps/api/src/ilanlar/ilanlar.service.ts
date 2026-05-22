@@ -132,31 +132,57 @@ export class IlanlarService {
    */
   async extractAndIngest(
     userId: string,
-    body: { raw_text?: string | undefined; url?: string | undefined; kaynak?: string | undefined },
+    body: {
+      raw_text?: string | undefined;
+      url?: string | undefined;
+      kaynak?: string | undefined;
+      screenshot_base64?: string | undefined;
+    },
   ): Promise<{ id: string; score_id: string }> {
     const text = (body.raw_text ?? '').slice(0, 16_000);
-    const prompt =
-      'Aşağıdaki emlak ilanı metninden konut bilgilerini çıkar ve SADECE geçerli JSON döndür ' +
+    const instruction =
+      'Bir emlak ilanından konut bilgilerini çıkar ve SADECE geçerli JSON döndür ' +
       '(bulunmayan alan null). Anahtarlar: baslik, fiyat_tl (sayı, TL), il, ilce, mahalle, ' +
       'net_m2 (sayı), brut_m2 (sayı), oda_sayisi ("2+1" veya "stüdyo"), bina_yasi (sayı, yıl), ' +
       `banyo_sayisi (sayı), isitma (${IsitmaTipi.options.join('|')}), asansor (bool), balkon (bool), ` +
-      'esyali (bool), krediye_uygun (evet|kismen|hayir|bilinmiyor), aciklama.\n\nMETİN:\n' +
-      text +
-      (body.url ? `\n\nURL: ${body.url}` : '');
+      'esyali (bool), krediye_uygun (evet|kismen|hayir|bilinmiyor), aciklama.';
 
-    const messages: ChatMessage[] = [
-      {
-        role: 'system',
-        content: 'Sen bir emlak ilanı veri çıkarıcısısın. Yalnızca JSON döndür, açıklama yazma.',
-      },
-      { role: 'user', content: prompt },
-    ];
-    const resp = await this.llm.chat(
-      userId,
-      messages,
-      { taskType: 'score-explanation', stream: false },
-      {},
-    );
+    // Görüntü varsa vision-LLM (tam-sayfa ekran görüntüsünden oku); yoksa metin tabanlı.
+    const taskType = body.screenshot_base64 ? ('vision' as const) : ('score-explanation' as const);
+    const messages: ChatMessage[] = body.screenshot_base64
+      ? [
+          {
+            role: 'system',
+            content:
+              'Sen bir emlak ilanı veri çıkarıcısısın. Görseldeki ilan sayfasını oku. Yalnızca JSON döndür.',
+          },
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text:
+                  instruction +
+                  (text ? `\n\nEK METİN:\n${text}` : '') +
+                  (body.url ? `\n\nURL: ${body.url}` : ''),
+              },
+              { type: 'image', image_base64: body.screenshot_base64 },
+            ],
+          },
+        ]
+      : [
+          {
+            role: 'system',
+            content:
+              'Sen bir emlak ilanı veri çıkarıcısısın. Yalnızca JSON döndür, açıklama yazma.',
+          },
+          {
+            role: 'user',
+            content: instruction + '\n\nMETİN:\n' + text + (body.url ? `\n\nURL: ${body.url}` : ''),
+          },
+        ];
+
+    const resp = await this.llm.chat(userId, messages, { taskType, stream: false }, {});
     const parsed = this.parseJsonLoose(resp.text);
 
     const fiyat = Math.round(Number(parsed.fiyat_tl));
@@ -170,7 +196,7 @@ export class IlanlarService {
         (k) => k === body.kaynak,
       ) ?? 'manuel';
     const kaynakId = createHash('sha1')
-      .update(body.url ?? text ?? randomUUID())
+      .update(body.url || text || body.screenshot_base64 || randomUUID())
       .digest('hex')
       .slice(0, 24);
     const ilanUrl =
