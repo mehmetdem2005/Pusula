@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 import { loadEnv } from './config/env.schema.js';
 
@@ -26,13 +27,13 @@ async function bootstrap(): Promise<void> {
 
   const helmet = (await import('helmet')).default;
   const compression = (await import('compression')).default;
-  // Dinamik import'ta named-destructuring CJS interop'ta undefined verebilir → default kullan.
-  const express = (await import('express')).default;
   app.use(helmet());
   app.use(compression());
-  // Görüntü-tabanlı extract (tam-sayfa ekran görüntüsü base64) için büyük body limiti.
-  app.use(express.json({ limit: '15mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+  // Görüntü-tabanlı extract (büyük base64) için body limiti — express'i doğrudan import etmeden
+  // Nest'in (platform-express dahili) body parser'ını kullan.
+  const expressApp = app as unknown as NestExpressApplication;
+  expressApp.useBodyParser('json', { limit: '15mb' });
+  expressApp.useBodyParser('urlencoded', { extended: true, limit: '15mb' });
 
   app.enableShutdownHooks();
 
