@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module.js';
 import { loadEnv } from './config/env.schema.js';
 
@@ -29,13 +29,6 @@ async function bootstrap(): Promise<void> {
   app.use(compression());
 
   app.enableShutdownHooks();
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
 
   const allowedOrigins = env.CORS_ALLOWED_ORIGINS.split(',')
     .map((s) => s.trim())
