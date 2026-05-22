@@ -48,20 +48,19 @@ export default function IlanDetayPage(): ReactElement {
 
   const badge = scoreBadge(data?.skor?.etiket);
 
-  const chatContext = data?.skor
-    ? `Sen Pusula'nın emlak danışmanısın. Aşağıdaki konut ilanı ve kelepir skoru hakkında ` +
-      `kullanıcıya sade, kısa ve net Türkçe yardımcı ol. Skoru DEĞİŞTİRME, yalnız yorumla.\n` +
-      `İlan: ${data.baslik}. Fiyat: ${TRY.format(data.fiyat_tl)}, ${data.net_m2 ?? '?'}m², ` +
-      `${[data.ilce, data.mahalle].filter(Boolean).join(' ')}, ${data.bina_yasi ?? '?'} yaş.\n` +
-      `Kelepir skoru: ${Math.round(data.skor.toplam)}/100 (${data.skor.etiket}, güven: ${data.skor.confidence}). ` +
-      `Pilarlar — fiyat avantajı: ${Math.round(data.skor.bilesenler.fiyat_avantaji?.deger ?? 0)}, ` +
-      `kalite: ${Math.round(data.skor.bilesenler.kalite?.deger ?? 0)}, ` +
-      `konum: ${Math.round(data.skor.bilesenler.konum?.deger ?? 0)}, ` +
-      `risk: ${Math.round(data.skor.bilesenler.risk?.deger ?? 0)}.` +
-      (data.skor.uyarilar && data.skor.uyarilar.length > 0
-        ? `\nUyarılar: ${data.skor.uyarilar.join('; ')}`
-        : '') +
-      `\n\nTÜM METRİKLER (ayrıntılı referans, JSON — alt bileşenler, comparable medyan/IQR/z-score dahil): ${JSON.stringify(data.skor)}`
+  // Asistan context'i TAMAMEN API'nin döndürdüğü `data` nesnesinden üretilir.
+  // Böylece ileride eklenen her yeni metrik/pilar/alan (vision, nlp, finansal, yeni ilan
+  // alanları...) elle eklemeye gerek kalmadan otomatik olarak asistana yansır.
+  const chatContext = data
+    ? [
+        "Sen Pusula'nın emlak danışmanısın. Kullanıcıya sade, kısa ve net Türkçe yardımcı ol.",
+        'Aşağıdaki JSON, bu ilanın TÜM verisini ve skor metriklerini içerir (4 pilar, alt',
+        'bileşenler, comparable istatistikleri, uyarılar ve eklenen diğer tüm alanlar).',
+        'Soruları yalnız bu veriye dayanarak yanıtla; ileride eklenen yeni metrikleri de',
+        'aynı şekilde kullan. Skoru DEĞİŞTİRME, yalnızca yorumla ve gerekçelendir.',
+        '',
+        `VERİ (JSON): ${JSON.stringify(data)}`,
+      ].join('\n')
     : '';
 
   return (
