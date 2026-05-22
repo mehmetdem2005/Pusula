@@ -21,12 +21,17 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
     cors: false,
+    bodyParser: false,
   });
 
   const helmet = (await import('helmet')).default;
   const compression = (await import('compression')).default;
+  const { json, urlencoded } = await import('express');
   app.use(helmet());
   app.use(compression());
+  // Görüntü-tabanlı extract (tam-sayfa ekran görüntüsü base64) için büyük body limiti.
+  app.use(json({ limit: '15mb' }));
+  app.use(urlencoded({ extended: true, limit: '15mb' }));
 
   app.enableShutdownHooks();
 
