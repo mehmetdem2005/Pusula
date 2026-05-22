@@ -2,7 +2,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ChatMessage, ChatOptions, Provider, type ChatResponse } from '@pusula/shared';
 import { z } from 'zod';
-import type { LLMService } from './llm.service.js';
+import { LLMService } from './llm.service.js';
 import { JwtAuthGuard, CurrentUser, type AuthedUser } from '../auth/jwt.guard.js';
 import { ZodValidationPipe } from '../common/zod.pipe.js';
 

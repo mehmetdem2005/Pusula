@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { KonutInput } from '@pusula/shared';
-import type { ScoringService } from '../scoring/scoring.service.js';
+import { ScoringService } from '../scoring/scoring.service.js';
 import { SUPABASE } from '../supabase/supabase.module.js';
 
 interface ListBatchItem {
