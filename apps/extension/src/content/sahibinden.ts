@@ -60,8 +60,10 @@ function mountFloatingButton(): void {
 async function handleDetayPage(): Promise<void> {
   const ilan = parseKonutDetay(document, location.href);
   if (!ilan) {
-    console.warn('[Pusula] parse failed');
+    console.warn('[Pusula] parse failed → görüntüden çıkarım deneniyor');
     await send({ type: 'PARSE_FAILED', payload: { url: location.href, parser: PARSER_VERSION } });
+    // Otomatik fallback: DOM parse edilemedi → tam-sayfa ekran görüntüsünden vision ile çıkar.
+    await send({ type: 'CAPTURE_AND_EXTRACT' }).catch(() => undefined);
     return;
   }
   console.info('[Pusula] parsed ilan:', ilan);

@@ -15,6 +15,7 @@ interface AnalysisState {
 
 export function SidePanel(): ReactElement {
   const [state, setState] = useState<AnalysisState>({ loading: true });
+  const [capturing, setCapturing] = useState(false);
   const [chatMessages, setChatMessages] = useState<
     { role: 'user' | 'assistant'; content: string }[]
   >([]);
@@ -48,6 +49,23 @@ export function SidePanel(): ReactElement {
     };
     chrome.runtime.onMessage.addListener(listener);
     return () => chrome.runtime.onMessage.removeListener(listener);
+  }, [fetchAnalysis]);
+
+  const captureFromScreen = useCallback(async (): Promise<void> => {
+    setCapturing(true);
+    setState({ loading: true });
+    try {
+      const resp = await chrome.runtime.sendMessage({ type: 'CAPTURE_AND_EXTRACT' });
+      if (resp?.ok && resp.analyzeId) {
+        await fetchAnalysis(resp.analyzeId);
+      } else {
+        setState({ loading: false, error: resp?.error ?? 'Görüntüden analiz başarısız' });
+      }
+    } catch (e) {
+      setState({ loading: false, error: (e as Error).message });
+    } finally {
+      setCapturing(false);
+    }
   }, [fetchAnalysis]);
 
   async function sendChat(text: string): Promise<void> {
@@ -102,7 +120,19 @@ export function SidePanel(): ReactElement {
           <h1>🧭 Pusula</h1>
           <p className="tagline">Karar verirken kaybolma.</p>
         </header>
-        <div className="empty">Bir ilan sayfasına gidin, otomatik analiz başlasın.</div>
+        <div className="empty">
+          Bir ilan sayfasına gidin, otomatik analiz başlasın.
+          <br />
+          <button
+            type="button"
+            className="capture-btn"
+            disabled={capturing}
+            onClick={() => void captureFromScreen()}
+            style={{ marginTop: 12 }}
+          >
+            {capturing ? 'Yakalanıyor…' : '📸 Bu sayfayı görüntüden analiz et'}
+          </button>
+        </div>
       </div>
     );
   }
@@ -114,6 +144,14 @@ export function SidePanel(): ReactElement {
       <header className="header">
         <h1>🧭 Pusula</h1>
         {state.ilan_basligi && <p className="subtle">{state.ilan_basligi}</p>}
+        <button
+          type="button"
+          className="capture-btn"
+          disabled={capturing}
+          onClick={() => void captureFromScreen()}
+        >
+          {capturing ? 'Yakalanıyor…' : '📸 Görüntüden analiz'}
+        </button>
       </header>
 
       <section className="score-card">
