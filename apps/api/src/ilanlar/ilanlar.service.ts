@@ -1,10 +1,11 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { createHash, randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { KonutInput } from '@pusula/shared';
+import { KonutInput, IsitmaTipi, type ChatMessage } from '@pusula/shared';
 import type { ScoringContext } from '@pusula/scoring';
 import { ScoringService } from '../scoring/scoring.service.js';
 import { SUPABASE } from '../supabase/supabase.module.js';
+import { LLMService } from '../llm/llm.service.js';
 import { buildRiskContext } from './risk-enrichment.js';
 
 interface ListBatchItem {
@@ -22,6 +23,7 @@ export class IlanlarService {
   constructor(
     private readonly scoring: ScoringService,
     @Inject(SUPABASE) private readonly sb: SupabaseClient,
+    private readonly llm: LLMService,
   ) {}
 
   /**
@@ -121,6 +123,119 @@ export class IlanlarService {
     this.logger.debug(`list-batch from ${userId}: ${batch.length} items`);
     // TODO: BullMQ queue.add('list-batch-ingest', { userId, batch })
     return { accepted: batch.length };
+  }
+
+  /**
+   * Serbest metin/URL → LLM ile KonutInput çıkar → ingest + skor.
+   * Metin client'tan (eklenti veya "yapıştır") gelir; sunucu hiçbir siteye istek ATMAZ → IP ban yok.
+   * Her kaynağı (sahibinden, Facebook, vb.) kapsar; per-site parser gerektirmez.
+   */
+  async extractAndIngest(
+    userId: string,
+    body: { raw_text?: string | undefined; url?: string | undefined; kaynak?: string | undefined },
+  ): Promise<{ id: string; score_id: string }> {
+    const text = (body.raw_text ?? '').slice(0, 16_000);
+    const prompt =
+      'Aşağıdaki emlak ilanı metninden konut bilgilerini çıkar ve SADECE geçerli JSON döndür ' +
+      '(bulunmayan alan null). Anahtarlar: baslik, fiyat_tl (sayı, TL), il, ilce, mahalle, ' +
+      'net_m2 (sayı), brut_m2 (sayı), oda_sayisi ("2+1" veya "stüdyo"), bina_yasi (sayı, yıl), ' +
+      `banyo_sayisi (sayı), isitma (${IsitmaTipi.options.join('|')}), asansor (bool), balkon (bool), ` +
+      'esyali (bool), krediye_uygun (evet|kismen|hayir|bilinmiyor), aciklama.\n\nMETİN:\n' +
+      text +
+      (body.url ? `\n\nURL: ${body.url}` : '');
+
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content: 'Sen bir emlak ilanı veri çıkarıcısısın. Yalnızca JSON döndür, açıklama yazma.',
+      },
+      { role: 'user', content: prompt },
+    ];
+    const resp = await this.llm.chat(
+      userId,
+      messages,
+      { taskType: 'score-explanation', stream: false },
+      {},
+    );
+    const parsed = this.parseJsonLoose(resp.text);
+
+    const fiyat = Math.round(Number(parsed.fiyat_tl));
+    const net = Math.round(Number(parsed.net_m2));
+    if (!Number.isFinite(fiyat) || fiyat <= 0 || !Number.isFinite(net) || net <= 0) {
+      throw new BadRequestException('İlandan fiyat veya m² çıkarılamadı; metni kontrol edin.');
+    }
+
+    const kaynak =
+      (['sahibinden', 'hepsiemlak', 'emlakjet', 'zingat', 'manuel'] as const).find(
+        (k) => k === body.kaynak,
+      ) ?? 'manuel';
+    const kaynakId = createHash('sha1')
+      .update(body.url ?? text ?? randomUUID())
+      .digest('hex')
+      .slice(0, 24);
+    const ilanUrl =
+      body.url && /^https?:\/\//.test(body.url)
+        ? body.url
+        : `https://pusula.app/manuel/${kaynakId}`;
+    const odaRaw = String(parsed.oda_sayisi ?? '');
+    const oda = /^\d+\+\d+$|^stüdyo$/.test(odaRaw) ? odaRaw : '1+1';
+    const isitma = (IsitmaTipi.options as readonly string[]).includes(String(parsed.isitma))
+      ? (parsed.isitma as IsitmaTipi)
+      : 'bilinmiyor';
+    const baslikRaw = String(parsed.baslik ?? '').trim();
+    const baslik = baslikRaw.length >= 5 ? baslikRaw.slice(0, 200) : 'Yapıştırılan ilan';
+    const binaYasiNum = Number(parsed.bina_yasi);
+    const binaYasi = Number.isFinite(binaYasiNum)
+      ? Math.max(0, Math.min(200, Math.round(binaYasiNum)))
+      : 0;
+    const brutNum = Number(parsed.brut_m2);
+    const banyoNum = Number(parsed.banyo_sayisi);
+
+    const built = {
+      kaynak,
+      kaynak_id: kaynakId,
+      ilan_url: ilanUrl,
+      baslik,
+      fiyat_tl: fiyat,
+      il: String(parsed.il ?? '').trim() || 'Bilinmiyor',
+      ilce: String(parsed.ilce ?? '').trim() || 'Bilinmiyor',
+      mahalle: parsed.mahalle ? String(parsed.mahalle) : undefined,
+      net_m2: net,
+      brut_m2: Number.isFinite(brutNum) && brutNum > 0 ? Math.round(brutNum) : undefined,
+      oda_sayisi: oda,
+      bina_yasi: binaYasi,
+      banyo_sayisi: Number.isFinite(banyoNum)
+        ? Math.max(0, Math.min(10, Math.round(banyoNum)))
+        : undefined,
+      isitma,
+      asansor: typeof parsed.asansor === 'boolean' ? parsed.asansor : undefined,
+      balkon: typeof parsed.balkon === 'boolean' ? parsed.balkon : undefined,
+      esyali: typeof parsed.esyali === 'boolean' ? parsed.esyali : undefined,
+      aciklama: parsed.aciklama ? String(parsed.aciklama).slice(0, 4000) : undefined,
+      foto_urlleri: [],
+      parse_versiyonu: 'llm-extract-v1',
+      parse_tarihi: new Date().toISOString(),
+    };
+
+    const konut = KonutInput.parse(built);
+    return this.ingestKonut(userId, konut);
+  }
+
+  private parseJsonLoose(text: string): Record<string, unknown> {
+    const cleaned = text
+      .replace(/```json/gi, '')
+      .replace(/```/g, '')
+      .trim();
+    const start = cleaned.indexOf('{');
+    const end = cleaned.lastIndexOf('}');
+    if (start === -1 || end === -1 || end < start) {
+      throw new BadRequestException('İlan verisi çıkarılamadı (JSON bulunamadı).');
+    }
+    try {
+      return JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+    } catch {
+      throw new BadRequestException('İlan verisi çözümlenemedi.');
+    }
   }
 
   /**

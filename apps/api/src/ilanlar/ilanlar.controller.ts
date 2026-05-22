@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs
 import { Throttle } from '@nestjs/throttler';
 import { KonutInput } from '@pusula/shared';
 import { IlanlarService } from './ilanlar.service.js';
-import { ListBatchSchema, type ListBatchInput } from './dto.js';
+import { ListBatchSchema, type ListBatchInput, ExtractSchema, type ExtractInput } from './dto.js';
 import { JwtAuthGuard, type AuthedUser, CurrentUser } from '../auth/jwt.guard.js';
 import { ZodValidationPipe } from '../common/zod.pipe.js';
 
@@ -34,6 +34,19 @@ export class IlanlarController {
     @Body(new ZodValidationPipe(KonutInput)) input: KonutInput,
   ): Promise<{ id: string; score_id: string }> {
     return this.service.ingestKonut(user.id, input);
+  }
+
+  /**
+   * Serbest metin / URL → LLM ile alanları çıkar → skorla.
+   * Eklenti (sayfa metni) veya "İlan Yapıştır" formundan gelir; sunucu siteye istek atmaz.
+   */
+  @Post('extract')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  async extract(
+    @CurrentUser() user: AuthedUser,
+    @Body(new ZodValidationPipe(ExtractSchema)) body: ExtractInput,
+  ): Promise<{ id: string; score_id: string }> {
+    return this.service.extractAndIngest(user.id, body);
   }
 
   /**

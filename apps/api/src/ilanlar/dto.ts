@@ -28,3 +28,16 @@ export const ListBatchSchema = z.object({
     .max(200),
 });
 export type ListBatchInput = z.infer<typeof ListBatchSchema>;
+
+/**
+ * "İlan yapıştır" / eklenti serbest-metin ingest payload'ı.
+ * Sunucu LLM ile alanları çıkarır → skorlar. Sunucu hiçbir siteye istek atmaz (ban yok).
+ */
+export const ExtractSchema = z
+  .object({
+    raw_text: z.string().max(20_000).optional(),
+    url: z.string().url().max(1000).optional(),
+    kaynak: z.enum(['sahibinden', 'hepsiemlak', 'emlakjet', 'zingat', 'manuel']).optional(),
+  })
+  .refine((b) => !!b.raw_text || !!b.url, 'raw_text veya url gerekli');
+export type ExtractInput = z.infer<typeof ExtractSchema>;
