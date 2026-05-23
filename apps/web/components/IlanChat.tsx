@@ -86,14 +86,22 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const mr = new MediaRecorder(stream);
+      // Tarayıcı/mobil desteklediği ilk formatı seç (mobilde webm olmayabilir).
+      const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+      const picked = candidates.find(
+        (t) => typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t),
+      );
+      const mr = picked
+        ? new MediaRecorder(stream, { mimeType: picked })
+        : new MediaRecorder(stream);
       chunksRef.current = [];
       mr.ondataavailable = (e: BlobEvent) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       mr.onstop = () => {
         streamRef.current?.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        // Gerçek kayıt formatını kullan → STT doğru Content-Type alır.
+        const blob = new Blob(chunksRef.current, { type: mr.mimeType || picked || 'audio/webm' });
         setRecording(false);
         setLoading(true);
         sttTranscribe(blob)
