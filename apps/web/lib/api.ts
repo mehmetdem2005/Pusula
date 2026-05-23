@@ -41,22 +41,35 @@ export async function ttsSynthesize(text: string): Promise<Blob> {
   return res.blob();
 }
 
-/** Oturum token'ı ile API çağrısı. Hata durumunda fırlatır. */
+/** Oturum token'ı ile API çağrısı. Ağ hatasında (Render cold-start) bekleyip tekrar dener. */
 export async function authedFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await getToken();
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`${res.status}: ${text.slice(0, 200)}`);
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(init?.headers ?? {}),
+  };
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const res = await fetch(`${BASE}${path}`, { ...init, headers });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`${res.status}: ${text.slice(0, 200)}`);
+      }
+      return (await res.json()) as T;
+    } catch (e) {
+      lastErr = e;
+      // fetch ağ hatasında TypeError fırlatır (cold-start/uyku) → bekle ve tekrar dene.
+      // HTTP hatası (401/5xx) düz Error'dur → tekrar deneme.
+      if (e instanceof TypeError && attempt < 4) {
+        await new Promise((r) => setTimeout(r, 2500 * (attempt + 1)));
+        continue;
+      }
+      throw e;
+    }
   }
-  return (await res.json()) as T;
+  throw lastErr;
 }
 
 interface ApiState<T> {
