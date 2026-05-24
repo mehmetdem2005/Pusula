@@ -23,7 +23,7 @@ export default function KullanimPage(): ReactElement {
         <h2>2. Kullanıcı Sorumluluğu</h2>
         <ul>
           <li>İlan kaynaklarının kullanım şartlarına uymak kullanıcıya aittir.</li>
-          <li>BYOK modunda kullanıcı kendi AI sağlayıcı sözleşmelerinden sorumludur.</li>
+          <li>AI analizleri platform tarafından sağlanır; adil kullanım kotalarına tabidir.</li>
           <li>
             Skor ve AI yorumları <strong>yatırım veya hukuki tavsiye değildir.</strong>
           </li>
@@ -49,9 +49,9 @@ export default function KullanimPage(): ReactElement {
 
         <h2>6. Hesap Sonlandırma</h2>
         <p>
-          Kullanıcı dilediği zaman hesabını silebilir (
-          <a href="mailto:destek@pusula.tr">destek@pusula.tr</a>); BYOK key&apos;leri ve sohbet
-          geçmişi silinir.
+          Kullanıcı dilediği zaman hesabını silebilir (Ayarlar &rarr; Hesabımı Sil veya{' '}
+          <a href="mailto:destek@pusula.tr">destek@pusula.tr</a>); profil, ilanlar ve sohbet geçmişi
+          silinir.
         </p>
 
         <h2>7. İhtilaflar</h2>
