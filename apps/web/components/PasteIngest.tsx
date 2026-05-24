@@ -20,6 +20,16 @@ export function PasteIngest(): ReactElement {
     setError(null);
     try {
       const trimmed = text.trim();
+      // Sadece link yetmez: sahibinden gibi siteler bot koruması nedeniyle sunucudan açılamaz.
+      const sansUrl = trimmed.replace(/https?:\/\/\S+/g, '').trim();
+      if (sansUrl.length < 15) {
+        setError(
+          'Sadece link yapıştırdın. Bot koruması nedeniyle site sunucudan açılamaz — ilan ' +
+            'sayfasındaki metni (başlık, fiyat, m², konum) kopyalayıp yapıştır ya da eklentiyi kullan.',
+        );
+        setLoading(false);
+        return;
+      }
       const urlMatch = trimmed.match(/https?:\/\/\S+/);
       const body: { raw_text: string; url?: string } = { raw_text: trimmed };
       if (urlMatch) body.url = urlMatch[0];
@@ -60,8 +70,12 @@ export function PasteIngest(): ReactElement {
         </button>
       </div>
       <p className="mb-2 text-xs text-slate-500">
-        İlan metnini yapıştır (başlık, fiyat, m², konum, oda sayısı...). Herhangi bir siteden veya
-        Facebook&apos;tan kopyalayabilirsin — AI alanları çıkarıp skorlar.
+        İlan <strong>metnini</strong> yapıştır (başlık, fiyat, m², konum, oda sayısı...). Herhangi
+        bir siteden veya Facebook&apos;tan kopyalayabilirsin — AI alanları çıkarıp skorlar.{' '}
+        <span className="text-slate-400">
+          Not: Sadece link yetmez; sahibinden gibi siteler bot koruması nedeniyle sunucudan açılamaz
+          — metni kopyala ya da eklentiyi kullan.
+        </span>
       </p>
       <textarea
         value={text}

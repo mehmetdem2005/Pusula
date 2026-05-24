@@ -140,6 +140,20 @@ export class IlanlarService {
     },
   ): Promise<{ id: string; score_id: string }> {
     const text = (body.raw_text ?? '').slice(0, 16_000);
+
+    // Sadece-link durumu: sunucu ilan sitesini açamaz (sahibinden vb. Cloudflare/bot koruması
+    // datacenter IP'sini engeller). Çıkarım için gerçek metin veya ekran görüntüsü gerekir.
+    if (!body.screenshot_base64) {
+      const textSansUrl = text.replace(/https?:\/\/\S+/g, '').trim();
+      if (textSansUrl.length < 15) {
+        throw new BadRequestException(
+          'Sadece link algılandı. Bot koruması nedeniyle sunucu ilan sayfasını sizin yerinize ' +
+            'açamaz. İlan sayfasındaki metni (başlık, fiyat, m², konum) kopyalayıp yapıştırın ya ' +
+            'da tarayıcı eklentisini kullanın.',
+        );
+      }
+    }
+
     const instruction =
       'Bir emlak ilanından konut bilgilerini çıkar ve SADECE geçerli JSON döndür ' +
       '(bulunmayan alan null). Anahtarlar: baslik, fiyat_tl (sayı, TL), il, ilce, mahalle, ' +
