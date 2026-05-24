@@ -5,7 +5,7 @@ import type { ReactElement } from 'react';
 
 /**
  * Global hata sınırı — Next.js 15 error boundary.
- * Sentry'ye browser-side capture düşer (NEXT_PUBLIC_SENTRY_DSN varsa).
+ * (Sentry kurulursa instrumentation üzerinden otomatik yakalar; burada manuel no-op çağrı yok.)
  */
 export default function GlobalError({
   error,
@@ -15,17 +15,7 @@ export default function GlobalError({
   reset: () => void;
 }): ReactElement {
   useEffect(() => {
-    // Tip-güvenli dinamik import — Sentry yüklüyse capture
-    void (async () => {
-      try {
-        const Sentry = await import('@sentry/nextjs').catch(() => null);
-        if (Sentry) {
-          Sentry.captureException(error, { tags: { boundary: 'app-error' } });
-        }
-      } catch {
-        // ignore
-      }
-    })();
+    console.error('[Pusula] app error:', error);
   }, [error]);
 
   return (
@@ -36,7 +26,7 @@ export default function GlobalError({
         </div>
         <h1 className="mb-2 text-2xl font-bold text-[#0F1F4B]">Beklenmedik bir hata oluştu</h1>
         <p className="mb-2 text-slate-600">
-          Sorunu kaydettik. Birkaç saniye sonra tekrar denemek genellikle işe yarar.
+          Birkaç saniye sonra tekrar denemek genellikle işe yarar.
         </p>
         {error.digest && (
           <p className="mb-6 font-mono text-xs text-slate-400">Hata kimliği: {error.digest}</p>
