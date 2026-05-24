@@ -1,8 +1,8 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ChatMessage, ChatOptions, Provider, type ChatResponse } from '@pusula/shared';
 import { z } from 'zod';
-import { LLMService } from './llm.service.js';
+import { LLMService, type ModelOption } from './llm.service.js';
 import { JwtAuthGuard, CurrentUser, type AuthedUser } from '../auth/jwt.guard.js';
 import { ZodValidationPipe } from '../common/zod.pipe.js';
 
@@ -30,5 +30,11 @@ export class LLMController {
     @Body(new ZodValidationPipe(ChatRequest)) body: z.infer<typeof ChatRequest>,
   ): Promise<ChatResponse> {
     return this.svc.chat(user.id, body.messages, body.options, body.provider_keys ?? {});
+  }
+
+  /** Sohbet seçicisi için: platform key'lerinin desteklediği chat modelleri. */
+  @Get('models')
+  async models(): Promise<{ models: ModelOption[] }> {
+    return { models: await this.svc.listModels() };
   }
 }

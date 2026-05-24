@@ -15,17 +15,24 @@ const DEFAULT_SUGGESTIONS = [
   'Riskler neler?',
 ];
 
-/**
- * Model seçenekleri. "Otomatik" = akıllı yönlendirme + failover (önerilen).
- * Belirli bir model seçilirse o sağlayıcıya sabitlenir (failover devre dışı kalır).
- * Anthropic platform havuzunda tanımlı olmadığı için listede yok.
- */
-const MODEL_OPTIONS: readonly { label: string; provider?: string; model?: string }[] = [
-  { label: 'Otomatik' },
-  { label: 'Groq · Llama 3.3 70B', provider: 'groq', model: 'llama-3.3-70b-versatile' },
-  { label: 'Gemini 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash' },
-  { label: 'DeepSeek Chat', provider: 'deepseek', model: 'deepseek-chat' },
+interface ModelOpt {
+  provider: string;
+  model: string;
+}
+
+/** Model listesi (GET /v1/llm/models) çekilemezse yedek. "Otomatik" her zaman var. */
+const FALLBACK_MODELS: ModelOpt[] = [
+  { provider: 'groq', model: 'llama-3.3-70b-versatile' },
+  { provider: 'gemini', model: 'gemini-2.5-flash' },
+  { provider: 'deepseek', model: 'deepseek-v4-flash' },
 ];
+
+const PROVIDER_LABEL: Record<string, string> = {
+  groq: 'Groq',
+  gemini: 'Gemini',
+  deepseek: 'DeepSeek',
+  anthropic: 'Claude',
+};
 
 interface Props {
   /** LLM'e verilecek system context (ilan veya portföy verisi). */
@@ -48,7 +55,9 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [voiceOut, setVoiceOut] = useState(false);
-  const [modelIdx, setModelIdx] = useState(0);
+  const [models, setModels] = useState<ModelOpt[]>([]);
+  // '' = Otomatik (akıllı yönlendirme + failover); aksi halde 'provider:::model'.
+  const [selectedModel, setSelectedModel] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -62,6 +71,21 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       audioRef.current?.pause();
+    };
+  }, []);
+
+  // Key'lerin desteklediği chat modellerini çek (seçici için). Hata olursa yedek listeye düş.
+  useEffect(() => {
+    let alive = true;
+    authedFetch<{ models: ModelOpt[] }>('/v1/llm/models')
+      .then((r) => {
+        if (alive) setModels(r.models?.length ? r.models : FALLBACK_MODELS);
+      })
+      .catch(() => {
+        if (alive) setModels(FALLBACK_MODELS);
+      });
+    return () => {
+      alive = false;
     };
   }, []);
 
@@ -90,12 +114,12 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
     try {
       // Son 20 mesajla sınırla (backend messages.max(100) + token şişmesi).
       const history = next.slice(-20);
-      // Model seçimi: belirli sağlayıcı seçilmişse provider+model gönder (failover bypass),
+      // Model seçimi: belirli model seçilmişse provider+model gönder (failover bypass),
       // "Otomatik"te yalnız taskType (gateway akıllı yönlendirme + failover yapar).
-      const sel = MODEL_OPTIONS[modelIdx];
+      const [selProvider, selModel] = selectedModel ? selectedModel.split(':::') : [];
       const options =
-        sel?.provider && sel.model
-          ? { taskType: 'quick-chat' as const, provider: sel.provider, model: sel.model }
+        selProvider && selModel
+          ? { taskType: 'quick-chat' as const, provider: selProvider, model: selModel }
           : { taskType: 'quick-chat' as const };
       const resp = await authedFetch<{ text: string }>('/v1/llm/chat', {
         method: 'POST',
@@ -166,16 +190,26 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
         <h2 className="text-lg font-semibold">AI Danışman</h2>
         <div className="flex items-center gap-2">
           <select
-            value={modelIdx}
-            onChange={(e) => setModelIdx(Number(e.target.value))}
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
             disabled={loading || recording}
             aria-label="AI modeli seç"
-            className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#0F1F4B] disabled:opacity-50"
+            className="max-w-[10rem] rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#0F1F4B] disabled:opacity-50"
           >
-            {MODEL_OPTIONS.map((o, i) => (
-              <option key={o.label} value={i}>
-                {o.label}
-              </option>
+            <option value="">Otomatik</option>
+            {Object.entries(
+              models.reduce<Record<string, ModelOpt[]>>((acc, m) => {
+                (acc[m.provider] ??= []).push(m);
+                return acc;
+              }, {}),
+            ).map(([prov, list]) => (
+              <optgroup key={prov} label={PROVIDER_LABEL[prov] ?? prov}>
+                {list.map((m) => (
+                  <option key={`${prov}:::${m.model}`} value={`${prov}:::${m.model}`}>
+                    {m.model}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
           <button

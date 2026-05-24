@@ -4,6 +4,11 @@ import type { ChatMessage, ChatOptions, ChatResponse, Provider } from '@pusula/s
 import { LLMGateway, ByokKeyResolver, PlatformPoolResolver } from '@pusula/llm-gateway';
 import { SUPABASE } from '../supabase/supabase.module.js';
 
+export interface ModelOption {
+  provider: 'groq' | 'gemini' | 'deepseek';
+  model: string;
+}
+
 @Injectable()
 export class LLMService {
   private readonly logger = new Logger(LLMService.name);
@@ -60,5 +65,83 @@ export class LLMService {
     });
 
     return gateway.chat(messages, options);
+  }
+
+  private modelsCache: { at: number; data: ModelOption[] } | null = null;
+  private static readonly MODELS_TTL_MS = 60 * 60 * 1000;
+
+  /**
+   * Platform key'lerinin desteklediği chat modelleri (seçici için).
+   * Her sağlayıcının /models ucundan canlı çekilir → ses/görsel/embedding modelleri elenir.
+   * 1 saat in-memory cache (model listesi sık değişmez).
+   */
+  async listModels(): Promise<ModelOption[]> {
+    if (this.modelsCache && Date.now() - this.modelsCache.at < LLMService.MODELS_TTL_MS) {
+      return this.modelsCache.data;
+    }
+    const out: ModelOption[] = [];
+
+    const deepseekKey = process.env.MANAGED_DEEPSEEK_KEY;
+    if (deepseekKey) {
+      const ids = await this.fetchOpenAIModelIds('https://api.deepseek.com/models', deepseekKey);
+      for (const id of ids) out.push({ provider: 'deepseek', model: id });
+    }
+
+    const groqKey = process.env.MANAGED_GROQ_KEY;
+    if (groqKey) {
+      const ids = await this.fetchOpenAIModelIds('https://api.groq.com/openai/v1/models', groqKey);
+      for (const id of ids) {
+        if (/whisper|tts|guard|orpheus/i.test(id)) continue; // ses/moderasyon modelleri
+        out.push({ provider: 'groq', model: id });
+      }
+    }
+
+    const geminiKey = process.env.MANAGED_GEMINI_KEY;
+    if (geminiKey) {
+      const ids = await this.fetchGeminiModelIds(geminiKey);
+      for (const id of ids) {
+        // görsel/ses/müzik/embedding/araştırma/robotik/bilgisayar-kullanımı modellerini ele
+        if (
+          /embedding|aqa|imagen|image|tts|robotics|lyria|nano-banana|computer-use|deep-research|antigravity/i.test(
+            id,
+          )
+        ) {
+          continue;
+        }
+        out.push({ provider: 'gemini', model: id });
+      }
+    }
+
+    this.modelsCache = { at: Date.now(), data: out };
+    return out;
+  }
+
+  private async fetchOpenAIModelIds(url: string, apiKey: string): Promise<string[]> {
+    try {
+      const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+      if (!r.ok) return [];
+      const j = (await r.json()) as { data?: { id?: string }[] };
+      return (j.data ?? []).map((m) => m.id).filter((id): id is string => !!id);
+    } catch {
+      return [];
+    }
+  }
+
+  private async fetchGeminiModelIds(apiKey: string): Promise<string[]> {
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
+      );
+      if (!r.ok) return [];
+      const j = (await r.json()) as {
+        models?: { name?: string; supportedGenerationMethods?: string[] }[];
+      };
+      return (j.models ?? [])
+        .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+        .map((m) => (m.name ?? '').replace(/^models\//, ''))
+        .filter(Boolean);
+    } catch {
+      return [];
+    }
   }
 }
