@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  PayloadTooLargeException,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { JwtAuthGuard, type AuthedUser, CurrentUser } from '../auth/jwt.guard.js';
@@ -24,8 +35,18 @@ export class VoiceController {
     @Query('prompt') prompt = '',
   ): Promise<{ text: string; duration_ms: number; provider: string; model: string }> {
     const contentType = (req.headers['content-type'] as string | undefined) ?? 'audio/webm';
+    const MAX_BYTES = 25 * 1024 * 1024; // 25MB — OOM/DoS koruması (akışı sınırla)
     const chunks: Buffer[] = [];
-    for await (const c of req) chunks.push(c as Buffer);
+    let total = 0;
+    for await (const c of req) {
+      const buf = c as Buffer;
+      total += buf.length;
+      if (total > MAX_BYTES) {
+        req.destroy();
+        throw new PayloadTooLargeException('Ses dosyası 25MB sınırını aşıyor');
+      }
+      chunks.push(buf);
+    }
     const audio = Buffer.concat(chunks);
     this.logger.log(`STT: user=${user.id} bytes=${audio.length} type=${contentType}`);
     return this.svc.transcribe(audio, contentType, lang, prompt);
