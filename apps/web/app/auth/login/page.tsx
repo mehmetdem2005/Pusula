@@ -60,6 +60,12 @@ function LoginForm(): ReactElement {
         setMfaFactorId(totp.id);
         return;
       }
+      // aal2 GEREKLİ ama doğrulanabilir TOTP faktörü yok → giriş yapma (bypass kapandı).
+      await sb.auth.signOut();
+      setError(
+        'İki adımlı doğrulama gerekli ama doğrulanamadı. Lütfen destek ile iletişime geçin.',
+      );
+      return;
     }
     await logAudit('login', { method });
     go();

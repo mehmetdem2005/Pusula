@@ -87,6 +87,14 @@ export class LLMGateway {
       return [{ provider: options.provider, model: options.model }];
     }
     const routing = this.config.routing ?? DEFAULT_ROUTING;
-    return routing[options.taskType];
+    const routes = routing[options.taskType];
+    // Vision: yalnız görseli GERÇEKTEN açan adapter (Gemini). DeepSeek-VL2 supportsVision=false,
+    // Anthropic adapter görseli henüz inlineData'ya açmıyor → kör/yanlış sonuç verirler. Onları ele;
+    // gemini-flash → gemini-pro failover'ı korunur.
+    if (options.taskType === 'vision') {
+      const visionOk = routes.filter((r) => r.provider === 'gemini');
+      if (visionOk.length > 0) return visionOk;
+    }
+    return routes;
   }
 }

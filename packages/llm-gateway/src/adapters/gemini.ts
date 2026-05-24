@@ -75,6 +75,8 @@ export class GeminiAdapter implements LLMAdapter {
         temperature: options.temperature ?? 0.7,
         maxOutputTokens: options.maxTokens,
         responseMimeType: options.jsonSchema ? 'application/json' : 'text/plain',
+        // jsonSchema verilince çıktıyı şemaya ZORLA (sadece mimeType yetmiyordu).
+        ...(options.jsonSchema ? { responseSchema: options.jsonSchema } : {}),
       },
     };
     try {

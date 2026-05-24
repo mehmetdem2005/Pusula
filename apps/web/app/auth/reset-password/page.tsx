@@ -15,10 +15,28 @@ export default function ResetPasswordPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getSupabaseBrowser()
-      .auth.getSession()
-      .then(({ data }) => setHasSession(!!data.session))
-      .catch(() => setHasSession(false));
+    const sb = getSupabaseBrowser();
+    // Recovery oturumu URL'den ASENKRON kurulur → tek getSession yarışı "geçersiz" gösterebilir.
+    // onAuthStateChange ile PASSWORD_RECOVERY/SIGNED_IN olaylarını da dinle.
+    let settled = false;
+    const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
+      if (session || event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        settled = true;
+        setHasSession(true);
+      }
+    });
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        settled = true;
+        setHasSession(true);
+      } else {
+        // Olay gelmesi için kısa pencere tanı; gelmezse geçersiz.
+        setTimeout(() => {
+          if (!settled) setHasSession(false);
+        }, 2500);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
