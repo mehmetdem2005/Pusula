@@ -6,7 +6,7 @@
  *  - Eksik beklenen alanlar Sentry'ye custom event olarak loglanıyor
  *  - Fallback bir alt versiyon (v2) parser var
  */
-import type { KonutInput } from '@pusula/shared';
+import { KonutInput } from '@pusula/shared';
 import { SCORING_FORMULA_VERSION } from '@pusula/shared';
 
 export const PARSER_VERSION = 'sahibinden-konut-v3';
@@ -145,7 +145,8 @@ export function parseKonutDetay(doc: Document, url: string): KonutInput | null {
       doc.querySelectorAll('.classifiedDetailPhoto img, [data-testid="photo"] img'),
     )
       .map((img) => (img as HTMLImageElement).src)
-      .filter(Boolean);
+      // Yalnız mutlak http(s) — data:/relatif/lazy placeholder'lar şemayı (z.string().url()) bozar.
+      .filter((s) => /^https?:\/\//.test(s));
 
     // Kaynak id (URL'den)
     const idMatch = url.match(/\/ilan\/[^/]*?-(\d+)\/?/);
@@ -162,7 +163,7 @@ export function parseKonutDetay(doc: Document, url: string): KonutInput | null {
       mahalle: mahalle && mahalle.length > 0 ? mahalle : undefined,
       net_m2,
       brut_m2,
-      oda_sayisi: oda_sayisi || '2+1',
+      oda_sayisi,
       banyo_sayisi,
       bina_yasi,
       bina_kat_sayisi,
@@ -178,7 +179,14 @@ export function parseKonutDetay(doc: Document, url: string): KonutInput | null {
       ham_veri: Object.fromEntries(items.map((i) => [i.label, i.value])),
     };
 
-    return ilan;
+    // Şemaya uymuyorsa (eksik/uydurma alan) null dön → content script görüntü-fallback'e geçer.
+    // Uydurma 0/'2+1' ile sunucuya geçersiz veri göndermektense parse "başarısız" sayılır.
+    const parsed = KonutInput.safeParse(ilan);
+    if (!parsed.success) {
+      console.warn('[Pusula parser] şema geçersiz:', parsed.error.issues[0]?.message);
+      return null;
+    }
+    return parsed.data;
   } catch (err) {
     console.error('[Pusula parser] failed:', err);
     return null;
