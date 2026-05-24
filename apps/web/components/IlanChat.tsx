@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { authedFetch, sttTranscribe, ttsSynthesize } from '../lib/api';
 
 interface Msg {
@@ -44,11 +44,21 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
   const streamRef = useRef<MediaStream | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Unmount'ta mikrofon track'lerini ve sesi kapat (mic göstergesi açık kalmasın).
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      audioRef.current?.pause();
+    };
+  }, []);
+
   async function playTts(text: string) {
     try {
       const blob = await ttsSynthesize(text);
       audioRef.current?.pause();
-      const audio = new Audio(URL.createObjectURL(blob));
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.onended = () => URL.revokeObjectURL(url); // blob URL sızıntısını önle
       audioRef.current = audio;
       await audio.play();
     } catch {
@@ -65,10 +75,12 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
     setInput('');
     setLoading(true);
     try {
+      // Son 20 mesajla sınırla (backend messages.max(100) + token şişmesi).
+      const history = next.slice(-20);
       const resp = await authedFetch<{ text: string }>('/v1/llm/chat', {
         method: 'POST',
         body: JSON.stringify({
-          messages: [{ role: 'system', content: context }, ...next],
+          messages: [{ role: 'system', content: context }, ...history],
           options: { taskType: 'quick-chat' },
         }),
       });
