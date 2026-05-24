@@ -25,16 +25,19 @@ export class AccountController {
   @Delete()
   @HttpCode(204)
   async deleteAccount(@CurrentUser() user: AuthedUser): Promise<void> {
-    // 1. auth kullanıcısını sil (girişi tamamen kapatır)
+    // 1. Profil + ilişkili veriyi sil (FK: chat/usage/subscription/quota/audit cascade;
+    //    ilanlar.owner_user_id -> NULL ile paylaşılan havuza anonimleşir).
+    //    Hata olursa DURDUR — auth user'ı silip yetim PII bırakma (KVKK).
+    const { error: profErr } = await this.sb.from('users').delete().eq('id', user.id);
+    if (profErr) {
+      this.logger.error(`profile delete failed: ${profErr.message}`);
+      throw new InternalServerErrorException('Hesap verisi silinemedi');
+    }
+    // 2. Auth kullanıcısını sil (girişi tamamen kapatır). Hata olursa 500 → kullanıcı bilir.
     const { error: authErr } = await this.sb.auth.admin.deleteUser(user.id);
     if (authErr) {
       this.logger.error(`admin.deleteUser failed: ${authErr.message}`);
-      throw new InternalServerErrorException('Hesap silinemedi');
-    }
-    // 2. public profil + ilişkili verileri temizle (FK cascade)
-    const { error: profErr } = await this.sb.from('users').delete().eq('id', user.id);
-    if (profErr) {
-      this.logger.warn(`users profile delete: ${profErr.message}`);
+      throw new InternalServerErrorException('Auth hesabı silinemedi');
     }
     this.logger.log(`Account deleted: ${user.id}`);
   }
