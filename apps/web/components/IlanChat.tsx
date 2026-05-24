@@ -15,6 +15,18 @@ const DEFAULT_SUGGESTIONS = [
   'Riskler neler?',
 ];
 
+/**
+ * Model seçenekleri. "Otomatik" = akıllı yönlendirme + failover (önerilen).
+ * Belirli bir model seçilirse o sağlayıcıya sabitlenir (failover devre dışı kalır).
+ * Anthropic platform havuzunda tanımlı olmadığı için listede yok.
+ */
+const MODEL_OPTIONS: readonly { label: string; provider?: string; model?: string }[] = [
+  { label: 'Otomatik' },
+  { label: 'Groq · Llama 3.3 70B', provider: 'groq', model: 'llama-3.3-70b-versatile' },
+  { label: 'Gemini 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash' },
+  { label: 'DeepSeek Chat', provider: 'deepseek', model: 'deepseek-chat' },
+];
+
 interface Props {
   /** LLM'e verilecek system context (ilan veya portföy verisi). */
   context: string;
@@ -36,6 +48,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [voiceOut, setVoiceOut] = useState(false);
+  const [modelIdx, setModelIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -77,11 +90,18 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
     try {
       // Son 20 mesajla sınırla (backend messages.max(100) + token şişmesi).
       const history = next.slice(-20);
+      // Model seçimi: belirli sağlayıcı seçilmişse provider+model gönder (failover bypass),
+      // "Otomatik"te yalnız taskType (gateway akıllı yönlendirme + failover yapar).
+      const sel = MODEL_OPTIONS[modelIdx];
+      const options =
+        sel?.provider && sel.model
+          ? { taskType: 'quick-chat' as const, provider: sel.provider, model: sel.model }
+          : { taskType: 'quick-chat' as const };
       const resp = await authedFetch<{ text: string }>('/v1/llm/chat', {
         method: 'POST',
         body: JSON.stringify({
           messages: [{ role: 'system', content: context }, ...history],
-          options: { taskType: 'quick-chat' },
+          options,
         }),
       });
       setMessages((m) => [...m, { role: 'assistant', content: resp.text }]);
@@ -142,18 +162,33 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
 
   return (
     <div className="rounded-lg bg-white p-6">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">AI Danışman</h2>
-        <button
-          type="button"
-          onClick={() => setVoiceOut((v) => !v)}
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
-            voiceOut ? 'bg-[#0F1F4B] text-white' : 'bg-slate-100 text-slate-600'
-          }`}
-          aria-pressed={voiceOut}
-        >
-          {voiceOut ? '🔊 Sesli yanıt açık' : '🔈 Sesli yanıt'}
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={modelIdx}
+            onChange={(e) => setModelIdx(Number(e.target.value))}
+            disabled={loading || recording}
+            aria-label="AI modeli seç"
+            className="rounded-full border border-slate-300 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#0F1F4B] disabled:opacity-50"
+          >
+            {MODEL_OPTIONS.map((o, i) => (
+              <option key={o.label} value={i}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => setVoiceOut((v) => !v)}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              voiceOut ? 'bg-[#0F1F4B] text-white' : 'bg-slate-100 text-slate-600'
+            }`}
+            aria-pressed={voiceOut}
+          >
+            {voiceOut ? '🔊 Sesli yanıt açık' : '🔈 Sesli yanıt'}
+          </button>
+        </div>
       </div>
 
       {messages.length === 0 && (
