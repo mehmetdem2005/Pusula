@@ -83,7 +83,7 @@ export class IlanlarService {
 
     const { data: upserted, error: ilanErr } = await this.sb
       .from('ilanlar')
-      .upsert(ilanRow, { onConflict: 'kaynak,kaynak_id' })
+      .upsert(ilanRow, { onConflict: 'owner_user_id,kaynak,kaynak_id' })
       .select('id')
       .single();
     if (ilanErr) {
