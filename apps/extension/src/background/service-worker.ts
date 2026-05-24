@@ -8,10 +8,9 @@
  *  4. Side panel açma/kapama action
  */
 
-const API_BASE =
-  (globalThis as { VITE_API_BASE_URL?: string }).VITE_API_BASE_URL ?? 'https://api.pusula.tr';
-const WEB_BASE =
-  (globalThis as { VITE_WEB_BASE_URL?: string }).VITE_WEB_BASE_URL ?? 'https://app.pusula.tr';
+// Vite build-time inline (import.meta.env). Env verilmezse gerçek canlı host'lara düşer.
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'https://pusula-api-1x9a.onrender.com';
+const WEB_BASE = import.meta.env.VITE_WEB_BASE_URL ?? 'https://pusula-cyan.vercel.app';
 
 interface AuthState {
   jwt?: string;
@@ -51,16 +50,21 @@ function decodeJwtExp(token: string): number | null {
  */
 async function readAccessTokenFromCookies(): Promise<string | null> {
   const cookies = await chrome.cookies.getAll({ url: WEB_BASE }).catch(() => []);
+  // Chunk'ları SAYISAL sırala (.0,.1,.2,.10 — lexical sıralama .10'u .2'den önce koyardı).
+  const chunkIdx = (name: string): number => {
+    const m = /\.(\d+)$/.exec(name);
+    return m ? Number(m[1]) : -1; // suffix'siz base cookie ilk
+  };
   const authCookies = cookies
     .filter((c) => /^sb-.*-auth-token(\.\d+)?$/.test(c.name))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => chunkIdx(a.name) - chunkIdx(b.name));
   if (authCookies.length === 0) return null;
 
   let raw = authCookies.map((c) => c.value).join('');
+  // @supabase/ssr: değer `base64-<STANDARD base64(JSON)>`. base64url çevirisi YAPMA (bozar).
   if (raw.startsWith('base64-')) raw = raw.slice('base64-'.length);
   try {
-    const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
-    const session = JSON.parse(atob(b64)) as { access_token?: string };
+    const session = JSON.parse(atob(raw)) as { access_token?: string };
     if (session.access_token) return session.access_token;
   } catch {
     // base64 değilse: legacy ham JWT olabilir
@@ -94,6 +98,8 @@ async function apiPost<TReq, TResp>(
 ): Promise<TResp> {
   const attempts = opts.attempts ?? 3;
   const timeoutMs = opts.timeoutMs ?? 15_000;
+  // Idempotency-Key denemeler arası SABİT — retry'de çift ingest olmasın.
+  const idempotencyKey = crypto.randomUUID();
   let lastErr: unknown = null;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -104,7 +110,7 @@ async function apiPost<TReq, TResp>(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Idempotency-Key': crypto.randomUUID(),
+          'Idempotency-Key': idempotencyKey,
           ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
         },
         body: JSON.stringify(body),
@@ -127,6 +133,29 @@ async function apiPost<TReq, TResp>(
     }
   }
   throw lastErr ?? new Error('apiPost failed');
+}
+
+async function apiGet<TResp>(path: string, timeoutMs = 15_000): Promise<TResp> {
+  const jwt = await ensureAuth();
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}) },
+      signal: controller.signal,
+    });
+    if (res.status === 401) {
+      state.auth = {};
+      throw new Error('401 — re-auth');
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`API ${path}: ${res.status} ${text.slice(0, 200)}`);
+    }
+    return (await res.json()) as TResp;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 function detectKaynak(url?: string): string {
@@ -222,7 +251,8 @@ chrome.runtime.onMessage.addListener(
               '/v1/ilanlar/ingest',
               message.payload,
             );
-            sendResponse({ ok: true, analyzeId: resp.score_id });
+            // Panel GET /v1/ilanlar/:id ile çektiği için ilan id broadcast edilir (score_id değil).
+            sendResponse({ ok: true, analyzeId: resp.id });
             break;
           }
           case 'INGEST_LIST_BATCH': {
@@ -253,9 +283,38 @@ chrome.runtime.onMessage.addListener(
               { attempts: 2, timeoutMs: 60_000 },
             );
             chrome.runtime
-              .sendMessage({ type: 'NEW_ANALYSIS', payload: { analyzeId: resp.score_id } })
+              .sendMessage({ type: 'NEW_ANALYSIS', payload: { analyzeId: resp.id } })
               .catch(() => undefined);
-            sendResponse({ ok: true, analyzeId: resp.score_id });
+            sendResponse({ ok: true, analyzeId: resp.id });
+            break;
+          }
+          case 'GET_ANALYSIS': {
+            const id = (message.payload as { id?: string } | undefined)?.id;
+            if (!id) {
+              sendResponse({ ok: false, error: 'id yok' });
+              break;
+            }
+            const ilan = await apiGet<{ baslik?: string; skor?: unknown }>(`/v1/ilanlar/${id}`);
+            if (!ilan.skor) {
+              sendResponse({ ok: false, error: 'Bu ilan için skor bulunamadı' });
+              break;
+            }
+            sendResponse({ ok: true, score: ilan.skor, ilan_basligi: ilan.baslik });
+            break;
+          }
+          case 'CHAT': {
+            const p = message.payload as
+              | { messages?: { role: string; content: string }[]; score?: unknown }
+              | undefined;
+            const msgs = p?.messages ?? [];
+            const ctx =
+              'Sen Pusula emlak danışmanısın. Aşağıdaki skor verisini kullanarak Türkçe, kısa ve ' +
+              `net yardımcı ol. Skoru DEĞİŞTİRME, yalnız yorumla.\nSKOR (JSON): ${JSON.stringify(p?.score ?? {})}`;
+            const resp = await apiPost<unknown, { text: string }>('/v1/llm/chat', {
+              messages: [{ role: 'system', content: ctx }, ...msgs],
+              options: { taskType: 'quick-chat' },
+            });
+            sendResponse({ ok: true, text: resp.text });
             break;
           }
           case 'PARSE_FAILED': {

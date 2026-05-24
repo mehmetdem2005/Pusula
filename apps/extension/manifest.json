@@ -6,11 +6,13 @@
   "version": "0.0.1",
   "author": "Pusula",
 
-  "permissions": ["storage", "sidePanel", "scripting", "activeTab"],
-  "optional_permissions": ["cookies", "tabs"],
+  "permissions": ["storage", "sidePanel", "scripting", "activeTab", "cookies"],
+  "optional_permissions": ["tabs"],
   "host_permissions": [
     "https://www.sahibinden.com/*",
     "https://sahibinden.com/*",
+    "https://*.onrender.com/*",
+    "https://*.vercel.app/*",
     "https://api.pusula.tr/*",
     "https://app.pusula.tr/*"
   ],
@@ -37,7 +39,11 @@
 
   "content_scripts": [
     {
-      "matches": ["https://www.sahibinden.com/ilan/*", "https://www.sahibinden.com/kategori/*"],
+      "matches": [
+        "https://www.sahibinden.com/ilan/*",
+        "https://www.sahibinden.com/kategori/*",
+        "https://www.sahibinden.com/*arama*"
+      ],
       "js": ["src/content/sahibinden.ts"],
       "run_at": "document_idle",
       "all_frames": false
@@ -58,6 +64,6 @@
   ],
 
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.pusula.tr https://app.pusula.tr"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://*.onrender.com https://*.vercel.app https://api.pusula.tr https://app.pusula.tr"
   }
 }
