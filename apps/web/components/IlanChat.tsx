@@ -217,6 +217,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
           onChange={(e) => setInput(e.target.value)}
           placeholder={recording ? 'Dinliyorum…' : 'Bir soru yazın…'}
           disabled={recording}
+          aria-label="AI danışmana soru yaz"
           className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F1F4B]"
         />
         <button

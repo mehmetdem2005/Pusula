@@ -32,8 +32,8 @@ export default function KvkkPage(): ReactElement {
             <strong>Teknik veri:</strong> IP, tarayıcı, çerez, log
           </li>
           <li>
-            <strong>API anahtarları (BYOK):</strong> AES-GCM 256 ile <em>tarayıcınızda</em>{' '}
-            şifrelenir; Pusula sunucularına şifresiz hâliyle ulaşmaz.
+            <strong>AI kullanımı:</strong> Analizler uygulama içinde platform AI altyapısıyla
+            sağlanır; kullanıcı kendi API anahtarını girmez.
           </li>
         </ul>
 
@@ -47,10 +47,11 @@ export default function KvkkPage(): ReactElement {
 
         <h2>5. Aktarım</h2>
         <p>
-          Verileriniz kural olarak yurt içinde işlenir. AI sağlayıcılarına (Groq / Gemini / DeepSeek
-          / Anthropic) <strong>sadece kendi API key&apos;inizle, kendi tarayıcınızdan</strong> sorgu
-          gider; Pusula sunucusu bu aktarımda taraf değildir. Anthropic için CORS sebebiyle proxy
-          modunda geçici aktarım söz konusu olabilir.
+          Skorlama ve AI açıklamaları için ilan metni/verisi, analiz amacıyla{' '}
+          <strong>Pusula sunucusu üzerinden</strong> AI sağlayıcılarına (Groq / Gemini / DeepSeek /
+          Anthropic) platform anahtarlarıyla iletilir. Bu sağlayıcıların sunucuları yurt dışında
+          bulunabilir; aktarım hizmetin ifası ve açık rızanıza dayanır ve yalnız analiz için gerekli
+          içerikle sınırlıdır.
         </p>
 
         <h2>6. Haklarınız (md. 11)</h2>
@@ -61,7 +62,7 @@ export default function KvkkPage(): ReactElement {
 
         <h2>7. Çerezler</h2>
         <p>
-          Yalnız oturum (sb-access-token) ve analitik (PostHog opt-out edilebilir) çerezleri
+          Yalnız oturum çerezi (Supabase auth) ve analitik (PostHog, opt-out edilebilir) çerezleri
           kullanılır. Reklam çerezi yoktur.
         </p>
 
