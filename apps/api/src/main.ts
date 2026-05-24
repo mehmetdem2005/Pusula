@@ -44,15 +44,30 @@ async function bootstrap(): Promise<void> {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  // Vercel her deployment/preview'a `pusula-<hash>-...vercel.app` URL'i atar; kullanıcı canonical
+  // alias yerine bunlardan birine girebilir. Host'u parse ederek tüm `*.vercel.app` alt-alanlarını
+  // kabul et (path/fragment trick'lerine karşı güvenli).
+  const isVercelOrigin = (origin: string): boolean => {
+    try {
+      const host = new URL(origin).hostname;
+      return host === 'vercel.app' || host.endsWith('.vercel.app');
+    } catch {
+      return false;
+    }
+  };
+
   app.enableCors({
     origin: (origin, cb) => {
       if (!origin) return cb(null, true);
       if (allowedOrigins.includes(origin)) return cb(null, true);
+      if (isVercelOrigin(origin)) return cb(null, true);
       if (origin.startsWith('chrome-extension://')) {
         const id = origin.replace('chrome-extension://', '');
         if (extIds.includes(id)) return cb(null, true);
       }
-      cb(new Error(`CORS denied: ${origin}`));
+      // Reddedilen origin'de Error FIRLATMA → preflight 500 olur, tarayıcı "Failed to fetch" der.
+      // `false` döndür: temiz CORS bloğu (allow-origin header'sız 204), 500 değil.
+      cb(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
