@@ -41,29 +41,45 @@ export async function ttsSynthesize(text: string): Promise<Blob> {
   return res.blob();
 }
 
-/** Oturum token'ı ile API çağrısı. Ağ hatasında (Render cold-start) bekleyip tekrar dener. */
+/**
+ * Oturum token'ı ile API çağrısı. Render cold-start dayanıklılığı:
+ *  - Ağ hatası (TypeError) VE 5xx (502/503/504 gateway/uyandırma) → bekle, tekrar dene.
+ *  - 4xx (401/404...) → fırlat (retry yok).
+ *  - Token her denemede taze alınır (cold-start penceresinde expire olabilir).
+ *  - Boş/204/non-JSON gövde için güvenli parse.
+ */
 export async function authedFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = await getToken();
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(init?.headers ?? {}),
-  };
   let lastErr: unknown;
   for (let attempt = 0; attempt < 5; attempt++) {
+    const wait = () => new Promise((r) => setTimeout(r, 2500 * (attempt + 1)));
     try {
-      const res = await fetch(`${BASE}${path}`, { ...init, headers });
+      const token = await getToken();
+      const res = await fetch(`${BASE}${path}`, {
+        ...init,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(init?.headers ?? {}),
+        },
+      });
       if (!res.ok) {
+        if (res.status >= 500 && attempt < 4) {
+          await wait();
+          continue;
+        }
         const text = await res.text().catch(() => '');
         throw new Error(`${res.status}: ${text.slice(0, 200)}`);
       }
-      return (await res.json()) as T;
+      const ct = res.headers.get('content-type') ?? '';
+      if (res.status === 204 || !ct.includes('application/json')) {
+        return undefined as T;
+      }
+      const body = await res.text();
+      return (body ? JSON.parse(body) : undefined) as T;
     } catch (e) {
       lastErr = e;
-      // fetch ağ hatasında TypeError fırlatır (cold-start/uyku) → bekle ve tekrar dene.
-      // HTTP hatası (401/5xx) düz Error'dur → tekrar deneme.
       if (e instanceof TypeError && attempt < 4) {
-        await new Promise((r) => setTimeout(r, 2500 * (attempt + 1)));
+        await wait();
         continue;
       }
       throw e;
