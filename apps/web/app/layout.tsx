@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode, ReactElement } from 'react';
+import { PostHogProvider } from '../lib/posthog';
 
 export const metadata: Metadata = {
   title: 'Pusula — Karar verirken kaybolma',
@@ -34,7 +35,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
   return (
     <html lang="tr">
-      <body>{children}</body>
+      <body>
+        <PostHogProvider>{children}</PostHogProvider>
+      </body>
     </html>
   );
 }
