@@ -14,7 +14,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { href: '/kesfet', label: 'Keşfet' },
   { href: '/dashboard', label: 'İlanlar' },
-  { href: '/sesli', label: 'Sesli' },
+  { href: '/asistan', label: 'Asistan' },
   { href: '/settings', label: 'Ayarlar' },
 ];
 
