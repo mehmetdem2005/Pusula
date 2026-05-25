@@ -64,6 +64,10 @@ export function Navbar(): ReactElement {
             );
           })}
 
+          <Link href="/ilan/yeni" className="btn btn-gold btn-sm ml-1">
+            + İlan Ekle
+          </Link>
+
           <button
             type="button"
             onClick={toggle}
