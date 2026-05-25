@@ -13,6 +13,13 @@ interface UpdateProfile {
 export class ProfilesService {
   constructor(@Inject(SUPABASE) private readonly sb: SupabaseClient) {}
 
+  /** Kayıt öncesi kullanıcı adı uygunluğu (format + benzersizlik). */
+  async isHandleAvailable(handle: string): Promise<{ available: boolean }> {
+    if (!/^[a-z0-9_]{3,30}$/.test(handle)) return { available: false };
+    const { data } = await this.sb.from('users').select('id').eq('handle', handle).maybeSingle();
+    return { available: !data };
+  }
+
   /** Public profil + kullanıcının yayınlanmış ilanları (yalnız güvenli kolonlar). */
   async getByHandle(handle: string): Promise<unknown> {
     const { data: user } = await this.sb

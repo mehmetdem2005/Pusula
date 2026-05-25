@@ -1,8 +1,14 @@
 'use client';
 
-import { useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import Link from 'next/link';
-import { signUpPassword, logAudit, friendlyAuthError } from '../../../lib/auth';
+import {
+  signUpPassword,
+  logAudit,
+  friendlyAuthError,
+  isHandleValid,
+  checkHandleAvailable,
+} from '../../../lib/auth';
 import { OAuthButtons } from '../../../components/auth/OAuthButtons';
 import { PasswordInput } from '../../../components/auth/PasswordInput';
 
@@ -12,11 +18,31 @@ export default function SignupPage(): ReactElement {
     password: string;
     confirm: string;
     display_name: string;
+    handle: string;
     role: 'individual' | 'agent' | 'dealer';
-  }>({ email: '', password: '', confirm: '', display_name: '', role: 'individual' });
+  }>({ email: '', password: '', confirm: '', display_name: '', handle: '', role: 'individual' });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hStatus, setHStatus] = useState<'idle' | 'invalid' | 'checking' | 'ok' | 'taken'>('idle');
+
+  // Kullanıcı adı uygunluğunu canlı kontrol et (debounce'lu).
+  useEffect(() => {
+    const h = form.handle.trim().toLowerCase();
+    if (!h) {
+      setHStatus('idle');
+      return;
+    }
+    if (!isHandleValid(h)) {
+      setHStatus('invalid');
+      return;
+    }
+    setHStatus('checking');
+    const t = setTimeout(() => {
+      void checkHandleAvailable(h).then((ok) => setHStatus(ok ? 'ok' : 'taken'));
+    }, 400);
+    return () => clearTimeout(t);
+  }, [form.handle]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,8 +55,16 @@ export default function SignupPage(): ReactElement {
       if (form.password !== form.confirm) {
         throw new Error('Şifreler eşleşmiyor.');
       }
+      const handle = form.handle.trim().toLowerCase();
+      if (!isHandleValid(handle)) {
+        throw new Error('Kullanıcı adı 3-30 karakter; yalnız küçük harf, rakam, alt çizgi.');
+      }
+      if (hStatus === 'taken') {
+        throw new Error('Bu kullanıcı adı alınmış, başka bir tane dene.');
+      }
       const { data, error: err } = await signUpPassword(form.email, form.password, {
         display_name: form.display_name,
+        handle,
         role: form.role,
       });
       if (err) throw err;
@@ -52,6 +86,19 @@ export default function SignupPage(): ReactElement {
   const labelCls = 'text-fg-dim text-sm font-medium';
   const btnCls =
     'press w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-50';
+  const hMsg = {
+    idle: '3-30 karakter; küçük harf, rakam, alt çizgi.',
+    invalid: 'Geçersiz format (3-30; a-z, 0-9, _).',
+    checking: 'Kontrol ediliyor…',
+    ok: 'Bu kullanıcı adı uygun.',
+    taken: 'Bu kullanıcı adı alınmış.',
+  }[hStatus];
+  const hColor =
+    hStatus === 'ok'
+      ? '#16a34a'
+      : hStatus === 'invalid' || hStatus === 'taken'
+        ? '#ed4956'
+        : 'var(--c-fg-faint)';
 
   return (
     <main className="bg-night font-body text-fg flex min-h-[100dvh] items-center justify-center px-6 py-10">
@@ -91,6 +138,28 @@ export default function SignupPage(): ReactElement {
                   onChange={(e) => setForm({ ...form, display_name: e.target.value })}
                   className={inputCls}
                 />
+              </label>
+              <label className="block">
+                <span className={labelCls}>Kullanıcı adı</span>
+                <div className="relative mt-1">
+                  <span className="text-fg-faint pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm">
+                    @
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={form.handle}
+                    onChange={(e) => setForm({ ...form, handle: e.target.value.toLowerCase() })}
+                    maxLength={30}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    className={`${inputCls} mt-0 pl-7`}
+                    placeholder="kullanici_adi"
+                  />
+                </div>
+                <span className="mt-1 block text-xs" style={{ color: hColor }}>
+                  {hMsg}
+                </span>
               </label>
               <label className="block">
                 <span className={labelCls}>E-posta</span>
