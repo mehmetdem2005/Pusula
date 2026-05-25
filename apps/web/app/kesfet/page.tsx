@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from 'rea
 import { authedFetch } from '../../lib/api';
 import { TRY } from '../../lib/score-ui';
 import { BottomNav } from '../../components/shell/BottomNav';
+import { SaveSheet } from '../../components/SaveSheet';
 
 interface FeedMedia {
   id: string;
@@ -151,10 +152,7 @@ export default function KesfetPage(): ReactElement {
     );
     queue({ listing_id: card.id, event_type: liked ? 'like' : 'unlike' }, true);
   }
-  function save(card: FeedCard) {
-    setItems((prev) => prev.map((c) => (c.id === card.id ? { ...c } : c)));
-    queue({ listing_id: card.id, event_type: 'save' }, true);
-  }
+  const [saveFor, setSaveFor] = useState<string | null>(null);
 
   return (
     <main className="bg-night font-body text-fg fixed inset-0 overflow-hidden">
@@ -225,7 +223,7 @@ export default function KesfetPage(): ReactElement {
                 >
                   <Icon name="heart" size={30} filled={card.liked_by_me} />
                 </RailButton>
-                <RailButton onClick={() => save(card)} label="Kaydet">
+                <RailButton onClick={() => setSaveFor(card.id)} label="Kaydet">
                   <Icon name="bookmark" size={28} />
                 </RailButton>
                 <Link
@@ -300,6 +298,15 @@ export default function KesfetPage(): ReactElement {
           </section>
         )}
       </div>
+
+      {saveFor && (
+        <SaveSheet
+          listingId={saveFor}
+          open={!!saveFor}
+          onClose={() => setSaveFor(null)}
+          onSaved={() => queue({ listing_id: saveFor, event_type: 'save' }, true)}
+        />
+      )}
 
       <BottomNav />
     </main>

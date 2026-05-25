@@ -54,6 +54,15 @@ export const getListDetail = (id: string, qs = ''): Promise<ListDetail> =>
 export const removeItem = (id: string, ilanId: string): Promise<{ ok: true }> =>
   authedFetch(`/v1/lists/${id}/items/${ilanId}`, { method: 'DELETE' });
 
+export const addFavorite = (ilanId: string): Promise<{ ok: true; list_id: string }> =>
+  authedFetch('/v1/lists/favorite', { method: 'POST', body: JSON.stringify({ ilan_id: ilanId }) });
+
+export const addToList = (listId: string, ilanId: string): Promise<{ ok: true }> =>
+  authedFetch(`/v1/lists/${listId}/items`, {
+    method: 'POST',
+    body: JSON.stringify({ ilan_id: ilanId }),
+  });
+
 export const analyzeList = (
   id: string,
   qs = '',
