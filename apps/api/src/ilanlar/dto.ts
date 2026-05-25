@@ -17,3 +17,33 @@ export const ExtractSchema = z
     'raw_text, url veya screenshot_base64 gerekli',
   );
 export type ExtractInput = z.infer<typeof ExtractSchema>;
+
+/**
+ * UGC ilan oluşturma (taslak). Kategori-duyarlı; kategoriye özel alanlar `ozellikler` jsonb'sinde.
+ * Scraping yok → kaynak='user', kaynak_id/ilan_url server'da set/boş. Skor zorlanmaz (liste AI paneli yapar).
+ */
+export const CreateListingSchema = z.object({
+  kategori: z.enum(['konut', 'arsa', 'oto']),
+  baslik: z.string().trim().min(5).max(200),
+  fiyat_tl: z.number().int().positive(),
+  aciklama: z.string().max(8000).optional(),
+  il: z.string().max(100).optional(),
+  ilce: z.string().max(100).optional(),
+  mahalle: z.string().max(100).optional(),
+  net_m2: z.number().int().positive().optional(),
+  oda_sayisi: z.string().max(20).optional(),
+  bina_yasi: z.number().int().min(0).max(200).optional(),
+  /** Kategoriye özel alanlar + iletişim (platform dışı) — esnek jsonb. */
+  ozellikler: z.record(z.unknown()).optional(),
+});
+export type CreateListingInput = z.infer<typeof CreateListingSchema>;
+
+/** Güncelleme — tüm alanlar opsiyonel (kategori değişmez). */
+export const UpdateListingSchema = CreateListingSchema.partial().omit({ kategori: true });
+export type UpdateListingInput = z.infer<typeof UpdateListingSchema>;
+
+/** Yayınlama — telif/ToS beyanı zorunlu (dava-riski). */
+export const PublishSchema = z.object({
+  tos_attested: z.literal(true),
+});
+export type PublishInput = z.infer<typeof PublishSchema>;

@@ -1,8 +1,16 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { KonutInput } from '@pusula/shared';
 import { IlanlarService } from './ilanlar.service.js';
-import { ExtractSchema, type ExtractInput } from './dto.js';
+import {
+  CreateListingSchema,
+  ExtractSchema,
+  PublishSchema,
+  UpdateListingSchema,
+  type CreateListingInput,
+  type ExtractInput,
+  type UpdateListingInput,
+} from './dto.js';
 import { JwtAuthGuard, type AuthedUser, CurrentUser } from '../auth/jwt.guard.js';
 import { ZodValidationPipe } from '../common/zod.pipe.js';
 
@@ -21,6 +29,36 @@ export class IlanlarController {
   @Get(':id')
   async getOne(@CurrentUser() user: AuthedUser, @Param('id') id: string): Promise<unknown> {
     return this.service.getIlan(user.id, id);
+  }
+
+  /** UGC: taslak ilan oluştur. */
+  @Post()
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  async create(
+    @CurrentUser() user: AuthedUser,
+    @Body(new ZodValidationPipe(CreateListingSchema)) body: CreateListingInput,
+  ): Promise<{ id: string }> {
+    return this.service.createListing(user.id, body);
+  }
+
+  /** UGC: ilanı güncelle (sahip). */
+  @Patch(':id')
+  async update(
+    @CurrentUser() user: AuthedUser,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateListingSchema)) body: UpdateListingInput,
+  ): Promise<{ ok: true }> {
+    return this.service.updateListing(user.id, id, body);
+  }
+
+  /** UGC: yayınla (en az 1 hazır medya + ToS beyanı). */
+  @Post(':id/publish')
+  async publish(
+    @CurrentUser() user: AuthedUser,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PublishSchema)) _body: { tos_attested: true },
+  ): Promise<{ ok: true }> {
+    return this.service.publishListing(user.id, id);
   }
 
   /**

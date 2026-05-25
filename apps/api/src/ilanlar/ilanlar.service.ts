@@ -325,6 +325,123 @@ export class IlanlarService {
     return w;
   }
 
+  /** UGC: taslak ilan oluştur (skor zorlanmaz; medya sonra eklenir, publish ayrı). */
+  async createListing(
+    userId: string,
+    body: {
+      kategori: 'konut' | 'arsa' | 'oto';
+      baslik: string;
+      fiyat_tl: number;
+      aciklama?: string | undefined;
+      il?: string | undefined;
+      ilce?: string | undefined;
+      mahalle?: string | undefined;
+      net_m2?: number | undefined;
+      oda_sayisi?: string | undefined;
+      bina_yasi?: number | undefined;
+      ozellikler?: Record<string, unknown> | undefined;
+    },
+  ): Promise<{ id: string }> {
+    const id = randomUUID();
+    const { error } = await this.sb.from('ilanlar').insert({
+      id,
+      owner_user_id: userId,
+      kategori: body.kategori,
+      kaynak: 'user',
+      baslik: body.baslik,
+      fiyat_tl: body.fiyat_tl,
+      aciklama: body.aciklama ?? null,
+      il: body.il ?? null,
+      ilce: body.ilce ?? null,
+      mahalle: body.mahalle ?? null,
+      net_m2: body.net_m2 ?? null,
+      oda_sayisi: body.oda_sayisi ?? null,
+      bina_yasi: body.bina_yasi ?? null,
+      ozellikler: body.ozellikler ?? {},
+      status: 'draft',
+      visibility: 'private',
+    });
+    if (error) {
+      this.logger.error(`createListing failed: ${error.message}`);
+      throw error;
+    }
+    return { id };
+  }
+
+  /** UGC: ilanı güncelle (yalnız sahip). */
+  async updateListing(
+    userId: string,
+    id: string,
+    patch: Record<string, unknown>,
+  ): Promise<{ ok: true }> {
+    await this.assertListingOwner(userId, id);
+    const allowed: Record<string, unknown> = {};
+    for (const k of [
+      'baslik',
+      'fiyat_tl',
+      'aciklama',
+      'il',
+      'ilce',
+      'mahalle',
+      'net_m2',
+      'oda_sayisi',
+      'bina_yasi',
+      'ozellikler',
+    ]) {
+      if (patch[k] !== undefined) allowed[k] = patch[k];
+    }
+    if (Object.keys(allowed).length === 0) return { ok: true };
+    const { error } = await this.sb
+      .from('ilanlar')
+      .update(allowed)
+      .eq('id', id)
+      .eq('owner_user_id', userId);
+    if (error) throw error;
+    return { ok: true };
+  }
+
+  /** UGC: yayınla — en az 1 hazır medya + ToS/telif beyanı şart (dava-riski). */
+  async publishListing(userId: string, id: string): Promise<{ ok: true }> {
+    const { data: listing } = await this.sb
+      .from('ilanlar')
+      .select('ozellikler')
+      .eq('id', id)
+      .eq('owner_user_id', userId)
+      .maybeSingle();
+    if (!listing) throw new NotFoundException('İlan bulunamadı');
+
+    const { count, error: mErr } = await this.sb
+      .from('media')
+      .select('id', { count: 'exact', head: true })
+      .eq('listing_id', id)
+      .eq('processing_status', 'ready');
+    if (mErr) throw mErr;
+    if (!count || count < 1) {
+      throw new BadRequestException('Yayınlamak için en az bir hazır fotoğraf/video gerekli.');
+    }
+    const ozellikler = {
+      ...((listing.ozellikler as Record<string, unknown> | null) ?? {}),
+      tos_attested_at: new Date().toISOString(),
+    };
+    const { error } = await this.sb
+      .from('ilanlar')
+      .update({ visibility: 'public', status: 'published', ozellikler })
+      .eq('id', id)
+      .eq('owner_user_id', userId);
+    if (error) throw error;
+    return { ok: true };
+  }
+
+  private async assertListingOwner(userId: string, id: string): Promise<void> {
+    const { data } = await this.sb
+      .from('ilanlar')
+      .select('id')
+      .eq('id', id)
+      .eq('owner_user_id', userId)
+      .maybeSingle();
+    if (!data) throw new NotFoundException('İlan bulunamadı');
+  }
+
   /** Kullanıcının ilanları + her birinin son skoru (dashboard listesi). */
   async listIlanlar(userId: string): Promise<unknown[]> {
     const { data, error } = await this.sb

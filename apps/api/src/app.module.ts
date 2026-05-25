@@ -16,6 +16,7 @@ import { TelemetryModule } from './telemetry/telemetry.module.js';
 import { VoiceModule } from './voice/voice.module.js';
 import { AccountModule } from './account/account.module.js';
 import { ListsModule } from './lists/lists.module.js';
+import { MediaModule } from './media/media.module.js';
 
 const env = loadEnv();
 
@@ -38,6 +39,7 @@ const env = loadEnv();
     VoiceModule,
     AccountModule,
     ListsModule,
+    MediaModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
