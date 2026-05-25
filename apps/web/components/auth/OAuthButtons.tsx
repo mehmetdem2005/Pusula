@@ -35,15 +35,15 @@ export function OAuthButtons(): ReactElement {
           type="button"
           onClick={() => onClick(p.id)}
           disabled={busy !== null}
-          className="rounded-card-sm border-hairline-strong bg-surface text-ink-2 hover:bg-paper-2 flex w-full items-center justify-center gap-2 border py-2.5 text-sm font-semibold transition disabled:opacity-60"
+          className="press border-line bg-panel-soft text-fg flex w-full items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition hover:bg-white/5 disabled:opacity-60"
         >
-          <span className="bg-paper-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold">
+          <span className="bg-night flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold">
             {p.icon}
           </span>
           {busy === p.id ? 'Yönlendiriliyor...' : p.label}
         </button>
       ))}
-      {error && <p className="text-band-asiri text-xs">{error}</p>}
+      {error && <p className="text-danger text-xs">{error}</p>}
     </div>
   );
 }

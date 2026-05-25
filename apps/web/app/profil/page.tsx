@@ -60,7 +60,7 @@ export default function ProfilPage(): ReactElement {
             </svg>
           </Link>
           <Link
-            href="/ayarlar"
+            href="/settings"
             aria-label="Ayarlar"
             className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
           >
@@ -99,7 +99,7 @@ export default function ProfilPage(): ReactElement {
         </div>
         <div className="mt-4 flex gap-2">
           <Link
-            href="/ayarlar"
+            href="/settings"
             className="press bg-panel text-fg flex-1 rounded-lg py-2 text-center text-sm font-semibold"
           >
             Profili düzenle

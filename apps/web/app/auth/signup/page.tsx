@@ -36,7 +36,7 @@ export default function SignupPage(): ReactElement {
       if (err) throw err;
       if (data.session) {
         await logAudit('signup', { method: 'password' });
-        window.location.href = '/dashboard';
+        window.location.href = '/kesfet';
         return;
       }
       setSent(true);
@@ -48,17 +48,19 @@ export default function SignupPage(): ReactElement {
   }
 
   const inputCls =
-    'mt-1 w-full rounded-card-sm border border-hairline-strong bg-paper px-3 py-2 text-ink focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy';
+    'mt-1 w-full rounded-lg border border-line bg-panel-soft px-3 py-2 text-fg placeholder:text-fg-faint focus:border-brand focus:outline-none';
+  const labelCls = 'text-fg-dim text-sm font-medium';
+  const btnCls =
+    'press w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-50';
 
   return (
-    <main className="bg-paper text-ink flex min-h-screen items-center justify-center px-6 py-10">
-      <div className="rounded-card-lg border-hairline bg-surface shadow-card w-full max-w-sm border p-8">
+    <main className="bg-night font-body text-fg flex min-h-[100dvh] items-center justify-center px-6 py-10">
+      <div className="border-line bg-panel w-full max-w-sm rounded-2xl border p-8">
         <div className="mb-6 flex flex-col items-center text-center">
-          <Link href="/" className="brand !text-2xl">
-            <span className="brand-mark" aria-hidden="true" />
-            <span>Pusula</span>
+          <Link href="/" className="font-display text-fg text-2xl font-bold tracking-tight">
+            Pusula
           </Link>
-          <p className="text-muted mt-2 text-xs uppercase tracking-wider">
+          <p className="text-fg-faint mt-2 text-xs uppercase tracking-wider">
             Karar verirken kaybolma
           </p>
         </div>
@@ -68,18 +70,20 @@ export default function SignupPage(): ReactElement {
             <div className="mb-3 text-4xl" aria-hidden>
               🎉
             </div>
-            <h2 className="text-navy mb-2 font-serif text-xl">Son bir adım</h2>
-            <p className="text-ink-3 text-sm">
-              <strong>{form.email}</strong> adresine onay bağlantısı yolladık. Tıkla, hesabın
-              aktifleşsin.
+            <h2 className="font-display text-fg mb-2 text-xl font-bold">Son bir adım</h2>
+            <p className="text-fg-dim text-sm">
+              <strong className="text-fg">{form.email}</strong> adresine onay bağlantısı yolladık.
+              Tıkla, hesabın aktifleşsin.
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-navy mb-4 text-center font-serif text-2xl">Beta&apos;ya Katıl</h2>
+            <h2 className="font-display text-fg mb-4 text-center text-2xl font-bold">
+              Beta&apos;ya Katıl
+            </h2>
             <form onSubmit={onSubmit} className="space-y-3">
               <label className="block">
-                <span className="text-ink-2 text-sm font-medium">İsim</span>
+                <span className={labelCls}>İsim</span>
                 <input
                   type="text"
                   required
@@ -89,7 +93,7 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-ink-2 text-sm font-medium">E-posta</span>
+                <span className={labelCls}>E-posta</span>
                 <input
                   type="email"
                   required
@@ -101,7 +105,7 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-ink-2 text-sm font-medium">Şifre (min 8)</span>
+                <span className={labelCls}>Şifre (min 8)</span>
                 <PasswordInput
                   required
                   minLength={8}
@@ -112,7 +116,7 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-ink-2 text-sm font-medium">Şifre (tekrar)</span>
+                <span className={labelCls}>Şifre (tekrar)</span>
                 <PasswordInput
                   required
                   autoComplete="new-password"
@@ -122,11 +126,11 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-ink-2 text-sm font-medium">Profil</span>
+                <span className={labelCls}>Profil</span>
                 <select
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value as typeof form.role })}
-                  className={`${inputCls}`}
+                  className={inputCls}
                 >
                   <option value="individual">Bireysel (alıcı / yatırımcı)</option>
                   <option value="agent">Emlakçı</option>
@@ -134,30 +138,25 @@ export default function SignupPage(): ReactElement {
                 </select>
               </label>
 
-              {error && <p className="text-band-asiri text-sm">{error}</p>}
+              {error && <p className="text-danger text-sm">{error}</p>}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn btn-gold w-full disabled:opacity-60"
-              >
+              <button type="submit" disabled={loading} className={btnCls}>
                 {loading ? 'Hesap oluşturuluyor...' : 'Beta’ya Katıl'}
               </button>
             </form>
 
-            <div className="text-muted my-4 flex items-center gap-3 text-xs">
-              <span className="bg-hairline h-px flex-1" /> veya{' '}
-              <span className="bg-hairline h-px flex-1" />
+            <div className="text-fg-faint my-4 flex items-center gap-3 text-xs">
+              <span className="bg-line h-px flex-1" /> veya <span className="bg-line h-px flex-1" />
             </div>
             <OAuthButtons />
 
-            <p className="text-muted mt-4 text-center text-xs">
+            <p className="text-fg-faint mt-4 text-center text-xs">
               Hesabın var mı?{' '}
-              <Link href="/auth/login" className="text-navy hover:text-gold-deep underline">
+              <Link href="/auth/login" className="text-brand underline">
                 Giriş yap
               </Link>
             </p>
-            <p className="text-muted mt-2 text-center text-[10px]">
+            <p className="text-fg-faint mt-2 text-center text-[10px]">
               Devam ederek{' '}
               <Link href="/legal/kullanim" className="underline">
                 Kullanım Şartları

@@ -160,29 +160,32 @@ function LoginForm(): ReactElement {
   }
 
   const inputCls =
-    'mt-1 w-full rounded-card-sm border border-hairline-strong bg-paper px-3 py-2 text-ink focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy';
+    'mt-1 w-full rounded-lg border border-line bg-panel-soft px-3 py-2 text-fg placeholder:text-fg-faint focus:border-brand focus:outline-none';
   const tabCls = (m: Method) =>
     method === m
-      ? 'flex-1 rounded-[6px] bg-navy py-1.5 text-xs font-semibold text-cream'
-      : 'flex-1 rounded-[6px] py-1.5 text-xs font-semibold text-ink-3 hover:bg-paper-2';
+      ? 'flex-1 rounded-md bg-brand py-1.5 text-xs font-semibold text-white'
+      : 'flex-1 rounded-md py-1.5 text-xs font-semibold text-fg-dim hover:bg-white/5';
+  const btnCls =
+    'press w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:opacity-50';
 
   return (
-    <main className="bg-paper text-ink flex min-h-screen items-center justify-center px-6 py-10">
-      <div className="rounded-card-lg border-hairline bg-surface shadow-card w-full max-w-sm border p-8">
+    <main className="bg-night font-body text-fg flex min-h-[100dvh] items-center justify-center px-6 py-10">
+      <div className="border-line bg-panel w-full max-w-sm rounded-2xl border p-8">
         <div className="mb-6 flex flex-col items-center text-center">
-          <Link href="/" className="brand !text-2xl">
-            <span className="brand-mark" aria-hidden="true" />
-            <span>Pusula</span>
+          <Link href="/" className="font-display text-fg text-2xl font-bold tracking-tight">
+            Pusula
           </Link>
-          <p className="text-muted mt-2 text-xs uppercase tracking-wider">
+          <p className="text-fg-faint mt-2 text-xs uppercase tracking-wider">
             Karar verirken kaybolma
           </p>
         </div>
 
         {mfaFactorId ? (
           <form onSubmit={onMfa} className="space-y-4">
-            <h2 className="text-navy text-center font-serif text-2xl">İki Adımlı Doğrulama</h2>
-            <p className="text-ink-3 text-center text-sm">
+            <h2 className="font-display text-fg text-center text-2xl font-bold">
+              İki Adımlı Doğrulama
+            </h2>
+            <p className="text-fg-dim text-center text-sm">
               Authenticator uygulamandaki 6 haneli kodu gir.
             </p>
             <input
@@ -194,12 +197,8 @@ function LoginForm(): ReactElement {
               className={`${inputCls} text-center text-lg tracking-widest`}
               placeholder="000000"
             />
-            {error && <p className="text-band-asiri text-sm">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary w-full disabled:opacity-60"
-            >
+            {error && <p className="text-danger text-sm">{error}</p>}
+            <button type="submit" disabled={loading} className={btnCls}>
               {loading ? 'Doğrulanıyor...' : 'Doğrula'}
             </button>
           </form>
@@ -208,29 +207,29 @@ function LoginForm(): ReactElement {
             <div className="mb-3 text-4xl" aria-hidden>
               📬
             </div>
-            <h2 className="text-navy mb-2 font-serif text-xl">E-postanı kontrol et</h2>
-            <p className="text-ink-3 text-sm">
-              <strong>{email}</strong> adresine sihirli bir bağlantı yolladık.
+            <h2 className="font-display text-fg mb-2 text-xl font-bold">E-postanı kontrol et</h2>
+            <p className="text-fg-dim text-sm">
+              <strong className="text-fg">{email}</strong> adresine sihirli bir bağlantı yolladık.
             </p>
             <button
               type="button"
               onClick={() => setMagicSent(false)}
-              className="text-navy hover:text-gold-deep mt-4 text-xs underline"
+              className="text-brand mt-4 text-xs underline"
             >
               ← Geri dön / farklı e-posta dene
             </button>
           </div>
         ) : (
           <>
-            <h2 className="text-navy mb-4 text-center font-serif text-2xl">Giriş Yap</h2>
+            <h2 className="font-display text-fg mb-4 text-center text-2xl font-bold">Giriş Yap</h2>
 
             {callbackError && (
-              <p className="rounded-card-sm border-band-asiri/40 text-band-asiri mb-3 border p-2 text-center text-sm">
+              <p className="border-danger text-danger mb-3 rounded-lg border p-2 text-center text-sm">
                 Bağlantı geçersiz veya süresi dolmuş. Lütfen tekrar dene.
               </p>
             )}
 
-            <div className="rounded-card-sm bg-paper-2 mb-4 flex gap-1 p-1">
+            <div className="bg-panel-soft mb-4 flex gap-1 rounded-lg p-1">
               <button
                 type="button"
                 className={tabCls('password')}
@@ -249,7 +248,7 @@ function LoginForm(): ReactElement {
             {method === 'password' && (
               <form onSubmit={onPassword} className="space-y-3">
                 <label className="block">
-                  <span className="text-ink-2 text-sm font-medium">E-posta</span>
+                  <span className="text-fg-dim text-sm font-medium">E-posta</span>
                   <input
                     type="email"
                     required
@@ -261,7 +260,7 @@ function LoginForm(): ReactElement {
                   />
                 </label>
                 <label className="block">
-                  <span className="text-ink-2 text-sm font-medium">Şifre</span>
+                  <span className="text-fg-dim text-sm font-medium">Şifre</span>
                   <PasswordInput
                     required
                     autoComplete="current-password"
@@ -271,19 +270,12 @@ function LoginForm(): ReactElement {
                   />
                 </label>
                 <div className="text-right">
-                  <Link
-                    href="/auth/forgot-password"
-                    className="text-navy hover:text-gold-deep text-xs underline"
-                  >
+                  <Link href="/auth/forgot-password" className="text-brand text-xs underline">
                     Şifremi unuttum
                   </Link>
                 </div>
-                {error && <p className="text-band-asiri text-sm">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={loading || !email || !password}
-                  className="btn btn-primary w-full disabled:opacity-60"
-                >
+                {error && <p className="text-danger text-sm">{error}</p>}
+                <button type="submit" disabled={loading || !email || !password} className={btnCls}>
                   {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                 </button>
               </form>
@@ -292,7 +284,7 @@ function LoginForm(): ReactElement {
             {method === 'magic' && (
               <form onSubmit={onMagic} className="space-y-3">
                 <label className="block">
-                  <span className="text-ink-2 text-sm font-medium">E-posta</span>
+                  <span className="text-fg-dim text-sm font-medium">E-posta</span>
                   <input
                     type="email"
                     required
@@ -303,12 +295,8 @@ function LoginForm(): ReactElement {
                     placeholder="ornek@pusula.tr"
                   />
                 </label>
-                {error && <p className="text-band-asiri text-sm">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={loading || !email}
-                  className="btn btn-primary w-full disabled:opacity-60"
-                >
+                {error && <p className="text-danger text-sm">{error}</p>}
+                <button type="submit" disabled={loading || !email} className={btnCls}>
                   {loading ? 'Gönderiliyor...' : 'Sihirli Link Gönder'}
                 </button>
               </form>
@@ -317,7 +305,7 @@ function LoginForm(): ReactElement {
             {method === 'phone' && !phoneSent && (
               <form onSubmit={onPhoneSend} className="space-y-3">
                 <label className="block">
-                  <span className="text-ink-2 text-sm font-medium">Telefon (+90...)</span>
+                  <span className="text-fg-dim text-sm font-medium">Telefon (+90...)</span>
                   <input
                     type="tel"
                     required
@@ -328,12 +316,8 @@ function LoginForm(): ReactElement {
                     placeholder="+905551234567"
                   />
                 </label>
-                {error && <p className="text-band-asiri text-sm">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={loading || !phone}
-                  className="btn btn-primary w-full disabled:opacity-60"
-                >
+                {error && <p className="text-danger text-sm">{error}</p>}
+                <button type="submit" disabled={loading || !phone} className={btnCls}>
                   {loading ? 'Gönderiliyor...' : 'SMS Kodu Gönder'}
                 </button>
               </form>
@@ -341,8 +325,8 @@ function LoginForm(): ReactElement {
 
             {method === 'phone' && phoneSent && (
               <form onSubmit={onPhoneVerify} className="space-y-3">
-                <p className="text-ink-3 text-sm">
-                  <strong>{phone}</strong> numarasına gelen kodu gir.
+                <p className="text-fg-dim text-sm">
+                  <strong className="text-fg">{phone}</strong> numarasına gelen kodu gir.
                 </p>
                 <input
                   inputMode="numeric"
@@ -353,15 +337,11 @@ function LoginForm(): ReactElement {
                   className={`${inputCls} text-center text-lg tracking-widest`}
                   placeholder="000000"
                 />
-                {error && <p className="text-band-asiri text-sm">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={loading || !otp}
-                  className="btn btn-primary w-full disabled:opacity-60"
-                >
+                {error && <p className="text-danger text-sm">{error}</p>}
+                <button type="submit" disabled={loading || !otp} className={btnCls}>
                   {loading ? 'Doğrulanıyor...' : 'Doğrula & Giriş'}
                 </button>
-                <div className="text-navy flex justify-between text-xs">
+                <div className="text-brand flex justify-between text-xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -379,15 +359,14 @@ function LoginForm(): ReactElement {
               </form>
             )}
 
-            <div className="text-muted my-4 flex items-center gap-3 text-xs">
-              <span className="bg-hairline h-px flex-1" /> veya{' '}
-              <span className="bg-hairline h-px flex-1" />
+            <div className="text-fg-faint my-4 flex items-center gap-3 text-xs">
+              <span className="bg-line h-px flex-1" /> veya <span className="bg-line h-px flex-1" />
             </div>
             <OAuthButtons />
 
-            <p className="text-muted mt-4 text-center text-xs">
+            <p className="text-fg-faint mt-4 text-center text-xs">
               Hesabın yok mu?{' '}
-              <Link href="/auth/signup" className="text-navy hover:text-gold-deep underline">
+              <Link href="/auth/signup" className="text-brand underline">
                 Beta&apos;ya katıl
               </Link>
             </p>
