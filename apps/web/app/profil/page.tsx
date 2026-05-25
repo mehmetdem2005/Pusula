@@ -99,7 +99,7 @@ export default function ProfilPage(): ReactElement {
         </div>
         <div className="mt-4 flex gap-2">
           <Link
-            href="/settings"
+            href="/profil/duzenle"
             className="press bg-panel text-fg flex-1 rounded-lg py-2 text-center text-sm font-semibold"
           >
             Profili düzenle
