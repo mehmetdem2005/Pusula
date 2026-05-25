@@ -12,9 +12,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@pusula/shared": "workspace:*",
-    "@pusula/scoring": "workspace:*",
     "@pusula/llm-gateway": "workspace:*",
+    "@pusula/scoring": "workspace:*",
+    "@pusula/shared": "workspace:*",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "@tanstack/react-query": "^5.62.16",
@@ -27,6 +27,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@sentry/nextjs": "^8.47.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.10.2",

@@ -22,6 +22,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^22.10.2",
     "@vitest/coverage-v8": "^2.1.8",
     "eslint": "^9.17.0",
