@@ -430,6 +430,194 @@ ${topNav('')}
   </div>
 </div>`;
 
+// ============================== GİRİŞ / KAYIT ==============================
+const eye = (c) => vsvg('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>', 18, 1.7, c);
+const chatIco = (c) => vsvg('<path d="M21 12a8 8 0 0 1-11.4 7.2L4 20l1-4.4A8 8 0 1 1 21 12Z"/>', 22, 1.7, c);
+const kebab = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#9aa1ab"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>`;
+const googleG = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8a12 12 0 1 1 0-24c3 0 5.7 1.1 7.8 3l5.7-5.7A20 20 0 1 0 24 44c11 0 20-8 20-20 0-1.3-.1-2.3-.4-3.5Z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0 1 24 12c3 0 5.7 1.1 7.8 3l5.7-5.7A20 20 0 0 0 6.3 14.7Z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2A12 12 0 0 1 12.7 28l-6.5 5C9.5 39.6 16.2 44 24 44Z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 0 1-4.1 5.6l6.2 5.2C39.9 36 44 30.6 44 24c0-1.3-.1-2.3-.4-3.5Z"/></svg>`;
+const appleLogo = (c) => `<svg width="17" height="17" viewBox="0 0 24 24" fill="${c}"><path d="M17.05 12.04c-.03-2.6 2.13-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.81 0-2.07-.92-3.4-.9-1.75.03-3.36 1.02-4.26 2.58-1.81 3.14-.46 7.78 1.3 10.32.86 1.24 1.88 2.63 3.21 2.58 1.29-.05 1.78-.83 3.34-.83 1.55 0 2 .83 3.37.81 1.39-.03 2.27-1.26 3.12-2.51.98-1.44 1.39-2.83 1.41-2.9-.03-.01-2.71-1.04-2.74-4.13M14.7 4.5c.71-.86 1.19-2.06 1.06-3.25-1.02.04-2.26.68-2.99 1.54-.66.76-1.23 1.98-1.08 3.15 1.14.09 2.3-.58 3.01-1.44"/></svg>`;
+const oauthBtn = (ico, label) => `<button class="btn-ghost" style="width:100%;height:50px;gap:10px">${ico}${label}</button>`;
+const authDivider = `<div style="display:flex;align-items:center;gap:14px;margin:18px 0"><span style="flex:1;height:1px;background:var(--line)"></span><span style="font-size:12px;color:var(--faint);font-weight:500">ya da</span><span style="flex:1;height:1px;background:var(--line)"></span></div>`;
+const pwBox = `<div style="height:50px;background:var(--soft);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;padding:0 14px"><span style="flex:1;font-size:17px;letter-spacing:3px;color:var(--ink)">••••••••</span><span style="cursor:pointer">${eye('#9aa1ab')}</span></div>`;
+const pwField = `<div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;font-weight:600;color:var(--ink)">Şifre</span><span style="font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">Şifremi unuttum</span></div>${pwBox}</div>`;
+
+const girisMobil = `
+<div style="width:390px;height:844px;background:#fff;position:relative;overflow:hidden">
+  <div style="padding:30px 26px">
+    <div class="h" style="font-size:20px;font-weight:700;color:var(--ink)">Pusula</div>
+    <div style="margin-top:38px">
+      <h1 class="h" style="font-size:26px;font-weight:700;color:var(--ink)">Tekrar hoş geldin</h1>
+      <div style="font-size:15px;color:var(--sub);margin-top:6px">Hesabına giriş yap, kaldığın yerden devam et.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:26px">${oauthBtn(googleG, 'Google ile devam et')}${oauthBtn(appleLogo('#0a0b0d'), 'Apple ile devam et')}</div>
+    ${authDivider}
+    ${field('E-posta', inputBox('', 'ornek@eposta.com'))}
+    ${pwField}
+    <button class="btn-dark" style="width:100%;height:52px;margin-top:4px">Giriş yap</button>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:30px;text-align:center;font-size:14px;color:var(--sub)">Hesabın yok mu? <b style="color:var(--ink)">Kayıt ol</b></div>
+</div>`;
+
+const girisWeb = `
+<div style="display:grid;grid-template-columns:1fr 1fr;height:720px">
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px">
+    <div style="width:100%;max-width:380px">
+      <div class="h" style="font-size:20px;font-weight:700;color:var(--ink)">Pusula</div>
+      <h1 class="h" style="font-size:28px;font-weight:700;color:var(--ink);margin-top:40px">Tekrar hoş geldin</h1>
+      <div style="font-size:15px;color:var(--sub);margin-top:6px">Hesabına giriş yap.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:26px">${oauthBtn(googleG, 'Google ile devam et')}${oauthBtn(appleLogo('#0a0b0d'), 'Apple ile devam et')}</div>
+      ${authDivider}
+      ${field('E-posta', inputBox('', 'ornek@eposta.com'))}
+      ${pwField}
+      <button class="btn-dark" style="width:100%;height:52px;margin-top:4px">Giriş yap</button>
+      <div style="text-align:center;font-size:14px;color:var(--sub);margin-top:26px">Hesabın yok mu? <b style="color:var(--ink)">Kayıt ol</b></div>
+    </div>
+  </div>
+  <div style="position:relative;background:#0a0b0d url('${PH.p1}') center/cover">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,13,.2),rgba(10,11,13,.78))"></div>
+    <div style="position:absolute;left:48px;right:48px;bottom:52px;color:#fff">
+      <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(21,128,61,.92);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 11px">${icon.spark(13, '#fff')} Kelepir 78</span>
+      <div class="h" style="font-size:32px;font-weight:600;margin-top:20px;line-height:1.2">Türkiye’nin<br>kelepir pusulası</div>
+      <div style="font-size:15px;color:rgba(255,255,255,.82);margin-top:14px;line-height:1.5;max-width:380px">AI binlerce ilanı tarar, gerçekten uygun fiyatlıları senin için öne çıkarır.</div>
+    </div>
+  </div>
+</div>`;
+
+// ============================== İLANLARIM (satıcı paneli) ==============================
+const statusBadge = (s) => {
+  const m = { Yayında: ['#15803d', '#e7f3ec', '#cfe6d8'], Beklemede: ['#b45309', '#fdf3e7', '#f3e1c6'], Satıldı: ['#5b6470', '#f0f1f3', '#e4e6ea'] };
+  const [c, bg, ln] = m[s];
+  return `<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${c};background:${bg};border:1px solid ${ln};border-radius:999px;padding:3px 9px"><span style="width:6px;height:6px;border-radius:50%;background:${c}"></span>${s}</span>`;
+};
+const SELLER = [
+  { ...LISTINGS[0], status: 'Yayında', views: '842', favs: '37' },
+  { ...LISTINGS[3], status: 'Yayında', views: '311', favs: '19' },
+  { ...LISTINGS[1], status: 'Beklemede', views: '58', favs: '4' },
+  { ...LISTINGS[2], status: 'Satıldı', views: '1.204', favs: '72' },
+];
+const miniMetric = (l, v, d) => `<div style="border:1px solid var(--line);border-radius:14px;padding:12px 13px"><div class="tnum h" style="font-size:18px;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:11px;color:var(--faint);margin-top:3px">${l}</div>${d ? `<div style="font-size:10px;color:var(--green);font-weight:700;margin-top:2px">${d}</div>` : ''}</div>`;
+const metric = (l, v, d) => `<div style="border:1px solid var(--line);border-radius:16px;padding:16px 18px"><div style="font-size:13px;color:var(--sub)">${l}</div><div class="tnum h" style="font-size:25px;font-weight:700;color:var(--ink);margin-top:8px">${v}</div>${d ? `<div style="font-size:12px;color:var(--green);font-weight:600;margin-top:3px">${d}</div>` : ''}</div>`;
+
+const sellerRow = (o) => `
+<div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)">
+  <div style="width:74px;height:74px;border-radius:12px;background:#e9eaee url('${o.photo}') center/cover;flex-shrink:0"></div>
+  <div style="flex:1;min-width:0">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+      <div class="h" style="font-size:14px;font-weight:600;color:var(--ink);line-height:1.25">${o.title}</div>${statusBadge(o.status)}
+    </div>
+    <div class="tnum" style="font-size:15px;font-weight:700;color:var(--ink);margin-top:5px">${o.price}</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:7px;font-size:12px;color:var(--faint);font-weight:500">
+      <span style="display:flex;align-items:center;gap:5px">${eye('#9aa1ab')}${o.views}</span>
+      <span style="display:flex;align-items:center;gap:5px">${icon.heart(14, '#9aa1ab')}${o.favs}</span>
+      ${o.score ? `<span style="display:flex;align-items:center;gap:4px;color:var(--green);font-weight:700">${icon.spark(12, '#15803d')}${o.score}</span>` : ''}
+    </div>
+  </div>
+</div>`;
+
+const ilanlarimMobil = `
+<div style="width:390px;height:844px;background:#fff;position:relative;overflow:hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)">
+    <div style="width:32px;color:#0a0b0d;cursor:pointer">${icon.back(22)}</div>
+    <div class="h" style="font-size:16px;font-weight:600;color:var(--ink)">İlanlarım</div>
+    <div style="width:32px;display:flex;justify-content:flex-end;color:#0a0b0d;cursor:pointer">${icon.filter(20)}</div>
+  </div>
+  <div style="position:absolute;top:57px;bottom:0;left:0;right:0;overflow:hidden;padding:16px 18px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      ${miniMetric('Görüntülenme', '1.2B', '↑ %18')}${miniMetric('Favori', '132')}${miniMetric('Mesaj', '12')}
+    </div>
+    <div style="display:flex;gap:8px;margin:16px 0 4px;overflow:hidden">
+      <span class="chip on">Tümü</span><span class="chip">Yayında</span><span class="chip">Beklemede</span><span class="chip">Satıldı</span>
+    </div>
+    ${SELLER.map(sellerRow).join('')}
+  </div>
+</div>`;
+
+const tableHead = `<div style="display:grid;grid-template-columns:2.4fr 1fr .8fr 1fr .9fr 44px;gap:16px;align-items:center;padding:13px 20px;background:var(--soft);border-bottom:1px solid var(--line);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)"><div>İlan</div><div>Fiyat</div><div>Kelepir</div><div>Durum</div><div>Görüntülenme</div><div></div></div>`;
+const tableRow = (o, last) => `<div style="display:grid;grid-template-columns:2.4fr 1fr .8fr 1fr .9fr 44px;gap:16px;align-items:center;padding:14px 20px;${last ? '' : 'border-bottom:1px solid var(--line)'}">
+  <div style="display:flex;align-items:center;gap:12px;min-width:0"><div style="width:46px;height:46px;border-radius:10px;background:#e9eaee url('${o.photo}') center/cover;flex-shrink:0"></div><div class="h" style="font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.title}</div></div>
+  <div class="tnum" style="font-size:14px;font-weight:700;color:var(--ink)">${o.price}</div>
+  <div>${o.score ? `<span style="display:inline-flex;align-items:center;gap:4px;color:var(--green);font-weight:700;font-size:13px">${icon.spark(13, '#15803d')}${o.score}</span>` : '<span style="color:var(--faint);font-size:13px">—</span>'}</div>
+  <div>${statusBadge(o.status)}</div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);font-weight:500">${eye('#9aa1ab')}<span class="tnum">${o.views}</span></div>
+  <div style="cursor:pointer">${kebab}</div>
+</div>`;
+
+const ilanlarimWeb = `
+${topNav('')}
+<div style="max-width:1120px;margin:0 auto;padding:34px 40px 60px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between">
+    <div>${eyebrow('Satıcı paneli')}<h1 class="h" style="font-size:28px;font-weight:600;color:var(--ink);margin-top:10px">İlanlarım</h1></div>
+    <button class="btn-dark" style="height:44px;padding:0 20px">${icon.plus(17, '#fff')} İlan ver</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px">
+    ${metric('Aktif ilan', '4')}${metric('Görüntülenme', '12.480', '↑ %18 bu hafta')}${metric('Favori', '132')}${metric('Mesaj', '12', '3 yeni')}
+  </div>
+  <div style="margin-top:28px;border:1px solid var(--line);border-radius:18px;overflow:hidden">
+    ${tableHead}${SELLER.map((o, i) => tableRow(o, i === SELLER.length - 1)).join('')}
+  </div>
+</div>`;
+
+// ============================== TANITIM / LANDING ==============================
+const heroCard = `
+<div style="position:relative;width:420px;margin-left:auto">
+  <div style="width:420px">${listingCard(LISTINGS[0])}</div>
+  <div style="position:absolute;top:-20px;right:-16px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 16px;box-shadow:0 16px 36px -14px rgba(16,24,40,.32)">
+    <div class="eyebrow" style="font-size:9px">Kelepir skoru</div>
+    <div style="display:flex;align-items:baseline;gap:9px;margin-top:5px"><span class="score tnum" style="font-size:34px">78</span><span style="font-size:12px;color:var(--green);font-weight:700">%15 altında</span></div>
+  </div>
+  <div style="position:absolute;bottom:-18px;left:-22px;background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:11px 15px;border-radius:16px;border-bottom-left-radius:5px;box-shadow:0 16px 36px -14px rgba(16,24,40,.45);display:flex;align-items:center;gap:8px">${icon.spark(15, '#fff')} Sana 3 kelepir buldum</div>
+</div>`;
+const feat = (ico, t, d) => `<div><div style="width:44px;height:44px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center">${ico}</div><div class="h" style="font-size:17px;font-weight:600;color:var(--ink);margin-top:14px">${t}</div><div style="font-size:14px;color:var(--sub);line-height:1.55;margin-top:6px">${d}</div></div>`;
+const featRow = (ico, t, d) => `<div style="display:flex;gap:14px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0">${ico}</div><div><div class="h" style="font-size:16px;font-weight:600;color:var(--ink)">${t}</div><div style="font-size:14px;color:var(--sub);line-height:1.5;margin-top:4px">${d}</div></div></div>`;
+const statStrip = (big) => `<div style="display:flex;align-items:center;gap:${big ? 28 : 20}px">${[['248B', 'ilan'], ['36', 'şehir'], ['4.9', 'puan']].map(([v, l], i) => `${i ? '<span style="width:1px;height:28px;background:var(--line)"></span>' : ''}<div><div class="tnum h" style="font-size:${big ? 22 : 19}px;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:12px;color:var(--faint);margin-top:1px">${l}</div></div>`).join('')}</div>`;
+
+const landingNav = `<div style="height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--line);background:#fff">
+  <div class="h" style="font-size:20px;font-weight:700;color:var(--ink)">Pusula</div>
+  <div style="display:flex;gap:30px"><span class="navlink">Nasıl çalışır</span><span class="navlink">Özellikler</span><span class="navlink">Fiyatlar</span></div>
+  <div style="display:flex;align-items:center;gap:18px"><span class="navlink on">Giriş</span><button class="btn-dark" style="height:40px;padding:0 18px;font-size:14px">Ücretsiz başla</button></div>
+</div>`;
+
+const landingWeb = `
+${landingNav}
+<div style="max-width:1120px;margin:0 auto;padding:72px 40px 64px;display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center">
+  <div>
+    ${eyebrow('AI destekli emlak')}
+    <h1 class="h" style="font-size:54px;font-weight:700;color:var(--ink);line-height:1.04;margin-top:18px;letter-spacing:-.03em">Kelepiri<br>AI bulsun.</h1>
+    <p style="font-size:18px;color:var(--sub);line-height:1.55;margin-top:20px;max-width:440px">Pusula binlerce ilanı tarar; gerçekten uygun fiyatlı olanları Kelepir skoruyla öne çıkarır.</p>
+    <div style="display:flex;gap:12px;margin-top:28px"><button class="btn-dark" style="height:52px;padding:0 26px;font-size:15px">Ücretsiz başla</button><button class="btn-ghost" style="height:52px;padding:0 24px;font-size:15px">Nasıl çalışır?</button></div>
+    <div style="margin-top:36px">${statStrip(true)}</div>
+  </div>
+  <div style="padding:24px 24px 24px 0">${heroCard}</div>
+</div>
+<div style="border-top:1px solid var(--line);background:#fcfcfd">
+  <div style="max-width:1120px;margin:0 auto;padding:52px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:44px">
+    ${feat(icon.spark(22, '#0a0b0d'), 'Kelepir skoru', 'Her ilan, benzerleriyle kıyaslanıp 0–100 arası puanlanır.')}
+    ${feat(chatIco('#0a0b0d'), 'AI asistan', 'Sohbet ederek bütçene ve bölgene uyanı saniyeler içinde bul.')}
+    ${feat(icon.mic(22, '#0a0b0d'), 'Sesli arama', 'Konuş, Pusula senin için binlerce ilanı tarasın.')}
+  </div>
+</div>`;
+
+const landingMobil = `
+<div style="width:390px;background:#fff">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px"><div class="h" style="font-size:20px;font-weight:700;color:var(--ink)">Pusula</div><button class="btn-ghost" style="height:38px;padding:0 16px;font-size:14px">Giriş</button></div>
+  <div style="padding:22px 22px 0">
+    ${eyebrow('AI destekli emlak')}
+    <h1 class="h" style="font-size:38px;font-weight:700;color:var(--ink);line-height:1.05;margin-top:14px;letter-spacing:-.03em">Kelepiri AI bulsun.</h1>
+    <p style="font-size:16px;color:var(--sub);line-height:1.5;margin-top:14px">Binlerce ilanı tarar, gerçekten uygun fiyatlıları Kelepir skoruyla öne çıkarır.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px"><button class="btn-dark" style="height:52px">Ücretsiz başla</button><button class="btn-ghost" style="height:52px">Nasıl çalışır?</button></div>
+  </div>
+  <div style="position:relative;padding:40px 22px 12px">
+    ${listingCard(LISTINGS[0])}
+    <div style="position:absolute;top:22px;right:38px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 14px;box-shadow:0 14px 30px -12px rgba(16,24,40,.3)"><div class="eyebrow" style="font-size:9px">Kelepir</div><div style="display:flex;align-items:baseline;gap:7px;margin-top:3px"><span class="score tnum" style="font-size:28px">78</span><span style="font-size:11px;color:var(--green);font-weight:700">%15↓</span></div></div>
+  </div>
+  <div style="padding:18px 22px;display:flex;justify-content:center">${statStrip(false)}</div>
+  <div style="background:#fcfcfd;border-top:1px solid var(--line);padding:28px 22px 40px;display:flex;flex-direction:column;gap:22px">
+    ${featRow(icon.spark(22, '#0a0b0d'), 'Kelepir skoru', 'Her ilan benzerleriyle kıyaslanıp puanlanır.')}
+    ${featRow(chatIco('#0a0b0d'), 'AI asistan', 'Sohbet ederek bütçene uyanı bul.')}
+    ${featRow(icon.mic(22, '#0a0b0d'), 'Sesli arama', 'Konuş, Pusula senin için tarasın.')}
+  </div>
+</div>`;
+
 // ============================== KAYIT / RENDER ==============================
 const ALL = [
   { name: 'akis-mobil', html: akisMobil, width: 390, height: 844 },
@@ -446,6 +634,12 @@ const ALL = [
   { name: 'listeler-web', html: listelerWeb, width: 1200, height: 600 },
   { name: 'profil-mobil', html: profilMobil, width: 390, height: 844 },
   { name: 'profil-web', html: profilWeb, width: 1200, height: 760 },
+  { name: 'giris-mobil', html: girisMobil, width: 390, height: 844 },
+  { name: 'giris-web', html: girisWeb, width: 1200, height: 720 },
+  { name: 'ilanlarim-mobil', html: ilanlarimMobil, width: 390, height: 844 },
+  { name: 'ilanlarim-web', html: ilanlarimWeb, width: 1200, height: 800 },
+  { name: 'landing-mobil', html: landingMobil, width: 390, height: 844 },
+  { name: 'landing-web', html: landingWeb, width: 1200, height: 980 },
 ];
 
 const args = process.argv.slice(2);
