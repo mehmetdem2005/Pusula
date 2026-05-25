@@ -114,6 +114,12 @@ export default function ProfilPage(): ReactElement {
 
         {/* İlan grid'i */}
         <div className="border-line mt-6 border-t pt-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-fg text-sm font-semibold">İlanların</span>
+            <Link href="/ilanlarim" className="text-brand text-sm font-semibold">
+              Yönet →
+            </Link>
+          </div>
           {loading ? (
             <div className="grid grid-cols-3 gap-1">
               {[0, 1, 2, 3, 4, 5].map((i) => (

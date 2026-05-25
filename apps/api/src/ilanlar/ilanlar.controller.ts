@@ -61,6 +61,12 @@ export class IlanlarController {
     return this.service.publishListing(user.id, id);
   }
 
+  /** UGC: yayından kaldır (paused). */
+  @Post(':id/unpublish')
+  async unpublish(@CurrentUser() user: AuthedUser, @Param('id') id: string): Promise<{ ok: true }> {
+    return this.service.unpublishListing(user.id, id);
+  }
+
   /**
    * Extension'dan tek bir konut ilanı ingest et + skor hesapla.
    * Idempotent: aynı (kaynak, kaynak_id) tekrar gelirse mevcut kaydı döner.

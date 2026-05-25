@@ -442,12 +442,12 @@ export class IlanlarService {
     if (!data) throw new NotFoundException('İlan bulunamadı');
   }
 
-  /** Kullanıcının ilanları + her birinin son skoru (dashboard listesi). */
+  /** Kullanıcının ilanları + statü + medya sayısı + her birinin son skoru (dashboard/yönetim). */
   async listIlanlar(userId: string): Promise<unknown[]> {
     const { data, error } = await this.sb
       .from('ilanlar')
       .select(
-        'id, baslik, ilan_url, fiyat_tl, il, ilce, mahalle, net_m2, oda_sayisi, foto_urlleri, created_at, scoring_results(toplam, etiket, confidence, hesap_zamani)',
+        'id, baslik, ilan_url, fiyat_tl, kategori, status, visibility, il, ilce, mahalle, net_m2, oda_sayisi, foto_urlleri, created_at, scoring_results(toplam, etiket, confidence, hesap_zamani), media(count)',
       )
       .eq('owner_user_id', userId)
       .order('created_at', { ascending: false })
@@ -464,8 +464,22 @@ export class IlanlarService {
         hesap_zamani: string;
       }[];
       const latest = scores.sort((a, b) => b.hesap_zamani.localeCompare(a.hesap_zamani))[0] ?? null;
-      return { ...row, skor: latest };
+      const mediaCount = ((row.media ?? []) as { count: number }[])[0]?.count ?? 0;
+      const { media: _m, ...rest } = row as Record<string, unknown>;
+      return { ...rest, media_count: mediaCount, skor: latest };
     });
+  }
+
+  /** UGC: yayından kaldır (paused + private). Yeniden yayınlamak publishListing ile. */
+  async unpublishListing(userId: string, id: string): Promise<{ ok: true }> {
+    await this.assertListingOwner(userId, id);
+    const { error } = await this.sb
+      .from('ilanlar')
+      .update({ status: 'paused', visibility: 'private' })
+      .eq('id', id)
+      .eq('owner_user_id', userId);
+    if (error) throw error;
+    return { ok: true };
   }
 
   /** Tek ilan + son skor detayı (ilan detay sayfası). */
