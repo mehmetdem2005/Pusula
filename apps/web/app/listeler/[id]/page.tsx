@@ -227,7 +227,7 @@ export default function ListeDetayPage(): ReactElement {
 
       {/* Filtre paneli */}
       {showFilters && (
-        <div className="border-line bg-night/95 border-b px-4 py-4">
+        <div className="border-line bg-night border-b px-4 py-4">
           <div className="grid grid-cols-2 gap-3">
             <Field label="İlçe">
               <input
