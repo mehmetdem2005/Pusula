@@ -7,5 +7,6 @@ import { LLMModule } from '../llm/llm.module.js';
   imports: [LLMModule],
   controllers: [ListsController],
   providers: [ListsService],
+  exports: [ListsService],
 })
 export class ListsModule {}

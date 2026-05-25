@@ -17,6 +17,8 @@ import { VoiceModule } from './voice/voice.module.js';
 import { AccountModule } from './account/account.module.js';
 import { ListsModule } from './lists/lists.module.js';
 import { MediaModule } from './media/media.module.js';
+import { FeedModule } from './feed/feed.module.js';
+import { EventsModule } from './events/events.module.js';
 
 const env = loadEnv();
 
@@ -40,6 +42,8 @@ const env = loadEnv();
     AccountModule,
     ListsModule,
     MediaModule,
+    FeedModule,
+    EventsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
