@@ -3,132 +3,121 @@
 import Link from 'next/link';
 import { useState, type ReactElement } from 'react';
 
-/** Fiyatlandırma — aylık/yıllık geçişi (tasarımdaki pricing-toggle). Stripe yok; planlar tanıtım amaçlı. */
+interface Tier {
+  name: string;
+  desc: string;
+  priceAy: string;
+  priceYil: string;
+  per?: string;
+  note: (bill: 'ay' | 'yil') => string;
+  features: string[];
+  cta: string;
+  href: string;
+  featured?: boolean;
+}
+
+const TIERS: Tier[] = [
+  {
+    name: 'Keşif',
+    desc: 'İlk konut alıcıları, meraklılar.',
+    priceAy: '0',
+    priceYil: '0',
+    note: () => 'Sonsuza dek ücretsiz',
+    features: ['Tarayıcı eklentisi', 'Ayda 30 ilan analizi', '4 pilarlı kelepir skoru'],
+    cta: 'Ücretsiz başla',
+    href: '/auth/signup',
+  },
+  {
+    name: 'Pusula',
+    desc: 'Yatırımcılar, emlakçılar, galericiler.',
+    priceAy: '289',
+    priceYil: '145',
+    per: '/ ay',
+    note: (b) => (b === 'ay' ? 'Aylık ödeme · iptal istediğinde' : 'Yıllık ödendiğinde'),
+    features: [
+      'Sınırsız ilan analizi',
+      '8 pilar tam skorlama',
+      'AI sohbet + sesli mod',
+      'Portföy karşılaştırma + uyarılar',
+    ],
+    cta: 'Beta’ya katıl',
+    href: '/auth/signup',
+    featured: true,
+  },
+  {
+    name: 'Kurumsal',
+    desc: 'Acente, broker ve müteahhit ekipleri.',
+    priceAy: 'Özel',
+    priceYil: 'Özel',
+    note: () => '5+ koltuk · API · SLA',
+    features: [
+      'Çoklu kullanıcı & rol',
+      'API + webhook',
+      'Özel skor kalibrasyonu',
+      'Dedike hesap yöneticisi',
+    ],
+    cta: 'Satış ile görüş',
+    href: '#',
+  },
+];
+
+/** Sade fiyatlandırma — aylık/yıllık geçişi. Stripe yok; planlar tanıtım amaçlı. */
 export function PricingTiers(): ReactElement {
   const [bill, setBill] = useState<'ay' | 'yil'>('ay');
 
   return (
-    <>
-      <div className="lp-pricing-toggle" id="pricing-toggle">
-        <button className={bill === 'ay' ? 'active' : ''} onClick={() => setBill('ay')}>
-          Aylık
-        </button>
-        <button className={bill === 'yil' ? 'active' : ''} onClick={() => setBill('yil')}>
-          Yıllık <span className="save">−%50 BETA</span>
-        </button>
+    <div>
+      <div className="mb-12 flex justify-center">
+        <div className="rounded-card-sm border-hairline bg-surface inline-flex border p-1 text-sm">
+          {(['ay', 'yil'] as const).map((b) => (
+            <button
+              key={b}
+              onClick={() => setBill(b)}
+              className={`rounded-[6px] px-4 py-1.5 font-medium transition-colors ${
+                bill === b ? 'bg-navy text-cream' : 'text-ink-3 hover:text-navy'
+              }`}
+            >
+              {b === 'ay' ? 'Aylık' : 'Yıllık'}
+              {b === 'yil' && <span className="text-gold-deep ml-1.5 text-xs">−%50</span>}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="lp-tiers">
-        <article className="lp-tier">
-          <h3>Keşif</h3>
-          <p className="t-desc">İlk konut alıcıları, meraklılar.</p>
-          <div className="t-price">
-            <span className="cur">₺</span>
-            <span>0</span>
-          </div>
-          <div className="t-meta">Sonsuza dek ücretsiz</div>
-          <ul>
-            <li>
-              <span className="ck">i.</span> Tarayıcı eklentisi
-            </li>
-            <li>
-              <span className="ck">i.</span> Ayda 30 ilan analizi
-            </li>
-            <li>
-              <span className="ck">i.</span> 4 pilarlı kelepir skoru
-            </li>
-            <li className="off">
-              <span className="ck">i.</span> Vision + NLP pilarları
-            </li>
-            <li className="off">
-              <span className="ck">i.</span> AI sohbet asistanı
-            </li>
-            <li className="off">
-              <span className="ck">i.</span> Sesli mod
-            </li>
-            <li className="off">
-              <span className="ck">i.</span> Portföy karşılaştırma
-            </li>
-          </ul>
-          <Link href="/auth/signup" className="btn btn-ghost t-cta">
-            Ücretsiz başla
-          </Link>
-        </article>
-
-        <article className="lp-tier featured">
-          <h3>Pusula</h3>
-          <p className="t-desc">Yatırımcılar, emlakçılar, galericiler.</p>
-          <div className="t-price">
-            <span className="cur">₺</span>
-            <span>{bill === 'ay' ? '289' : '145'}</span>
-            <span className="per">/ ay</span>
-          </div>
-          <div className="t-meta">
-            {bill === 'ay' ? 'Aylık ödeme · iptal istediğinde' : 'Yıllık ödendiğinde · normal ₺289'}
-          </div>
-          <ul>
-            <li>
-              <span className="ck">i.</span> Sınırsız ilan analizi
-            </li>
-            <li>
-              <span className="ck">i.</span> 8 pilar tam skorlama
-            </li>
-            <li>
-              <span className="ck">i.</span> AI sohbet + sesli mod
-            </li>
-            <li>
-              <span className="ck">i.</span> Portföy karşılaştırma + uyarılar
-            </li>
-            <li>
-              <span className="ck">i.</span> Pazarlık metni üretici
-            </li>
-            <li>
-              <span className="ck">i.</span> Mahalle derin analiz raporu
-            </li>
-            <li>
-              <span className="ck">i.</span> Excel / PDF dışa aktarım
-            </li>
-          </ul>
-          <Link href="/auth/signup" className="btn btn-gold t-cta">
-            Beta’ya katıl <span className="arrow">→</span>
-          </Link>
-        </article>
-
-        <article className="lp-tier">
-          <h3>Kurumsal</h3>
-          <p className="t-desc">Acente, broker ve müteahhit ekipleri.</p>
-          <div className="t-price">
-            <span>Özel</span>
-          </div>
-          <div className="t-meta">5+ koltuk · API erişimi · SLA</div>
-          <ul>
-            <li>
-              <span className="ck">i.</span> Pusula plan tüm özellikleri
-            </li>
-            <li>
-              <span className="ck">i.</span> Çoklu kullanıcı & rol yönetimi
-            </li>
-            <li>
-              <span className="ck">i.</span> API + webhook entegrasyonu
-            </li>
-            <li>
-              <span className="ck">i.</span> Özel skor kalibrasyonu
-            </li>
-            <li>
-              <span className="ck">i.</span> CRM & ERP entegrasyon
-            </li>
-            <li>
-              <span className="ck">i.</span> Dedike hesap yöneticisi
-            </li>
-            <li>
-              <span className="ck">i.</span> Onboarding eğitimi
-            </li>
-          </ul>
-          <a href="#" className="btn btn-primary t-cta">
-            Satış ile görüş <span className="arrow">→</span>
-          </a>
-        </article>
+      <div className="grid gap-6 md:grid-cols-3">
+        {TIERS.map((t) => {
+          const price = bill === 'ay' ? t.priceAy : t.priceYil;
+          const isNum = /^\d+$/.test(price);
+          return (
+            <article
+              key={t.name}
+              className={`rounded-card-lg flex flex-col border p-8 ${
+                t.featured ? 'border-navy bg-surface shadow-card' : 'border-hairline bg-surface'
+              }`}
+            >
+              <h3 className="text-navy font-serif text-2xl">{t.name}</h3>
+              <p className="text-muted mt-1 text-sm">{t.desc}</p>
+              <div className="mt-6 flex items-baseline gap-1">
+                {isNum && <span className="text-ink-3 text-xl">₺</span>}
+                <span className="text-ink font-serif text-5xl">{price}</span>
+                {t.per && isNum && <span className="text-muted text-sm">{t.per}</span>}
+              </div>
+              <p className="text-muted mt-1 text-xs">{t.note(bill)}</p>
+              <ul className="text-ink-2 mt-6 flex-1 space-y-3 text-sm">
+                {t.features.map((f) => (
+                  <li key={f} className="flex gap-2.5">
+                    <span className="text-gold-deep mt-0.5">✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href={t.href} className={`btn mt-8 ${t.featured ? 'btn-gold' : 'btn-ghost'}`}>
+                {t.cta}
+              </Link>
+            </article>
+          );
+        })}
       </div>
-    </>
+    </div>
   );
 }
