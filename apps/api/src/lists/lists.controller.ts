@@ -57,6 +57,12 @@ export class ListsController {
     return this.svc.removeFavorite(user.id, ilanId);
   }
 
+  /** Chatbot için: tüm listelerdeki benzersiz kayıtlı ilanlar + skor (statik route — :id'den önce). */
+  @Get('saved-context')
+  savedContext(@CurrentUser() user: AuthedUser) {
+    return this.svc.getSavedContext(user.id);
+  }
+
   /** Liste detayı + filtre/sıralama (query). */
   @Get(':id')
   detail(

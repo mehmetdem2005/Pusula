@@ -230,6 +230,61 @@ export class ListsService {
   }
 
   /**
+   * Chatbot bağlamı: kullanıcının TÜM listelerindeki benzersiz ilanlar + skor + hangi listelerde.
+   * Asistan "tüm kaydettiklerim" sorularını ve kelepir karşılaştırmasını bununla yanıtlar.
+   */
+  async getSavedContext(userId: string): Promise<{
+    items: (ListItem & { lists: string[] })[];
+  }> {
+    const { data: lists } = await this.sb.from('lists').select('id, name').eq('user_id', userId);
+    const listName = new Map((lists ?? []).map((l) => [l.id as string, l.name as string]));
+    const listIds = (lists ?? []).map((l) => l.id as string);
+    if (listIds.length === 0) return { items: [] };
+
+    const { data, error } = await this.sb
+      .from('list_items')
+      .select(
+        'list_id, added_at, ilanlar(id,baslik,ilan_url,fiyat_tl,kategori,il,ilce,mahalle,net_m2,oda_sayisi,bina_yasi,kaynak,foto_urlleri, scoring_results(toplam,etiket,confidence,hesap_zamani))',
+      )
+      .in('list_id', listIds);
+    if (error) throw error;
+
+    const byIlan = new Map<string, ListItem & { lists: string[] }>();
+    for (const row of data ?? []) {
+      const ilan = row.ilanlar as unknown as Record<string, unknown> | null;
+      if (!ilan) continue;
+      const id = ilan.id as string;
+      const lname = listName.get(row.list_id as string) ?? '';
+      const existing = byIlan.get(id);
+      if (existing) {
+        if (lname && !existing.lists.includes(lname)) existing.lists.push(lname);
+        continue;
+      }
+      const scores = ((ilan.scoring_results ?? []) as Skor[])
+        .slice()
+        .sort((a, b) => b.hesap_zamani.localeCompare(a.hesap_zamani));
+      byIlan.set(id, {
+        id,
+        baslik: ilan.baslik as string,
+        ilan_url: ilan.ilan_url as string,
+        fiyat_tl: ilan.fiyat_tl as number,
+        il: (ilan.il as string | null) ?? null,
+        ilce: (ilan.ilce as string | null) ?? null,
+        mahalle: (ilan.mahalle as string | null) ?? null,
+        net_m2: (ilan.net_m2 as number | null) ?? null,
+        oda_sayisi: (ilan.oda_sayisi as string | null) ?? null,
+        bina_yasi: (ilan.bina_yasi as number | null) ?? null,
+        kaynak: (ilan.kaynak as string | null) ?? null,
+        foto_urlleri: (ilan.foto_urlleri as string[] | null) ?? null,
+        added_at: row.added_at as string,
+        skor: scores[0] ?? null,
+        lists: lname ? [lname] : [],
+      });
+    }
+    return { items: [...byIlan.values()] };
+  }
+
+  /**
    * Liderlik tablosu: item'ları kelepirden aza sırala + LLM'den kısa Türkçe değerlendirme.
    * Skor deterministik; LLM yalnız yorum üretir (skoru değiştirmez).
    */
