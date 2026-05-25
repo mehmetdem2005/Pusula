@@ -61,9 +61,9 @@ const config: Config = {
           pazar: 'var(--p-pazar)',
           finansal: 'var(--p-finansal)',
         },
-        // ── Reels rebuild — Modern Dark (Cinema Mobile) ──
-        brand: { DEFAULT: 'var(--c-brand)', 2: 'var(--c-brand2)' },
-        accent: 'var(--c-accent)',
+        // ── Reels rebuild — nötr/monokrom (Instagram dili) ──
+        brand: 'var(--c-brand)', // IG mavisi — yalnız birincil CTA/odak
+        like: 'var(--c-like)', // beğeni kırmızısı
         night: { DEFAULT: 'var(--c-bg)', soft: 'var(--c-bg-soft)' },
         panel: { DEFAULT: 'var(--c-panel)', soft: 'var(--c-panel-soft)' },
         line: 'var(--c-line)',
@@ -74,8 +74,8 @@ const config: Config = {
         sans: ['var(--font-manrope)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         serif: ['var(--font-cormorant)', 'Georgia', 'serif'],
         mono: ['var(--font-jetbrains)', 'ui-monospace', 'monospace'],
-        display: ['var(--font-outfit)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        body: ['var(--font-worksans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       // Tasarım radius/shadow'ları (varsayılan ölçekle çakışmaması için ayrı adlar).
       borderRadius: {

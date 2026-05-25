@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode, ReactElement } from 'react';
-import { Cormorant, Manrope, JetBrains_Mono, Outfit, Work_Sans } from 'next/font/google';
+import { Cormorant, Manrope, JetBrains_Mono, Inter } from 'next/font/google';
 import { PostHogProvider } from '../lib/posthog';
 import { ThemeProvider, THEME_INIT_SCRIPT } from '../components/ThemeProvider';
 
@@ -23,15 +23,10 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains',
   display: 'swap',
 });
-// Reels rebuild — sosyal/içerik-öncelikli (Outfit başlık + Work Sans gövde).
-const outfit = Outfit({
+// Reels rebuild — Inter (tek-aile precision sistemi; profesyonel/premium UI standardı).
+const inter = Inter({
   subsets: ['latin', 'latin-ext'],
-  variable: '--font-outfit',
-  display: 'swap',
-});
-const workSans = Work_Sans({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-worksans',
+  variable: '--font-inter',
   display: 'swap',
 });
 
@@ -68,7 +63,7 @@ export default function RootLayout({ children }: { children: ReactNode }): React
   return (
     <html
       lang="tr"
-      className={`${cormorant.variable} ${manrope.variable} ${jetbrainsMono.variable} ${outfit.variable} ${workSans.variable}`}
+      className={`${cormorant.variable} ${manrope.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

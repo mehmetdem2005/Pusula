@@ -261,18 +261,18 @@ em.gold {
    Yeni token'lar (--c-*); eski token'lar korunur (sayfa sayfa geçiş).
    ═════════════════════════════════════════════════════════════════════════ */
 :root {
-  --c-brand: #ec4899;
-  --c-brand2: #db2777;
-  --c-accent: #2563eb;
-  --c-bg: #0f172a;
-  --c-bg-soft: #16213e;
+  /* Nötr/monokrom (Instagram dili): koyu zemin, beyaz metin, mavi yalnız birincil CTA, kırmızı beğeni. */
+  --c-brand: #0095f6; /* Instagram mavisi */
+  --c-like: #ff3040; /* beğeni kırmızısı */
+  --c-bg: #0b0b0f; /* neredeyse siyah (saf #000 değil — OLED smear) */
+  --c-bg-soft: #16161c;
   --c-fg: #ffffff;
-  --c-fg-dim: rgba(255, 255, 255, 0.62);
-  --c-fg-faint: rgba(255, 255, 255, 0.4);
-  --c-panel: #201a32;
-  --c-panel-soft: #2a2342;
-  --c-line: rgba(255, 255, 255, 0.08);
-  --c-danger: #dc2626;
+  --c-fg-dim: rgba(255, 255, 255, 0.64);
+  --c-fg-faint: rgba(255, 255, 255, 0.42);
+  --c-panel: #16161c;
+  --c-panel-soft: #20202a;
+  --c-line: rgba(255, 255, 255, 0.1);
+  --c-danger: #ed4956;
 }
 
 /* Frosted glass yüzey (nav/header/sheet). */
@@ -297,5 +297,5 @@ em.gold {
   }
 }
 .brand-glow {
-  box-shadow: 0 0 44px rgba(236, 72, 153, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }

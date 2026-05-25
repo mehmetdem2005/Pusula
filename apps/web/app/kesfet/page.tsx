@@ -157,7 +157,7 @@ export default function KesfetPage(): ReactElement {
   }
 
   return (
-    <main className="bg-night font-body text-fg relative h-[100dvh] w-full overflow-hidden">
+    <main className="bg-night font-body text-fg fixed inset-0 overflow-hidden">
       {/* Glass üst bar */}
       <header className="glass border-line absolute inset-x-0 top-0 z-30 flex items-center justify-between border-b px-4 py-3">
         <Link href="/" className="font-display text-fg text-lg font-bold tracking-tight">
@@ -216,33 +216,31 @@ export default function KesfetPage(): ReactElement {
                 </span>
               )}
 
-              {/* Sağ aksiyon rayı */}
-              <div className="absolute bottom-32 right-3 z-20 flex flex-col items-center gap-6">
+              {/* Sağ aksiyon rayı — IG/Reels: beyaz ikon + gölge, beğeni kırmızı */}
+              <div className="absolute bottom-28 right-2.5 z-20 flex flex-col items-center gap-5">
                 <RailButton
                   onClick={() => toggleLike(card)}
-                  active={card.liked_by_me}
                   label={String(card.like_count)}
+                  colorClass={card.liked_by_me ? 'text-like' : 'text-white'}
                 >
-                  <Icon name="heart" filled={card.liked_by_me} />
+                  <Icon name="heart" size={30} filled={card.liked_by_me} />
                 </RailButton>
                 <RailButton onClick={() => save(card)} label="Kaydet">
-                  <Icon name="bookmark" />
+                  <Icon name="bookmark" size={28} />
                 </RailButton>
                 <Link
                   href={`/ilan/${card.id}`}
-                  className="press text-fg flex flex-col items-center gap-1"
+                  className="press flex flex-col items-center gap-1 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
                 >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
-                    <Icon name="info" />
-                  </span>
-                  <span className="text-fg-dim text-[10px]">Detay</span>
+                  <Icon name="info" size={28} />
+                  <span className="text-[11px] font-medium">Detay</span>
                 </Link>
               </div>
 
               {/* Sol-alt bilgi */}
               <div className="absolute bottom-28 left-4 right-20 z-10">
                 <div className="flex items-center gap-2">
-                  <span className="text-brand grid h-7 w-7 place-items-center rounded-full bg-[color-mix(in_srgb,var(--c-brand)_22%,transparent)] text-xs">
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-white/15 text-xs text-white">
                     {(card.owner.handle ?? 'K')[0]?.toUpperCase()}
                   </span>
                   <span className="text-fg-dim text-sm">@{card.owner.handle ?? 'kullanıcı'}</span>
@@ -255,7 +253,7 @@ export default function KesfetPage(): ReactElement {
                 </h2>
                 {loc && <div className="text-fg-dim mt-1 text-sm">{loc}</div>}
                 <div className="mt-2 flex items-center gap-3">
-                  <span className="bg-brand font-display rounded-lg px-3 py-1 text-lg font-bold text-white">
+                  <span className="font-display rounded-lg bg-black/45 px-3 py-1 text-lg font-bold text-white backdrop-blur-sm">
                     {TRY.format(card.fiyat_tl)}
                   </span>
                   {card.net_m2 && <span className="text-fg-dim text-sm">{card.net_m2} m²</span>}
@@ -311,36 +309,38 @@ export default function KesfetPage(): ReactElement {
 function RailButton({
   children,
   label,
-  active,
+  colorClass = 'text-white',
   onClick,
 }: {
   children: ReactElement;
   label: string;
-  active?: boolean;
+  colorClass?: string;
   onClick: () => void;
 }): ReactElement {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="press text-fg flex flex-col items-center gap-1"
+      className={`press flex flex-col items-center gap-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] ${colorClass}`}
     >
-      <span
-        className={`flex h-12 w-12 items-center justify-center rounded-full ${
-          active ? 'bg-brand text-white' : 'text-fg bg-white/10'
-        }`}
-      >
-        {children}
-      </span>
-      <span className="text-fg-dim text-[10px]">{label}</span>
+      {children}
+      <span className="text-[11px] font-medium text-white">{label}</span>
     </button>
   );
 }
 
-function Icon({ name, filled }: { name: string; filled?: boolean }): ReactElement {
+function Icon({
+  name,
+  filled,
+  size = 22,
+}: {
+  name: string;
+  filled?: boolean;
+  size?: number;
+}): ReactElement {
   const common = {
-    width: 22,
-    height: 22,
+    width: size,
+    height: size,
     viewBox: '0 0 24 24',
     fill: filled ? 'currentColor' : 'none',
     stroke: 'currentColor',
