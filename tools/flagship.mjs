@@ -129,7 +129,7 @@ const desktop = `<!doctype html><html><head><meta charset="utf-8">
           <button class="btn-dark" style="flex:1;height:54px">Asistana sor</button>
           <button class="btn-ghost" style="width:54px;height:54px"><svg width="22" height="22" fill="none" stroke="#0a0b0d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v17l-6-4-6 4V4Z"/></svg></button>
         </div>
-        <div style="margin-top:18px;font-size:13px;color:var(--faint)">İletişim platform dışıdır · Pusula komisyoncu değildir</div>
+        <div style="margin-top:18px;font-size:13px;color:var(--faint)">Pusula karar vermez, bilgi verir · Tapu ve ekspertizi mutlaka kontrol et</div>
       </div>
     </div>
   </div>

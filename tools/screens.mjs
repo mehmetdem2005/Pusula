@@ -278,7 +278,7 @@ const kelepirEstimate = `
   <div style="display:flex;align-items:center;gap:8px">${icon.spark(16, '#15803d')}<span style="font-size:13px;font-weight:700;color:var(--green)">Kelepir tahmini</span></div>
   <div style="display:flex;align-items:flex-end;gap:13px;margin-top:11px">
     <div class="tnum" style="font-size:38px;font-weight:700;color:var(--green);line-height:.85">72</div>
-    <div style="font-size:13px;color:#3f7a55;padding-bottom:4px;line-height:1.4">Mahalle medyanının <b>%12 altında</b> —<br>bu fiyatla daha hızlı satılır.</div>
+    <div style="font-size:13px;color:#3f7a55;padding-bottom:4px;line-height:1.4">Mahalle medyanının <b>%12 altında</b>.<br>Verilere göre daha hızlı satılır.</div>
   </div>
 </div>`;
 
@@ -477,8 +477,8 @@ const girisWeb = `
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,13,.2),rgba(10,11,13,.78))"></div>
     <div style="position:absolute;left:48px;right:48px;bottom:52px;color:#fff">
       <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(21,128,61,.92);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:5px 11px">${icon.spark(13, '#fff')} Kelepir 78</span>
-      <div class="h" style="font-size:32px;font-weight:600;margin-top:20px;line-height:1.2">Türkiye’nin<br>kelepir pusulası</div>
-      <div style="font-size:15px;color:rgba(255,255,255,.82);margin-top:14px;line-height:1.5;max-width:380px">AI binlerce ilanı tarar, gerçekten uygun fiyatlıları senin için öne çıkarır.</div>
+      <div class="h" style="font-size:32px;font-weight:600;margin-top:20px;line-height:1.2">Karar verirken<br>kaybolma.</div>
+      <div style="font-size:15px;color:rgba(255,255,255,.82);margin-top:14px;line-height:1.5;max-width:380px">Pusula fiyatı, mahalleyi ve riski verilerle ölçer; kelepir olanı objektif bir skorla gösterir.</div>
     </div>
   </div>
 </div>`;
@@ -569,7 +569,7 @@ const heroCard = `
 </div>`;
 const feat = (ico, t, d) => `<div><div style="width:44px;height:44px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center">${ico}</div><div class="h" style="font-size:17px;font-weight:600;color:var(--ink);margin-top:14px">${t}</div><div style="font-size:14px;color:var(--sub);line-height:1.55;margin-top:6px">${d}</div></div>`;
 const featRow = (ico, t, d) => `<div style="display:flex;gap:14px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:12px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0">${ico}</div><div><div class="h" style="font-size:16px;font-weight:600;color:var(--ink)">${t}</div><div style="font-size:14px;color:var(--sub);line-height:1.5;margin-top:4px">${d}</div></div></div>`;
-const statStrip = (big) => `<div style="display:flex;align-items:center;gap:${big ? 28 : 20}px">${[['248B', 'ilan'], ['36', 'şehir'], ['4.9', 'puan']].map(([v, l], i) => `${i ? '<span style="width:1px;height:28px;background:var(--line)"></span>' : ''}<div><div class="tnum h" style="font-size:${big ? 22 : 19}px;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:12px;color:var(--faint);margin-top:1px">${l}</div></div>`).join('')}</div>`;
+const statStrip = (big) => `<div style="display:flex;align-items:center;gap:${big ? 28 : 18}px">${[['4', 'boyut'], ['12+', 'parametre'], ['0–100', 'skor']].map(([v, l], i) => `${i ? '<span style="width:1px;height:28px;background:var(--line)"></span>' : ''}<div><div class="tnum h" style="font-size:${big ? 22 : 19}px;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:12px;color:var(--faint);margin-top:1px">${l}</div></div>`).join('')}</div>`;
 
 const landingNav = `<div style="height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--line);background:#fff">
   <div class="h" style="font-size:20px;font-weight:700;color:var(--ink)">Pusula</div>
@@ -581,9 +581,9 @@ const landingWeb = `
 ${landingNav}
 <div style="max-width:1120px;margin:0 auto;padding:72px 40px 64px;display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center">
   <div>
-    ${eyebrow('AI destekli emlak')}
-    <h1 class="h" style="font-size:54px;font-weight:700;color:var(--ink);line-height:1.04;margin-top:18px;letter-spacing:-.03em">Kelepiri<br>AI bulsun.</h1>
-    <p style="font-size:18px;color:var(--sub);line-height:1.55;margin-top:20px;max-width:440px">Pusula binlerce ilanı tarar; gerçekten uygun fiyatlı olanları Kelepir skoruyla öne çıkarır.</p>
+    ${eyebrow('Türkiye’nin AI pusulası')}
+    <h1 class="h" style="font-size:54px;font-weight:700;color:var(--ink);line-height:1.04;margin-top:18px;letter-spacing:-.03em">Karar verirken<br>kaybolma.</h1>
+    <p style="font-size:18px;color:var(--sub);line-height:1.55;margin-top:20px;max-width:450px">Pusula; ilan fiyatını mahalle, kalite ve risk verisiyle ölçer. Kelepir olanı objektif bir skorla gösterir, neyi neden gördüğünü sana anlatır.</p>
     <div style="display:flex;gap:12px;margin-top:28px"><button class="btn-dark" style="height:52px;padding:0 26px;font-size:15px">Ücretsiz başla</button><button class="btn-ghost" style="height:52px;padding:0 24px;font-size:15px">Nasıl çalışır?</button></div>
     <div style="margin-top:36px">${statStrip(true)}</div>
   </div>
@@ -591,9 +591,9 @@ ${landingNav}
 </div>
 <div style="border-top:1px solid var(--line);background:#fcfcfd">
   <div style="max-width:1120px;margin:0 auto;padding:52px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:44px">
-    ${feat(icon.spark(22, '#0a0b0d'), 'Kelepir skoru', 'Her ilan, benzerleriyle kıyaslanıp 0–100 arası puanlanır.')}
-    ${feat(chatIco('#0a0b0d'), 'AI asistan', 'Sohbet ederek bütçene ve bölgene uyanı saniyeler içinde bul.')}
-    ${feat(icon.mic(22, '#0a0b0d'), 'Sesli arama', 'Konuş, Pusula senin için binlerce ilanı tarasın.')}
+    ${feat(icon.spark(22, '#0a0b0d'), 'Açıklanabilir skor', 'Her ilan benzerleriyle kıyaslanır, 0–100 arası bir skor alır. Hangi parametre neden etkiledi görürsün.')}
+    ${feat(chatIco('#0a0b0d'), 'AI asistan', 'Skoru insan diliyle açıklar; neyi neden gördüğünü ve pazarlık marjını anlatır.')}
+    ${feat(icon.mic(22, '#0a0b0d'), 'Sesli arama', 'Konuşarak ara; Pusula senin için tarar, skoru anlatır.')}
   </div>
 </div>`;
 
@@ -601,9 +601,9 @@ const landingMobil = `
 <div style="width:390px;background:#fff">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px"><div class="h" style="font-size:20px;font-weight:700;color:var(--ink)">Pusula</div><button class="btn-ghost" style="height:38px;padding:0 16px;font-size:14px">Giriş</button></div>
   <div style="padding:22px 22px 0">
-    ${eyebrow('AI destekli emlak')}
-    <h1 class="h" style="font-size:38px;font-weight:700;color:var(--ink);line-height:1.05;margin-top:14px;letter-spacing:-.03em">Kelepiri AI bulsun.</h1>
-    <p style="font-size:16px;color:var(--sub);line-height:1.5;margin-top:14px">Binlerce ilanı tarar, gerçekten uygun fiyatlıları Kelepir skoruyla öne çıkarır.</p>
+    ${eyebrow('Türkiye’nin AI pusulası')}
+    <h1 class="h" style="font-size:38px;font-weight:700;color:var(--ink);line-height:1.05;margin-top:14px;letter-spacing:-.03em">Karar verirken kaybolma.</h1>
+    <p style="font-size:16px;color:var(--sub);line-height:1.5;margin-top:14px">İlan fiyatını mahalle, kalite ve risk verisiyle ölçer; kelepir olanı objektif bir skorla gösterir.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px"><button class="btn-dark" style="height:52px">Ücretsiz başla</button><button class="btn-ghost" style="height:52px">Nasıl çalışır?</button></div>
   </div>
   <div style="position:relative;padding:40px 22px 12px">
@@ -612,9 +612,9 @@ const landingMobil = `
   </div>
   <div style="padding:18px 22px;display:flex;justify-content:center">${statStrip(false)}</div>
   <div style="background:#fcfcfd;border-top:1px solid var(--line);padding:28px 22px 40px;display:flex;flex-direction:column;gap:22px">
-    ${featRow(icon.spark(22, '#0a0b0d'), 'Kelepir skoru', 'Her ilan benzerleriyle kıyaslanıp puanlanır.')}
-    ${featRow(chatIco('#0a0b0d'), 'AI asistan', 'Sohbet ederek bütçene uyanı bul.')}
-    ${featRow(icon.mic(22, '#0a0b0d'), 'Sesli arama', 'Konuş, Pusula senin için tarasın.')}
+    ${featRow(icon.spark(22, '#0a0b0d'), 'Açıklanabilir skor', 'Her ilan benzerleriyle kıyaslanır, açıklanabilir bir skor alır.')}
+    ${featRow(chatIco('#0a0b0d'), 'AI asistan', 'Skoru insan diliyle açıklar, neyi neden gördüğünü anlatır.')}
+    ${featRow(icon.mic(22, '#0a0b0d'), 'Sesli arama', 'Konuşarak ara; Pusula senin için tarar.')}
   </div>
 </div>`;
 
