@@ -16,7 +16,7 @@
     "@pusula/scoring": "workspace:*",
     "@pusula/shared": "workspace:*",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.47.10",
+    "@supabase/supabase-js": "^2.106.2",
     "@tanstack/react-query": "^5.62.16",
     "lucide-react": "^0.469.0",
     "next": "^15.1.3",
