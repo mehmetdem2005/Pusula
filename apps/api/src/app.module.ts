@@ -21,6 +21,7 @@ import { FeedModule } from './feed/feed.module.js';
 import { EventsModule } from './events/events.module.js';
 import { ProfilesModule } from './profiles/profiles.module.js';
 import { ReportsModule } from './reports/reports.module.js';
+import { VideosModule } from './videos/videos.module.js';
 
 const env = loadEnv();
 
@@ -48,6 +49,7 @@ const env = loadEnv();
     EventsModule,
     ProfilesModule,
     ReportsModule,
+    VideosModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

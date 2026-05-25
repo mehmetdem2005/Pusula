@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { authedFetch } from '../../../lib/api';
 import { uploadListingMedia, deleteMedia } from '../../../lib/media';
 
@@ -11,6 +11,24 @@ interface MediaItem {
   previewUrl: string;
   type: 'photo' | 'video';
 }
+interface VideoJob {
+  id: string;
+  status: string;
+  error: string | null;
+}
+
+const VIDEO_TEMPLATES: { id: string; label: string }[] = [
+  { id: 'rooms', label: 'Odaları gezen kamera' },
+  { id: 'facade', label: 'Dış cephe pan' },
+  { id: 'wide', label: 'Geniş açı tur' },
+  { id: 'garden', label: 'Bahçe & çevre' },
+];
+const VIDEO_STATUS: Record<string, { label: string; color: string }> = {
+  queued: { label: 'Sırada', color: 'var(--piyasa)' },
+  running: { label: 'Oluşturuluyor…', color: 'var(--p-konum)' },
+  succeeded: { label: 'Hazır · temsilî', color: 'var(--kelepir)' },
+  failed: { label: 'Başarısız', color: 'var(--asiri)' },
+};
 
 const inputCls =
   'mt-1.5 w-full rounded-xl border border-line bg-panel px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-faint focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
@@ -48,6 +66,45 @@ export default function YeniIlanPage(): ReactElement {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // AI sanal tur (Faz 3 — mock altyapı).
+  const [vPrompt, setVPrompt] = useState('');
+  const [vTemplate, setVTemplate] = useState<string | null>(null);
+  const [vJobs, setVJobs] = useState<VideoJob[]>([]);
+  const [vBusy, setVBusy] = useState(false);
+
+  useEffect(() => {
+    if (step !== 'media' || !listingId) return;
+    authedFetch<VideoJob[]>(`/v1/videos?listing_id=${listingId}`)
+      .then(setVJobs)
+      .catch(() => undefined);
+  }, [step, listingId]);
+
+  async function generateVideo(): Promise<void> {
+    if (!listingId || vBusy) return;
+    if (media.length < 1) {
+      setError('AI tur için önce en az bir fotoğraf ekle.');
+      return;
+    }
+    setVBusy(true);
+    setError(null);
+    try {
+      await authedFetch('/v1/videos', {
+        method: 'POST',
+        body: JSON.stringify({
+          listing_id: listingId,
+          prompt: vPrompt.trim() || undefined,
+          template_id: vTemplate || undefined,
+        }),
+      });
+      const jobs = await authedFetch<VideoJob[]>(`/v1/videos?listing_id=${listingId}`);
+      setVJobs(jobs);
+    } catch (e) {
+      setError((e as Error).message.replace(/^\d+:\s*/, ''));
+    } finally {
+      setVBusy(false);
+    }
+  }
 
   function buildPayload() {
     const ozellikler: Record<string, unknown> = {};
@@ -430,16 +487,77 @@ export default function YeniIlanPage(): ReactElement {
               {uploading && <p className="text-fg-dim mt-2 text-xs">Yükleniyor…</p>}
             </div>
 
-            {/* AI sanal tur — Faz 3 (yakında) */}
+            {/* AI sanal tur — Faz 3 */}
             <div className="border-line bg-panel rounded-xl border p-3.5">
               <div className="flex items-center justify-between">
                 <span className="text-fg text-sm font-medium">AI sanal tur videosu</span>
                 <span className="text-fg-dim rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide">
-                  yakında
+                  temsilî
                 </span>
               </div>
               <p className="text-fg-faint mt-1 text-xs">
-                Fotoğraflarından otomatik kısa gezinti videosu üret (temsilî). Çok yakında.
+                Fotoğraflarından kısa bir gezinti videosu üret. Şablon seç veya kendi tarifini yaz.
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {VIDEO_TEMPLATES.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setVTemplate((p) => (p === t.id ? null : t.id))}
+                    className={`press rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      vTemplate === t.id ? 'bg-fg text-night' : 'bg-panel-soft text-fg-dim'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              <input
+                value={vPrompt}
+                onChange={(e) => setVPrompt(e.target.value)}
+                maxLength={500}
+                placeholder="İsteğe bağlı: kamera nasıl gezsin?"
+                className="border-line bg-panel-soft text-fg placeholder:text-fg-faint focus:border-brand mt-2.5 w-full rounded-lg border px-3 py-2 text-sm outline-none"
+              />
+
+              <button
+                type="button"
+                onClick={() => void generateVideo()}
+                disabled={vBusy || media.length < 1}
+                className="press border-line text-fg mt-2.5 w-full rounded-lg border py-2 text-sm font-semibold disabled:opacity-50"
+              >
+                {vBusy ? 'Gönderiliyor…' : 'AI tur videosu oluştur'}
+              </button>
+
+              {vJobs.length > 0 && (
+                <ul className="mt-3 space-y-1.5">
+                  {vJobs.map((j) => {
+                    const st = VIDEO_STATUS[j.status] ?? {
+                      label: j.status,
+                      color: 'var(--piyasa)',
+                    };
+                    return (
+                      <li
+                        key={j.id}
+                        className="bg-panel-soft flex items-center justify-between rounded-lg px-3 py-2 text-xs"
+                      >
+                        <span className="text-fg-dim">AI tur</span>
+                        <span
+                          className="rounded-full px-2 py-0.5 font-semibold text-white"
+                          style={{ background: st.color }}
+                        >
+                          {st.label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <p className="text-fg-faint mt-2 text-[11px]">
+                Not: video sağlayıcı henüz bağlı değil; iş akışı hazır, çıktı sağlayıcı eklenince
+                üretilecek. Üretilen videolar her zaman “temsilî” etiketlenir.
               </p>
             </div>
 

@@ -40,6 +40,12 @@ export const EnvSchema = z.object({
   THROTTLE_TTL_MS: z.coerce.number().int().positive().default(60_000),
   THROTTLE_LIMIT: z.coerce.number().int().positive().default(60),
   THROTTLE_LLM_LIMIT: z.coerce.number().int().positive().default(20),
+
+  // ── AI video (Faz 3) — sağlayıcı yoksa 'mock' (gerçek çıktı üretmez, akış çalışır).
+  VIDEO_PROVIDER: z.enum(['mock', 'veo', 'runway', 'kling']).default('mock'),
+  VIDEO_PROVIDER_API_KEY: z.string().optional(),
+  VIDEO_MAX_PER_USER_DAY: z.coerce.number().int().positive().default(3),
+  VIDEO_MAX_COST_USD_DAY: z.coerce.number().positive().default(5),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

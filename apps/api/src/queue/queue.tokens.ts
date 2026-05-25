@@ -9,8 +9,16 @@ export const Q = {
   TREND_DAILY: 'pusula.trend-daily',
   NOTIFICATION: 'pusula.notification',
   PARSE_TELEMETRY: 'pusula.parse-telemetry',
+  VIDEO_GENERATE: 'pusula.video-generate',
 } as const;
 export type QueueName = (typeof Q)[keyof typeof Q];
+
+/** AI video üretimi (Faz 3). Worker: provider.start→poll→media; mock anında tamamlar. */
+export const VideoGenerateJob = z.object({
+  job_id: z.string().uuid(),
+  trace_id: z.string().uuid().optional(),
+});
+export type VideoGenerateJob = z.infer<typeof VideoGenerateJob>;
 
 export const EnrichmentJob = z.object({
   ilan_id: z.string().uuid(),
