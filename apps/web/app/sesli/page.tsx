@@ -1,0 +1,403 @@
+'use client';
+
+import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { authedFetch, chatStream, fetchVoices, ttsSynthesize } from '../../lib/api';
+import {
+  getSpeechRecognition,
+  segmentSentences,
+  splitForSpeech,
+  type SRInstance,
+} from '../../lib/voice';
+
+type Status = 'idle' | 'listening' | 'thinking' | 'speaking';
+interface Msg {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+type ACtor = typeof AudioContext;
+function getAudioContext(): ACtor | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as { AudioContext?: ACtor; webkitAudioContext?: ACtor };
+  return w.AudioContext ?? w.webkitAudioContext ?? null;
+}
+
+export default function SesliPage(): ReactElement {
+  const [status, setStatus] = useState<Status>('idle');
+  const [level, setLevel] = useState(0);
+  const [userText, setUserText] = useState('');
+  const [replyText, setReplyText] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+
+  const historyRef = useRef<Msg[]>([]);
+  const recognitionRef = useRef<SRInstance | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const voiceRef = useRef('');
+
+  // TTS kuyruğu (epoch korumalı; sıradakini çalarken sentezler).
+  const ttsQueueRef = useRef<string[]>([]);
+  const ttsRunningRef = useRef(false);
+  const ttsEpochRef = useRef(0);
+  const playerRef = useRef<HTMLAudioElement | null>(null);
+
+  // Bağlam: kullanıcının ilanları + ses-dostu sistem promptu.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      let ilanlar: unknown = [];
+      try {
+        ilanlar = await authedFetch<unknown>('/v1/ilanlar');
+      } catch {
+        ilanlar = [];
+      }
+      const sys: Msg = {
+        role: 'system',
+        content: [
+          "Sen Pusula'nın sesli emlak danışmanısın. Sesli yanıta uygun konuş: KISA, sohbet dilinde,",
+          'madde işareti/markdown yok, en fazla 2-3 cümle. Kullanıcının ilanları aşağıdaki JSON’da;',
+          'karşılaştır, öneride bulun, soruları yanıtla. Skoru DEĞİŞTİRME, yalnız yorumla.',
+          '',
+          `İLANLAR (JSON): ${JSON.stringify(ilanlar)}`,
+        ].join('\n'),
+      };
+      if (!alive) return;
+      historyRef.current = [sys];
+      setReady(true);
+    })();
+    fetchVoices()
+      .then((vs) => {
+        if (alive && vs.length) voiceRef.current = vs[0]!.id;
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const stopAnalyser = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    micStreamRef.current?.getTracks().forEach((t) => t.stop());
+    micStreamRef.current = null;
+    void audioCtxRef.current?.close().catch(() => undefined);
+    audioCtxRef.current = null;
+    setLevel(0);
+  }, []);
+
+  const stopSpeech = useCallback(() => {
+    ttsEpochRef.current++;
+    ttsQueueRef.current = [];
+    ttsRunningRef.current = false;
+    playerRef.current?.pause();
+    playerRef.current = null;
+  }, []);
+
+  // ── TTS kuyruğu ──
+  const playBlob = useCallback((blob: Blob): Promise<void> => {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      let settled = false;
+      const done = () => {
+        if (settled) return;
+        settled = true;
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      audio.onended = done;
+      audio.onerror = done;
+      audio.onpause = done;
+      playerRef.current = audio;
+      void audio.play().catch(done);
+    });
+  }, []);
+
+  const runQueue = useCallback(async () => {
+    const myEpoch = ttsEpochRef.current;
+    const alive = () => myEpoch === ttsEpochRef.current;
+    ttsRunningRef.current = true;
+    const synth = (t: string) => ttsSynthesize(t, voiceRef.current || undefined).catch(() => null);
+    let pending: Promise<Blob | null> | null = null;
+    try {
+      while (alive() && (ttsQueueRef.current.length > 0 || pending)) {
+        let blob: Blob | null;
+        if (pending) {
+          blob = await pending;
+          pending = null;
+        } else {
+          blob = await synth(ttsQueueRef.current.shift()!);
+        }
+        if (alive() && ttsQueueRef.current.length > 0)
+          pending = synth(ttsQueueRef.current.shift()!);
+        if (!alive()) break;
+        if (blob) await playBlob(blob);
+      }
+    } finally {
+      if (alive()) {
+        ttsRunningRef.current = false;
+        setStatus((s) => (s === 'speaking' ? 'idle' : s));
+      }
+    }
+  }, [playBlob]);
+
+  const enqueueSpeech = useCallback(
+    (text: string) => {
+      const t = text.trim();
+      if (!t) return;
+      ttsQueueRef.current.push(t);
+      if (!ttsRunningRef.current) void runQueue();
+    },
+    [runQueue],
+  );
+
+  // ── LLM yanıtı ──
+  const handleUtterance = useCallback(
+    async (text: string) => {
+      const q = text.trim();
+      if (!q) {
+        setStatus('idle');
+        return;
+      }
+      setUserText(q);
+      setReplyText('');
+      setStatus('thinking');
+      historyRef.current.push({ role: 'user', content: q });
+      const msgs = historyRef.current.slice(-21); // system + son 20
+      const body = { messages: msgs, options: { taskType: 'quick-chat' as const } };
+
+      let acc = '';
+      let spoken = 0;
+      try {
+        await chatStream(body, (delta) => {
+          acc += delta;
+          setReplyText(acc);
+          setStatus('speaking');
+          const { sentences, rest } = segmentSentences(acc.slice(spoken));
+          if (sentences.length) {
+            sentences.forEach(enqueueSpeech);
+            spoken = acc.length - rest.length;
+          }
+        });
+        const tail = acc.slice(spoken).trim();
+        if (tail) enqueueSpeech(tail);
+        if (!acc.trim()) throw new Error('empty');
+        historyRef.current.push({ role: 'assistant', content: acc });
+        if (!ttsRunningRef.current) setStatus('idle');
+      } catch {
+        // Fallback: non-streaming.
+        try {
+          const resp = await authedFetch<{ text: string }>('/v1/llm/chat', {
+            method: 'POST',
+            body: JSON.stringify(body),
+          });
+          acc = resp.text ?? '';
+          setReplyText(acc);
+          historyRef.current.push({ role: 'assistant', content: acc });
+          if (acc.trim()) {
+            setStatus('speaking');
+            splitForSpeech(acc).forEach(enqueueSpeech);
+          } else {
+            setStatus('idle');
+          }
+        } catch (e) {
+          setError((e as Error).message);
+          setStatus('idle');
+        }
+      }
+    },
+    [enqueueSpeech],
+  );
+
+  // ── Dinleme (canlı dikte + mic seviyesi) ──
+  const startListening = useCallback(async () => {
+    setError(null);
+    stopSpeech();
+    setUserText('');
+    setReplyText('');
+
+    // Mic seviyesi → orb ölçeği (analiz için ayrı stream).
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+      const AC = getAudioContext();
+      if (AC) {
+        const ctx = new AC();
+        audioCtxRef.current = ctx;
+        const src = ctx.createMediaStreamSource(stream);
+        const an = ctx.createAnalyser();
+        an.fftSize = 256;
+        src.connect(an);
+        const data = new Uint8Array(an.frequencyBinCount);
+        const loop = () => {
+          an.getByteTimeDomainData(data);
+          let sum = 0;
+          for (const sample of data) {
+            const v = (sample - 128) / 128;
+            sum += v * v;
+          }
+          const rms = Math.sqrt(sum / data.length);
+          setLevel(Math.min(1, rms * 3));
+          rafRef.current = requestAnimationFrame(loop);
+        };
+        loop();
+      }
+    } catch {
+      setError('Mikrofona erişilemedi (izin gerekli).');
+      return;
+    }
+
+    const SR = getSpeechRecognition();
+    if (!SR) {
+      setError('Tarayıcın canlı sesi desteklemiyor. Chrome/Edge öner.');
+      stopAnalyser();
+      return;
+    }
+    const rec = new SR();
+    rec.lang = 'tr-TR';
+    rec.interimResults = true;
+    rec.continuous = true;
+    rec.maxAlternatives = 1;
+    let finalText = '';
+    rec.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i];
+        const t = r?.[0]?.transcript ?? '';
+        if (r?.isFinal) finalText += `${t} `;
+        else interim += t;
+      }
+      setUserText((finalText + interim).trimStart());
+    };
+    rec.onerror = (ev) => {
+      if (ev?.error === 'not-allowed' || ev?.error === 'service-not-allowed') {
+        setError('Mikrofona erişilemedi (izin gerekli).');
+      }
+    };
+    rec.onend = () => {
+      recognitionRef.current = null;
+      stopAnalyser();
+      const t = finalText.trim();
+      if (t) void handleUtterance(t);
+      else setStatus('idle');
+    };
+    recognitionRef.current = rec;
+    rec.start();
+    setStatus('listening');
+  }, [handleUtterance, stopAnalyser, stopSpeech]);
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop();
+  }, []);
+
+  const toggle = useCallback(() => {
+    if (status === 'listening') stopListening();
+    else if (status === 'speaking' || status === 'thinking') {
+      stopSpeech();
+      stopAnalyser();
+      setStatus('idle');
+    } else void startListening();
+  }, [status, startListening, stopListening, stopSpeech, stopAnalyser]);
+
+  // Space ile aç/kapat.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !(e.target as HTMLElement)?.closest('input,textarea')) {
+        e.preventDefault();
+        toggle();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [toggle]);
+
+  // Unmount temizliği.
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort?.();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      micStreamRef.current?.getTracks().forEach((t) => t.stop());
+      void audioCtxRef.current?.close().catch(() => undefined);
+      ttsEpochRef.current++;
+      playerRef.current?.pause();
+    };
+  }, []);
+
+  const reactiveScale = status === 'listening' || status === 'speaking' ? 1 + level * 0.4 : 1;
+  const statusLabel: Record<Status, string> = {
+    idle: 'Dokun ve konuş',
+    listening: 'Dinliyorum…',
+    thinking: 'Düşünüyor…',
+    speaking: 'Yanıtlıyor…',
+  };
+
+  return (
+    <main className="bg-navy-deep text-cream relative flex h-[100dvh] w-full flex-col items-center justify-between overflow-hidden px-6 py-8">
+      <div className="flex w-full max-w-2xl items-center justify-between">
+        <Link href="/dashboard" className="text-cream/70 hover:text-cream text-sm">
+          ← Panel
+        </Link>
+        <span className="eyebrow !text-cream/60">
+          <span className="dot" /> Sesli mod
+        </span>
+        <Link href="/kesfet" className="text-cream/70 hover:text-cream text-sm">
+          Keşfet
+        </Link>
+      </div>
+
+      {/* Orb */}
+      <div className="flex flex-1 flex-col items-center justify-center gap-10">
+        <div
+          className={`relative grid place-items-center ${status === 'listening' ? 'orb-listening' : ''}`}
+        >
+          <span className="orb-ring" />
+          <span className="orb-ring" />
+          <span className="orb-ring" />
+          <div
+            className={`orb ${
+              status === 'idle'
+                ? 'orb-idle'
+                : status === 'thinking'
+                  ? 'orb-thinking'
+                  : status === 'speaking'
+                    ? 'orb-speaking'
+                    : ''
+            }`}
+            style={{ transform: `scale(${reactiveScale})` }}
+          />
+        </div>
+        <div className="text-center">
+          <div className="text-cream font-serif text-2xl">{statusLabel[status]}</div>
+          {!ready && <div className="text-cream/50 mt-1 text-xs">Hazırlanıyor…</div>}
+        </div>
+      </div>
+
+      {/* Transcript */}
+      <div className="min-h-[5rem] w-full max-w-2xl space-y-2 text-center">
+        {userText && <p className="text-cream/70 text-sm">“{userText}”</p>}
+        {replyText && <p className="text-cream">{replyText}</p>}
+        {error && <p className="text-band-pahali text-sm">{error}</p>}
+      </div>
+
+      {/* Mic kontrol */}
+      <div className="flex flex-col items-center gap-3 pb-2">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={status === 'listening' ? 'Durdur' : 'Konuş'}
+          className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl transition-colors ${
+            status === 'listening'
+              ? 'bg-band-asiri text-cream animate-pulse'
+              : 'bg-gold text-navy hover:bg-gold-hi'
+          }`}
+        >
+          {status === 'listening' ? '■' : '🎤'}
+        </button>
+        <span className="text-cream/50 text-xs">Boşluk tuşu ile aç/kapat</span>
+      </div>
+    </main>
+  );
+}

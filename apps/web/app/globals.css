@@ -187,3 +187,71 @@ em.gold {
   margin: 0;
   border: 0;
 }
+
+/* ─── Sesli mod orb (ChatGPT/Gemini tarzı yuvarlak daire) ─── */
+.orb {
+  width: clamp(180px, 42vw, 300px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--gold-hi) 0%,
+    var(--gold) 38%,
+    var(--navy-soft) 100%
+  );
+  box-shadow:
+    0 0 90px var(--gold-glow),
+    0 0 40px rgba(201, 149, 42, 0.25),
+    inset 0 0 70px rgba(255, 255, 255, 0.22);
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+.orb-idle {
+  animation: orb-breathe 4.5s ease-in-out infinite;
+}
+.orb-thinking {
+  animation: orb-spin 1.8s linear infinite;
+}
+.orb-speaking {
+  animation: orb-breathe 1.1s ease-in-out infinite;
+}
+@keyframes orb-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+@keyframes orb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.orb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  inset: -6%;
+  opacity: 0;
+}
+.orb-listening .orb-ring {
+  animation: orb-ripple 1.6s ease-out infinite;
+}
+.orb-listening .orb-ring:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.orb-listening .orb-ring:nth-child(3) {
+  animation-delay: 1s;
+}
+@keyframes orb-ripple {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
