@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panel — Pusula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* Panel-specific layout */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.panel-toolbar {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px;
+  flex-wrap: wrap;
+}
+.dash-foot {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 14px;
+}
+.compare-bar {
+  position: sticky; bottom: 16px;
+  background: var(--navy);
+  color: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 16px 40px -16px rgba(10,23,54,.6);
+  margin-top: 24px;
+}
+.compare-bar .ttl {
+  font-family: var(--serif);
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.compare-bar .grow { flex: 1; }
+.compare-bar .avs {
+  display: flex; margin-right: 8px;
+}
+.compare-bar .avs span {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--navy);
+  background: var(--gold);
+  color: var(--navy);
+  display: grid; place-items: center;
+  font-family: var(--serif);
+  font-size: 14px;
+  margin-left: -8px;
+}
+.compare-bar .avs span:first-child { margin-left: 0; }
+
+/* Mini sparkline */
+.spark {
+  display: flex; align-items: end;
+  gap: 2px;
+  height: 24px;
+  margin-top: 6px;
+}
+.spark i {
+  flex: 1;
+  background: var(--gold);
+  opacity: 0.4;
+  min-width: 2px;
+  border-radius: 1px;
+}
+.spark i.active { background: var(--gold); opacity: 1; }
+
+/* Compact 8-pillar dots on ilan card */
+.ilan-pillars {
+  display: flex; gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--hairline);
+}
+.ilan-pillars .pdot {
+  flex: 1;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--hairline);
+  position: relative;
+  cursor: help;
+}
+.ilan-pillars .pdot i {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+}
+.ilan-pillars .pdot.fiyat    i { background: var(--p-fiyat); }
+.ilan-pillars .pdot.kalite   i { background: var(--p-kalite); }
+.ilan-pillars .pdot.konum    i { background: var(--p-konum); }
+.ilan-pillars .pdot.risk     i { background: var(--p-risk); }
+.ilan-pillars .pdot.vision   i { background: var(--p-vision); }
+.ilan-pillars .pdot.nlp      i { background: var(--p-nlp); }
+.ilan-pillars .pdot.pazar    i { background: var(--p-pazar); }
+.ilan-pillars .pdot.finansal i { background: var(--p-finansal); }
+
+@media (max-width: 1280px) {
+  .panel-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .panel-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body data-screen-label="02 Panel">
+
+<!-- ─────────── NAV ─────────── -->
+<header class="nav app">
+  <div class="shell nav-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Pusula</span>
+    </a>
+    <div class="nav-search">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M10 10L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span>İlan, mahalle veya URL ara…</span>
+      <span class="key">⌘ K</span>
+    </div>
+    <div class="nav-cta">
+      <button class="btn btn-ghost btn-sm">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M4 12l2-2M10 6l2-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        2 uyarı
+      </button>
+      <div class="nav-user">
+        <div class="av">M</div>
+        <span>Mehmet D.</span>
+        <span class="chev">▾</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ─────────── APP SHELL ─────────── -->
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h4>Genel</h4>
+    <a href="panel.html" class="sb-item active">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+          <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+          <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+          <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+      </span>
+      Panel
+    </a>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 13L6 9L9 12L14 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 5h4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Pazar analizi
+    </a>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 14C8 14 13 10 13 6.5C13 4 11 2 8 2C5 2 3 4 3 6.5C3 10 8 14 8 14Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+          <circle cx="8" cy="6.5" r="1.5" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+      </span>
+      Harita
+    </a>
+
+    <h4>İlanlar</h4>
+    <a href="ilan.html" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 6L8 2L14 6V14H10V10H6V14H2V6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Tüm ilanlar <span class="count">1.284</span>
+    </a>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L9.8 6L14 6.5L11 9.5L11.8 14L8 12L4.2 14L5 9.5L2 6.5L6.2 6L8 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Favoriler <span class="count">28</span>
+    </a>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </span>
+      Karşılaştırmalar <span class="count">7</span>
+    </a>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 13V3M3 3L7 7M3 3L11 3M11 3V13M11 13L7 9M11 13L3 13" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Pazarlık akışı <span class="count">3</span>
+    </a>
+
+    <h4>AI</h4>
+    <a href="asistan.html" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M2 4C2 2.9 2.9 2 4 2H12C13.1 2 14 2.9 14 4V10C14 11.1 13.1 12 12 12H6L3 14V4Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      Chat asistanı
+    </a>
+    <a href="sesli.html" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="6" y="2" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M3 8C3 10.8 5.2 13 8 13C10.8 13 13 10.8 13 8M8 13V15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </span>
+      Sesli mod
+    </a>
+
+    <h4>Hesap</h4>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M2 14C2 11 5 9 8 9C11 9 14 11 14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </span>
+      Ayarlar
+    </a>
+    <a href="#" class="sb-item">
+      <span class="ico">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="3" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M2 6h12" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+      </span>
+      Faturalandırma
+    </a>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-head">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> İlanlarım</span>
+        <h1>Panel</h1>
+        <div class="sub">
+          <b>1.284</b> analiz · son senkron <b>14:02</b> · ortalama skor <b>62</b>/100
+        </div>
+      </div>
+      <div class="row gap-2 center">
+        <button class="btn btn-ghost btn-sm">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7L7 12L12 7M7 12V2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Dışa aktar
+        </button>
+        <button class="btn btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          İlan ekle
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="k-lbl">Toplam Analiz</div>
+        <div class="k-val">1.284</div>
+        <div class="k-trend">↗ +47 son 7g</div>
+        <div class="spark">
+          <i style="height: 30%"></i><i style="height: 45%"></i><i style="height: 38%"></i>
+          <i style="height: 52%"></i><i style="height: 48%"></i><i style="height: 65%"></i>
+          <i class="active" style="height: 85%"></i>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="k-lbl">Ortalama Skor</div>
+        <div class="k-val">62<span class="small">/100</span></div>
+        <div class="k-trend">↗ +3 son 7g</div>
+        <div class="spark">
+          <i style="height: 50%"></i><i style="height: 48%"></i><i style="height: 55%"></i>
+          <i style="height: 52%"></i><i style="height: 58%"></i><i style="height: 60%"></i>
+          <i class="active" style="height: 72%"></i>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="k-lbl">Kaçırılmaz İlanlar</div>
+        <div class="k-val">28</div>
+        <div class="k-trend">↗ +6 son 7g</div>
+        <div class="spark">
+          <i style="height: 25%"></i><i style="height: 35%"></i><i style="height: 40%"></i>
+          <i style="height: 38%"></i><i style="height: 55%"></i><i style="height: 60%"></i>
+          <i class="active" style="height: 78%"></i>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="k-lbl">Pazarlık Potansiyel</div>
+        <div class="k-val">₺4.2<span class="small">M</span></div>
+        <div class="k-trend flat">— sabit</div>
+        <div class="spark">
+          <i style="height: 60%"></i><i style="height: 55%"></i><i style="height: 62%"></i>
+          <i style="height: 58%"></i><i style="height: 60%"></i><i style="height: 58%"></i>
+          <i class="active" style="height: 60%"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="panel-toolbar">
+      <div class="tabs">
+        <button class="tab active">Tümü <span class="count">1284</span></button>
+        <button class="tab">Konut <span class="count">842</span></button>
+        <button class="tab">Arsa <span class="count">316</span></button>
+        <button class="tab">Oto <span class="count">126</span></button>
+        <button class="tab">★ Favoriler <span class="count">28</span></button>
+      </div>
+      <div class="grow"></div>
+      <div class="row gap-2 center">
+        <span class="chip active">Kelepir+ <span class="x">×</span></span>
+        <span class="chip active">Marmara <span class="x">×</span></span>
+        <span class="chip active">Yüksek güven <span class="x">×</span></span>
+        <span class="chip">+ Filtre</span>
+      </div>
+      <select class="select" style="width: auto;">
+        <option>Skor (yüksek → düşük)</option>
+        <option>Yeni eklenen</option>
+        <option>Fiyat (düşük → yüksek)</option>
+        <option>Piyasa sapması</option>
+        <option>Pazarlık potansiyeli</option>
+      </select>
+    </div>
+
+    <!-- LISTING GRID -->
+    <div class="panel-grid">
+      <!-- 1 -->
+      <article class="ilan">
+        <div class="ilan-img t1">
+          <span class="ilan-tag">Arsa</span>
+          <div class="ilan-score-pill kacirilmaz">
+            <span class="n">86</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band kacirilmaz" style="margin-bottom: 10px;">Kaçırılmaz</span>
+          <h4 class="ilan-title">Mudanya Bademli denize bakan 1.842 m² parsel</h4>
+          <div class="ilan-loc">Bursa · Mudanya · Bademli</div>
+          <div class="ilan-meta-row">
+            <span><b>1.842</b> m²</span><span>E:<b>0.30</b></span><span><b>147</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">4,25 M ₺</div>
+            <div class="ilan-piyasa"><b>−%28</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars" title="8 pilar skoru">
+            <div class="pdot fiyat"    title="Fiyat 91"><i style="height:91%"></i></div>
+            <div class="pdot kalite"   title="Kalite 78"><i style="height:78%"></i></div>
+            <div class="pdot konum"    title="Konum 84"><i style="height:84%"></i></div>
+            <div class="pdot risk"     title="Risk 71"><i style="height:71%"></i></div>
+            <div class="pdot vision"   title="Vision 80"><i style="height:80%"></i></div>
+            <div class="pdot nlp"      title="NLP 68"><i style="height:68%"></i></div>
+            <div class="pdot pazar"    title="Pazar 92"><i style="height:92%"></i></div>
+            <div class="pdot finansal" title="Finansal 82"><i style="height:82%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 2 -->
+      <article class="ilan">
+        <div class="ilan-img t2">
+          <span class="ilan-tag">Konut · 3+1</span>
+          <div class="ilan-score-pill kelepir">
+            <span class="n">79</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band kelepir" style="margin-bottom: 10px;">Kelepir</span>
+          <h4 class="ilan-title">Bebek sahile 180m, 2018 yapı, çelik konstr.</h4>
+          <div class="ilan-loc">İstanbul · Beşiktaş · Bebek</div>
+          <div class="ilan-meta-row">
+            <span><b>165</b> m²</span><span><b>2018</b></span><span><b>124</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">18,5 M ₺</div>
+            <div class="ilan-piyasa"><b>−%19</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:85%"></i></div>
+            <div class="pdot kalite"><i style="height:82%"></i></div>
+            <div class="pdot konum"><i style="height:94%"></i></div>
+            <div class="pdot risk"><i style="height:68%"></i></div>
+            <div class="pdot vision"><i style="height:77%"></i></div>
+            <div class="pdot nlp"><i style="height:71%"></i></div>
+            <div class="pdot pazar"><i style="height:85%"></i></div>
+            <div class="pdot finansal"><i style="height:79%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3 -->
+      <article class="ilan">
+        <div class="ilan-img t3">
+          <span class="ilan-tag">Arsa · İmarlı</span>
+          <div class="ilan-score-pill iyi">
+            <span class="n">68</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band iyi" style="margin-bottom: 10px;">İyi Fiyat</span>
+          <h4 class="ilan-title">Çeşme Ildırı taş ev yapılabilir 980 m²</h4>
+          <div class="ilan-loc">İzmir · Çeşme · Ildırı</div>
+          <div class="ilan-meta-row">
+            <span><b>980</b> m²</span><span>E:<b>0.20</b></span><span><b>34</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">6,80 M ₺</div>
+            <div class="ilan-piyasa"><b>−%11</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:72%"></i></div>
+            <div class="pdot kalite"><i style="height:68%"></i></div>
+            <div class="pdot konum"><i style="height:80%"></i></div>
+            <div class="pdot risk"><i style="height:55%"></i></div>
+            <div class="pdot vision"><i style="height:62%"></i></div>
+            <div class="pdot nlp"><i style="height:58%"></i></div>
+            <div class="pdot pazar"><i style="height:65%"></i></div>
+            <div class="pdot finansal"><i style="height:70%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4 -->
+      <article class="ilan">
+        <div class="ilan-img t4">
+          <span class="ilan-tag">Konut · 2+1</span>
+          <div class="ilan-score-pill iyi">
+            <span class="n">65</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band iyi" style="margin-bottom: 10px;">İyi Fiyat</span>
+          <h4 class="ilan-title">Cihangir restorasyonlu Levanten apt., 110 m²</h4>
+          <div class="ilan-loc">İstanbul · Beyoğlu · Cihangir</div>
+          <div class="ilan-meta-row">
+            <span><b>110</b> m²</span><span><b>1932</b></span><span><b>89</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">7,90 M ₺</div>
+            <div class="ilan-piyasa"><b>−%7</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:62%"></i></div>
+            <div class="pdot kalite"><i style="height:55%"></i></div>
+            <div class="pdot konum"><i style="height:88%"></i></div>
+            <div class="pdot risk"><i style="height:40%"></i></div>
+            <div class="pdot vision"><i style="height:82%"></i></div>
+            <div class="pdot nlp"><i style="height:74%"></i></div>
+            <div class="pdot pazar"><i style="height:62%"></i></div>
+            <div class="pdot finansal"><i style="height:55%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 5 -->
+      <article class="ilan">
+        <div class="ilan-img t5">
+          <span class="ilan-tag">Konut · 4+1</span>
+          <div class="ilan-score-pill iyi">
+            <span class="n">62</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band iyi" style="margin-bottom: 10px;">İyi Fiyat</span>
+          <h4 class="ilan-title">Ataşehir Barbaros, site içi, 2014 yapı</h4>
+          <div class="ilan-loc">İstanbul · Ataşehir · Barbaros</div>
+          <div class="ilan-meta-row">
+            <span><b>180</b> m²</span><span><b>2014</b></span><span><b>156</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">14,2 M ₺</div>
+            <div class="ilan-piyasa"><b>−%6</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:58%"></i></div>
+            <div class="pdot kalite"><i style="height:75%"></i></div>
+            <div class="pdot konum"><i style="height:70%"></i></div>
+            <div class="pdot risk"><i style="height:62%"></i></div>
+            <div class="pdot vision"><i style="height:68%"></i></div>
+            <div class="pdot nlp"><i style="height:60%"></i></div>
+            <div class="pdot pazar"><i style="height:55%"></i></div>
+            <div class="pdot finansal"><i style="height:65%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 6 -->
+      <article class="ilan">
+        <div class="ilan-img t6">
+          <span class="ilan-tag">Arsa · Bağ</span>
+          <div class="ilan-score-pill piyasa">
+            <span class="n">54</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band piyasa" style="margin-bottom: 10px;">Piyasa</span>
+          <h4 class="ilan-title">Urla Zeytinler 4.200 m² zeytinlikli arazi</h4>
+          <div class="ilan-loc">İzmir · Urla · Zeytinalanı</div>
+          <div class="ilan-meta-row">
+            <span><b>4.200</b> m²</span><span>Bağ</span><span><b>22</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">3,15 M ₺</div>
+            <div class="ilan-piyasa"><b class="flat">±%2</b>piyasa</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:50%"></i></div>
+            <div class="pdot kalite"><i style="height:48%"></i></div>
+            <div class="pdot konum"><i style="height:60%"></i></div>
+            <div class="pdot risk"><i style="height:72%"></i></div>
+            <div class="pdot vision"><i style="height:55%"></i></div>
+            <div class="pdot nlp"><i style="height:45%"></i></div>
+            <div class="pdot pazar"><i style="height:48%"></i></div>
+            <div class="pdot finansal"><i style="height:60%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 7 -->
+      <article class="ilan">
+        <div class="ilan-img t7">
+          <span class="ilan-tag">Konut · 1+1</span>
+          <div class="ilan-score-pill piyasa">
+            <span class="n">48</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band piyasa" style="margin-bottom: 10px;">Piyasa</span>
+          <h4 class="ilan-title">Kadıköy Caferağa metroya 320 m, 1+1 stüdyo</h4>
+          <div class="ilan-loc">İstanbul · Kadıköy · Caferağa</div>
+          <div class="ilan-meta-row">
+            <span><b>62</b> m²</span><span><b>2008</b></span><span><b>198</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">3,40 M ₺</div>
+            <div class="ilan-piyasa"><b class="flat">±%1</b>piyasa</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:45%"></i></div>
+            <div class="pdot kalite"><i style="height:58%"></i></div>
+            <div class="pdot konum"><i style="height:88%"></i></div>
+            <div class="pdot risk"><i style="height:55%"></i></div>
+            <div class="pdot vision"><i style="height:42%"></i></div>
+            <div class="pdot nlp"><i style="height:38%"></i></div>
+            <div class="pdot pazar"><i style="height:50%"></i></div>
+            <div class="pdot finansal"><i style="height:52%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 8 -->
+      <article class="ilan">
+        <div class="ilan-img t8">
+          <span class="ilan-tag">Konut · Villa</span>
+          <div class="ilan-score-pill pahali">
+            <span class="n">38</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band pahali" style="margin-bottom: 10px;">Pahalı</span>
+          <h4 class="ilan-title">Sapanca göl manzaralı 5+2 villa, 380 m²</h4>
+          <div class="ilan-loc">Sakarya · Sapanca · Kırkpınar</div>
+          <div class="ilan-meta-row">
+            <span><b>380</b> m²</span><span><b>2021</b></span><span><b>18</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">28,4 M ₺</div>
+            <div class="ilan-piyasa"><b class="up">+%22</b>piyasa üstü</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:25%"></i></div>
+            <div class="pdot kalite"><i style="height:72%"></i></div>
+            <div class="pdot konum"><i style="height:62%"></i></div>
+            <div class="pdot risk"><i style="height:48%"></i></div>
+            <div class="pdot vision"><i style="height:78%"></i></div>
+            <div class="pdot nlp"><i style="height:32%"></i></div>
+            <div class="pdot pazar"><i style="height:30%"></i></div>
+            <div class="pdot finansal"><i style="height:25%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 9 -->
+      <article class="ilan">
+        <div class="ilan-img t9">
+          <span class="ilan-tag">Oto · BMW</span>
+          <div class="ilan-score-pill kelepir">
+            <span class="n">74</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band kelepir" style="margin-bottom: 10px;">Kelepir</span>
+          <h4 class="ilan-title">2020 BMW 320d Luxury Line, 78.000 km</h4>
+          <div class="ilan-loc">İstanbul · Şişli · sahibinden</div>
+          <div class="ilan-meta-row">
+            <span><b>78K</b> km</span><span><b>2020</b></span><span><b>41</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">1,89 M ₺</div>
+            <div class="ilan-piyasa"><b>−%14</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:82%"></i></div>
+            <div class="pdot kalite"><i style="height:72%"></i></div>
+            <div class="pdot konum"><i style="height:0%; opacity:0.3"></i></div>
+            <div class="pdot risk"><i style="height:75%"></i></div>
+            <div class="pdot vision"><i style="height:68%"></i></div>
+            <div class="pdot nlp"><i style="height:65%"></i></div>
+            <div class="pdot pazar"><i style="height:78%"></i></div>
+            <div class="pdot finansal"><i style="height:72%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 10 -->
+      <article class="ilan">
+        <div class="ilan-img t1">
+          <span class="ilan-tag">Arsa · Tarla</span>
+          <div class="ilan-score-pill asiri">
+            <span class="n">18</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band asiri" style="margin-bottom: 10px;">Aşırı Pahalı</span>
+          <h4 class="ilan-title">Tekirdağ hisseli tarla — tapuda 1/24 pay</h4>
+          <div class="ilan-loc">Tekirdağ · Şarköy · Yörgüç</div>
+          <div class="ilan-meta-row">
+            <span><b>12.400</b> m²</span><span>Hisseli</span><span><b>4</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">2,10 M ₺</div>
+            <div class="ilan-piyasa"><b class="up">+%48</b>piyasa üstü</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:8%"></i></div>
+            <div class="pdot kalite"><i style="height:0%; opacity:0.3"></i></div>
+            <div class="pdot konum"><i style="height:30%"></i></div>
+            <div class="pdot risk"><i style="height:15%"></i></div>
+            <div class="pdot vision"><i style="height:20%"></i></div>
+            <div class="pdot nlp"><i style="height:18%"></i></div>
+            <div class="pdot pazar"><i style="height:25%"></i></div>
+            <div class="pdot finansal"><i style="height:12%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 11 -->
+      <article class="ilan">
+        <div class="ilan-img t2">
+          <span class="ilan-tag">Konut · 2+1</span>
+          <div class="ilan-score-pill kelepir">
+            <span class="n">71</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band kelepir" style="margin-bottom: 10px;">Kelepir</span>
+          <h4 class="ilan-title">Bakırköy Yeşilköy, metroya 480m, 2017 yapı</h4>
+          <div class="ilan-loc">İstanbul · Bakırköy · Yeşilköy</div>
+          <div class="ilan-meta-row">
+            <span><b>95</b> m²</span><span><b>2017</b></span><span><b>76</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">5,60 M ₺</div>
+            <div class="ilan-piyasa"><b>−%15</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:75%"></i></div>
+            <div class="pdot kalite"><i style="height:72%"></i></div>
+            <div class="pdot konum"><i style="height:82%"></i></div>
+            <div class="pdot risk"><i style="height:65%"></i></div>
+            <div class="pdot vision"><i style="height:70%"></i></div>
+            <div class="pdot nlp"><i style="height:62%"></i></div>
+            <div class="pdot pazar"><i style="height:74%"></i></div>
+            <div class="pdot finansal"><i style="height:78%"></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 12 -->
+      <article class="ilan">
+        <div class="ilan-img t4">
+          <span class="ilan-tag">Konut · 3+1</span>
+          <div class="ilan-score-pill iyi">
+            <span class="n">58</span>
+            <span class="lbl">Skor</span>
+          </div>
+        </div>
+        <div class="ilan-body">
+          <span class="band iyi" style="margin-bottom: 10px;">İyi Fiyat</span>
+          <h4 class="ilan-title">Beylikdüzü Cumhuriyet, deniz manzaralı 8. kat</h4>
+          <div class="ilan-loc">İstanbul · Beylikdüzü · Cumhuriyet</div>
+          <div class="ilan-meta-row">
+            <span><b>145</b> m²</span><span><b>2016</b></span><span><b>132</b> comp.</span>
+          </div>
+          <div class="ilan-row">
+            <div class="ilan-price">6,40 M ₺</div>
+            <div class="ilan-piyasa"><b>−%8</b>piyasa altı</div>
+          </div>
+          <div class="ilan-pillars">
+            <div class="pdot fiyat"><i style="height:60%"></i></div>
+            <div class="pdot kalite"><i style="height:65%"></i></div>
+            <div class="pdot konum"><i style="height:55%"></i></div>
+            <div class="pdot risk"><i style="height:50%"></i></div>
+            <div class="pdot vision"><i style="height:72%"></i></div>
+            <div class="pdot nlp"><i style="height:58%"></i></div>
+            <div class="pdot pazar"><i style="height:60%"></i></div>
+            <div class="pdot finansal"><i style="height:55%"></i></div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- COMPARE BAR -->
+    <div class="compare-bar">
+      <div class="avs">
+        <span>1</span><span>2</span><span>3</span>
+      </div>
+      <div class="ttl">3 ilan karşılaştırma için seçildi</div>
+      <div class="grow"></div>
+      <button class="btn btn-ghost btn-sm" style="border-color: rgba(241,233,210,.3); color: var(--cream);">Temizle</button>
+      <a href="ilan.html" class="btn btn-gold btn-sm">Karşılaştır <span class="arrow">→</span></a>
+    </div>
+
+    <!-- ADVANCED PAGINATION -->
+    <div class="dash-foot">
+      <div class="pager-info"><b>1–12</b> arası gösteriliyor · toplam <b>1.284</b> ilan · 54 sayfa</div>
+      <div class="row center gap-4">
+        <div class="pager-size">
+          <span>Sayfa başına</span>
+          <select class="select">
+            <option>12</option>
+            <option>24</option>
+            <option>48</option>
+            <option>96</option>
+          </select>
+        </div>
+        <div class="pager">
+          <button class="icon" disabled aria-label="İlk">⇤</button>
+          <button class="icon" disabled aria-label="Önceki">←</button>
+          <button class="active">1</button>
+          <button>2</button>
+          <button>3</button>
+          <button>4</button>
+          <button>5</button>
+          <span class="dots">…</span>
+          <button>54</button>
+          <button class="icon" aria-label="Sonraki">→</button>
+          <button class="icon" aria-label="Son">⇥</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ─────────── TWEAKS ─────────── -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+
+<script>
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('.tabs .tab');
+  if (tab) {
+    tab.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  }
+  const pg = e.target.closest('.pager button:not(.icon):not([disabled])');
+  if (pg) {
+    pg.closest('.pager').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    pg.classList.add('active');
+  }
+});
+</script>
+</body>
+</html>

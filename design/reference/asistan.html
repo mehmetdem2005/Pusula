@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Asistan — Pusula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+body { background: var(--paper); overflow: hidden; }
+
+.chat-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr 340px;
+  height: calc(100vh - 72px);
+}
+
+/* ─── Conversation sidebar ─── */
+.cv-sidebar {
+  background: var(--paper);
+  border-right: 1px solid var(--hairline);
+  padding: 20px 14px;
+  display: flex; flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+.cv-new {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  background: var(--navy);
+  color: var(--cream);
+  border: 0;
+  border-radius: 10px;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background .15s;
+}
+.cv-new:hover { background: var(--navy-soft); }
+.cv-new::before {
+  content: "+";
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 0.8;
+  color: var(--gold-hi);
+  margin-right: 4px;
+}
+.cv-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.cv-search input {
+  background: transparent; border: 0; outline: 0;
+  flex: 1;
+  color: var(--ink);
+  font-size: 12.5px;
+}
+.cv-search input::placeholder { color: var(--muted); }
+
+.cv-group-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 12px 12px 6px;
+}
+.cv-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.cv-item:hover { background: rgba(10,23,54,.04); }
+.cv-item.active {
+  background: var(--surface);
+  border-color: var(--hairline);
+  box-shadow: var(--shadow-sm);
+}
+.cv-item .ttl {
+  font-family: var(--serif);
+  font-size: 14.5px;
+  letter-spacing: -0.005em;
+  color: var(--navy);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cv-item .preview {
+  font-size: 11.5px;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cv-item .meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.cv-item .meta .tag {
+  font-family: var(--mono);
+  background: var(--gold-glow);
+  color: var(--gold-deep);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* ─── Main chat ─── */
+.cv-main {
+  display: flex; flex-direction: column;
+  background: var(--paper);
+  position: relative;
+}
+.cv-head {
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--hairline);
+  display: flex; align-items: center; gap: 14px;
+  background: var(--paper);
+}
+.cv-head .ctx {
+  flex: 1;
+  display: flex; align-items: center; gap: 12px;
+}
+.cv-head .ctx .thumb {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #5a6a7c 0%, #2c3a4a 100%);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.cv-head .ctx .thumb::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(45deg, transparent 47%, rgba(255,255,255,.15) 48%, rgba(255,255,255,.15) 49%, transparent 50%);
+}
+.cv-head .ctx h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  margin: 0 0 2px;
+  color: var(--navy);
+}
+.cv-head .ctx .meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.cv-head .ctx .meta b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
+.cv-head .ctx-score {
+  text-align: right;
+}
+.cv-head .ctx-score .n {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--kelepir);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+.cv-head .ctx-score .lbl {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Conversation stream */
+.cv-stream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 28px 20px;
+  display: flex; flex-direction: column;
+  gap: 18px;
+}
+.cv-divider {
+  display: flex; align-items: center; gap: 14px;
+  margin: 14px 0;
+}
+.cv-divider hr { flex: 1; border: 0; border-top: 1px solid var(--hairline); }
+.cv-divider span {
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.msg {
+  max-width: 740px;
+  display: flex; gap: 12px;
+}
+.msg.u {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+.msg .av {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.msg.a .av {
+  background: var(--navy);
+  color: var(--cream);
+  position: relative;
+}
+.msg.a .av::before {
+  content: "";
+  width: 0; height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 10px solid var(--gold-hi);
+}
+.msg.u .av {
+  background: var(--cream-2);
+  color: var(--navy);
+}
+.msg .body {
+  display: flex; flex-direction: column;
+  gap: 4px;
+}
+.msg .bubble {
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+}
+.msg.u .bubble {
+  background: var(--navy);
+  color: var(--cream);
+  border-bottom-right-radius: 6px;
+}
+.msg.a .bubble {
+  background: var(--surface);
+  color: var(--ink);
+  border-bottom-left-radius: 6px;
+  border: 1px solid var(--hairline);
+}
+.msg.a .bubble strong { color: var(--navy); font-weight: 600; }
+.msg.a .bubble em.gold { color: var(--gold-deep); font-style: italic; font-family: var(--serif); }
+.msg .meta {
+  font-size: 10.5px;
+  color: var(--muted);
+  padding: 0 6px;
+  letter-spacing: 0.04em;
+}
+.msg.u .meta { text-align: right; }
+
+/* Inline source/citation */
+.msg .citations {
+  display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;
+}
+.msg .cite {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--gold-deep);
+  background: var(--gold-glow);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Inline mini-card (when AI references a listing) */
+.msg .ref-card {
+  display: flex; gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--paper-2);
+  border-radius: 12px;
+  border: 1px solid var(--hairline);
+  font-size: 13px;
+  align-items: center;
+}
+.msg .ref-card .rc-img {
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #5a6a7c, #2c3a4a);
+  flex-shrink: 0;
+}
+.msg .ref-card .rc-info { flex: 1; }
+.msg .ref-card .rc-t {
+  font-family: var(--serif); font-size: 15px;
+  color: var(--navy); margin-bottom: 2px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+.msg .ref-card .rc-m {
+  font-size: 11px; color: var(--muted);
+}
+.msg .ref-card .rc-score {
+  font-family: var(--serif);
+  font-size: 24px;
+  color: var(--kelepir);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* Composer */
+.cv-composer {
+  padding: 16px 28px 24px;
+  background: var(--paper);
+  border-top: 1px solid var(--hairline);
+}
+.composer-shell {
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 22px;
+  padding: 12px 14px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.composer-shell:focus-within {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 4px var(--navy-edge);
+}
+.composer-input {
+  width: 100%;
+  border: 0; outline: 0;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  resize: none;
+  min-height: 28px;
+  max-height: 160px;
+  padding: 6px 4px;
+  line-height: 1.5;
+}
+.composer-input::placeholder { color: var(--muted); }
+.composer-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 4px;
+}
+.composer-row .left { display: flex; gap: 4px; }
+.composer-row .grow { flex: 1; }
+.icon-btn {
+  width: 34px; height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: all .15s;
+}
+.icon-btn:hover { background: var(--paper-2); color: var(--navy); }
+.icon-btn.mic { background: var(--cream-2); color: var(--navy); }
+.icon-btn.mic:hover { background: var(--gold); color: var(--navy); }
+.send-btn {
+  background: var(--navy);
+  color: var(--cream);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 0; cursor: pointer;
+  display: grid; place-items: center;
+  transition: all .15s;
+}
+.send-btn:hover { background: var(--navy-soft); }
+.send-btn:disabled { opacity: 0.4; }
+.composer-suggestions {
+  display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.composer-suggestions .sugg {
+  font-size: 12px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-2);
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.composer-suggestions .sugg:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.composer-suggestions .sugg .ic {
+  font-family: var(--serif); font-style: italic;
+  color: var(--gold-deep);
+  font-size: 13px;
+}
+.composer-foot {
+  margin-top: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+.composer-foot .model {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.composer-foot .model b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
+
+/* ─── Context rail (right) ─── */
+.cv-context {
+  background: var(--paper-2);
+  border-left: 1px solid var(--hairline);
+  padding: 24px;
+  overflow-y: auto;
+}
+.cv-context-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px;
+}
+.cv-context-head h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+.ctx-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.ctx-card .ttl {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--navy);
+  margin: 0 0 8px;
+  letter-spacing: -0.005em;
+}
+.ctx-card .lst {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ctx-card .lst .ln {
+  display: flex; justify-content: space-between; font-size: 12px;
+}
+.ctx-card .lst .ln .l { color: var(--muted); }
+.ctx-card .lst .ln .v {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.ctx-pill-mini {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  padding: 6px 0;
+}
+.ctx-pill-mini .nm {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--ink-2);
+}
+.ctx-pill-mini .nm .sw {
+  width: 6px; height: 6px; border-radius: 2px;
+}
+.ctx-pill-mini.fiyat .sw    { background: var(--p-fiyat); }
+.ctx-pill-mini.kalite .sw   { background: var(--p-kalite); }
+.ctx-pill-mini.konum .sw    { background: var(--p-konum); }
+.ctx-pill-mini.risk .sw     { background: var(--p-risk); }
+.ctx-pill-mini.vision .sw   { background: var(--p-vision); }
+.ctx-pill-mini.nlp .sw      { background: var(--p-nlp); }
+.ctx-pill-mini.pazar .sw    { background: var(--p-pazar); }
+.ctx-pill-mini.finansal .sw { background: var(--p-finansal); }
+.ctx-pill-mini .vl {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+@media (max-width: 1200px) {
+  .chat-shell { grid-template-columns: 240px 1fr; }
+  .cv-context { display: none; }
+}
+@media (max-width: 900px) {
+  .chat-shell { grid-template-columns: 1fr; }
+  .cv-sidebar { display: none; }
+}
+</style>
+</head>
+<body data-screen-label="04 AI Asistan">
+
+<header class="nav app">
+  <div class="shell nav-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Pusula</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Anasayfa</a>
+      <a href="panel.html">Panel</a>
+      <a href="ilan.html">İlan</a>
+      <a href="asistan.html" class="active">AI Asistan</a>
+      <a href="sesli.html">Sesli Mod</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="sesli.html" class="btn btn-ghost btn-sm">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <rect x="6" y="2" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M3 8C3 10.8 5.2 13 8 13M13 8C13 10.8 10.8 13 8 13M8 13V15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Sesli moda geç
+      </a>
+      <div class="nav-user">
+        <div class="av">M</div>
+        <span>Mehmet D.</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="chat-shell">
+  <!-- ─── CONVERSATION SIDEBAR ─── -->
+  <aside class="cv-sidebar">
+    <button class="cv-new">Yeni sohbet</button>
+    <div class="cv-search">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M10 10L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <input placeholder="Sohbetlerde ara…" />
+    </div>
+
+    <div class="cv-group-lbl">Bugün</div>
+    <div class="cv-item active">
+      <div class="ttl">Bebek 3+1, pazarlık marjı</div>
+      <div class="preview">17,4 M ₺ teklif makul; çelik konstr. argümanı…</div>
+      <div class="meta"><span>14:02</span><span class="tag">İlan #B82</span></div>
+    </div>
+    <div class="cv-item">
+      <div class="ttl">Mudanya parsel, imar durumu</div>
+      <div class="preview">E:0,30 ile 552 m² inşaat hakkı; 1842 m²…</div>
+      <div class="meta"><span>11:48</span><span class="tag">İlan #A56</span></div>
+    </div>
+    <div class="cv-item">
+      <div class="ttl">Portföy karşılaştırma — en iyi 5</div>
+      <div class="preview">Mudanya, Bebek, Çeşme, Bakırköy ve Beylik…</div>
+      <div class="meta"><span>09:14</span><span class="tag">Portföy</span></div>
+    </div>
+
+    <div class="cv-group-lbl">Dün</div>
+    <div class="cv-item">
+      <div class="ttl">Sapanca villa — neden pahalı</div>
+      <div class="preview">Fiyat avantajı 25; mahalle medyanı %22 altında…</div>
+      <div class="meta"><span>Dün</span><span class="tag">İlan #V12</span></div>
+    </div>
+    <div class="cv-item">
+      <div class="ttl">BMW 320d kelepir mi?</div>
+      <div class="preview">78K km, 2020 model; TRAMER temiz, %14 piya…</div>
+      <div class="meta"><span>Dün</span><span class="tag">Oto #O41</span></div>
+    </div>
+
+    <div class="cv-group-lbl">Geçen hafta</div>
+    <div class="cv-item">
+      <div class="ttl">Cihangir Levanten apt. risk analizi</div>
+      <div class="preview">1932 yapı; deprem riski yüksek, TBDY kapsam…</div>
+      <div class="meta"><span>4 gün</span><span class="tag">İlan #C19</span></div>
+    </div>
+    <div class="cv-item">
+      <div class="ttl">Kadıköy 1+1 yatırım getirisi</div>
+      <div class="preview">Kira ortalama ₺14.200; brüt %5.4 ROI hesabı…</div>
+      <div class="meta"><span>6 gün</span><span class="tag">İlan #K27</span></div>
+    </div>
+    <div class="cv-item">
+      <div class="ttl">Tekirdağ hisseli tapu — al/alma</div>
+      <div class="preview">1/24 hisse; yüksek hukuki risk, geri çevir…</div>
+      <div class="meta"><span>7 gün</span><span class="tag">Arsa #T03</span></div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CHAT ─── -->
+  <section class="cv-main">
+    <div class="cv-head">
+      <div class="ctx">
+        <div class="thumb"></div>
+        <div>
+          <h2>Bebek 3+1, pazarlık marjı</h2>
+          <div class="meta">Bağlam: <b>İlan #B82</b> · Bebek 165m² · 124 comp. · <b>YÜKSEK</b> güven</div>
+        </div>
+      </div>
+      <div class="ctx-score">
+        <div class="n">86</div>
+        <div class="lbl">/100 KAÇIRILMAZ</div>
+      </div>
+    </div>
+
+    <div class="cv-stream" id="stream">
+
+      <div class="cv-divider">
+        <hr>
+        <span>14:01 · Bugün</span>
+        <hr>
+      </div>
+
+      <!-- User msg 1 -->
+      <div class="msg u">
+        <div class="av">M</div>
+        <div class="body">
+          <div class="bubble">Bu Bebek dairesinin skoru 86 — net olarak ne kadar pazarlık etmeliyim?</div>
+          <div class="meta">14:01</div>
+        </div>
+      </div>
+
+      <!-- AI msg 1 -->
+      <div class="msg a">
+        <div class="av" aria-hidden="true"></div>
+        <div class="body">
+          <div class="bubble">
+            124 comparable üzerinden mahalle medyanı <strong>136.000 ₺/m²</strong>; bu ilan
+            <strong>112.121 ₺/m²</strong>, yani <em class="gold">zaten %19 piyasa altında.</em>
+            Pazarlık marjı tahmini <strong>%4–6</strong>, net teklif olarak
+            <strong>17.400.000 ₺</strong> civarı makul. Bu rakam:
+            <br><br>
+            • IQR'in alt çeyreğine yaklaşır<br>
+            • Hedonik tahminin %15 altıdır (ekspertizden riskte değil)<br>
+            • Çelik konstrüksiyon + 2018 yapı argümanlarına denk düşer
+          </div>
+          <div class="citations">
+            <span class="cite">i. 124 comparable</span>
+            <span class="cite">ii. Hedonik v0.2.1</span>
+            <span class="cite">iii. Z+1.42</span>
+          </div>
+          <div class="meta">14:01 · 380ms · Claude Haiku 4.5</div>
+        </div>
+      </div>
+
+      <!-- User msg 2 -->
+      <div class="msg u">
+        <div class="av">M</div>
+        <div class="body">
+          <div class="bubble">Risk piları neden düşük? 68/100 biraz endişe verici.</div>
+          <div class="meta">14:02</div>
+        </div>
+      </div>
+
+      <!-- AI msg 2 -->
+      <div class="msg a">
+        <div class="av" aria-hidden="true"></div>
+        <div class="body">
+          <div class="bubble">
+            Risk piları için <strong>en belirleyici üç bileşen</strong>:
+            <br><br>
+            <strong>1. PGA tehlike bandı 1</strong> — AFAD haritasında en yüksek deprem
+            riski. Bu pillar ağırlığı %40, başlangıç notunu <em class="gold">−20 etkiler</em>.<br>
+            <strong>2. TBDY 2019 dışı</strong> — yapı 2018, yeni yönetmeliğin tam
+            kapsamında değil. Statik rapor önemli.<br>
+            <strong>3. Fay mesafesi 4.2 km</strong> — kabul edilebilir aralık,
+            risk skoruna +10 ekliyor.
+            <br><br>
+            <em class="gold">Pozitif:</em> Tapu kat mülkiyeti, iskan var, kredi uygun.
+            Hisseli değil.
+          </div>
+          <div class="meta">14:02 · 420ms · Claude Haiku 4.5</div>
+        </div>
+      </div>
+
+      <!-- User msg 3 -->
+      <div class="msg u">
+        <div class="av">M</div>
+        <div class="body">
+          <div class="bubble">Aynı mahallede daha iyi var mı?</div>
+          <div class="meta">14:03</div>
+        </div>
+      </div>
+
+      <!-- AI msg 3 with ref card -->
+      <div class="msg a">
+        <div class="av" aria-hidden="true"></div>
+        <div class="body">
+          <div class="bubble">
+            Bebek mahallesinde son 30 gün portföyünde <strong>3 aktif Kelepir+ ilan</strong>
+            var. En yüksek skorlu:
+          </div>
+          <div class="ref-card">
+            <div class="rc-img"></div>
+            <div class="rc-info">
+              <div class="rc-t">Bebek 3+1, 145m², 2021 yapı</div>
+              <div class="rc-m">15,8 M ₺ · −%24 piyasa altı · 96 comp.</div>
+            </div>
+            <div class="rc-score">82</div>
+          </div>
+          <div class="bubble" style="margin-top: 4px;">
+            Ancak <strong>bu mevcut ilan (Skor 86)</strong> kombinasyonda daha iyi: konum 94,
+            kredi uygunluğu net. Diğer ilan yeni yapı avantajı sunsa da
+            <em class="gold">comparable kümesi daha küçük</em> (96 vs 124).
+          </div>
+          <div class="citations">
+            <span class="cite">3 alternatif analiz</span>
+            <span class="cite">aktif son 30g</span>
+          </div>
+          <div class="meta">14:03 · 510ms · Claude Haiku 4.5</div>
+        </div>
+      </div>
+
+      <!-- User msg 4 -->
+      <div class="msg u">
+        <div class="av">M</div>
+        <div class="body">
+          <div class="bubble">Pazarlık metni üret. Karşı taraf emlakçı.</div>
+          <div class="meta">14:05</div>
+        </div>
+      </div>
+
+      <!-- AI msg 4 - long structured -->
+      <div class="msg a">
+        <div class="av" aria-hidden="true"></div>
+        <div class="body">
+          <div class="bubble">
+            Profesyonel, samimi ama net bir taslak:
+            <br><br>
+            <em class="gold">"Merhaba [emlakçı adı], ilanı detaylı inceledim.
+            Pusula analizinde mahalle medyanı 136K ₺/m² olarak görünüyor; bu ilan
+            112K ₺/m² ile zaten avantajlı. Çelik konstrüksiyon ve 2018 yapı
+            sebebiyle yapı kalitesi yüksek, ancak TBDY 2019 dışında olduğu için
+            statik raporu görmek isterim.</em>
+            <br><br>
+            <em class="gold">Net teklifim <strong>17.400.000 ₺</strong>;
+            bu rakam hedonik tahminin %15 altı, ekspertizde sıkıntı yaratmaz
+            ve banka kredisinde sorun çıkarmaz. Bir hafta süre verebilirim — bekliyorum."</em>
+          </div>
+          <div class="citations">
+            <span class="cite">Ton: profesyonel</span>
+            <span class="cite">Uzunluk: orta</span>
+          </div>
+          <div class="meta">14:05 · 640ms · Claude Haiku 4.5</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COMPOSER -->
+    <div class="cv-composer">
+      <div class="composer-suggestions">
+        <span class="sugg"><span class="ic">i.</span> Kredi senaryoları göster</span>
+        <span class="sugg"><span class="ic">ii.</span> Mahalle 5-yıllık trend</span>
+        <span class="sugg"><span class="ic">iii.</span> Statik rapor ne içermeli?</span>
+        <span class="sugg"><span class="ic">iv.</span> Portföye ekle &amp; uyarı kur</span>
+      </div>
+      <div class="composer-shell">
+        <textarea class="composer-input" rows="1" placeholder="Bir şey sor… (örn. ekspertiz tahmini nasıl çıktı?)"></textarea>
+        <div class="composer-row">
+          <div class="left">
+            <button class="icon-btn" title="Dosya ekle">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M11 6V11C11 12.7 9.7 14 8 14C6.3 14 5 12.7 5 11V4C5 2.9 5.9 2 7 2C8.1 2 9 2.9 9 4V10C9 10.6 8.6 11 8 11C7.4 11 7 10.6 7 10V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button class="icon-btn" title="İlan bağla">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 10L10 6M6 6L4 8C3 9 3 11 4 12C5 13 7 13 8 12L10 10M10 6L12 4C13 3 13 1 12 0M10 6L8 4C7 3 5 3 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="grow"></div>
+          <a href="sesli.html" class="icon-btn mic" title="Sesli moda geç">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <rect x="6" y="2" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M3 8C3 10.8 5.2 13 8 13M13 8C13 10.8 10.8 13 8 13M8 13V15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </a>
+          <button class="send-btn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M2 8H14M14 8L9 3M14 8L9 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="composer-foot">
+        <span class="model">Model: <b>Claude Haiku 4.5</b> · görev: quick-chat · <b>1.842</b> token / 16K</span>
+        <span>Skor metriklerini değiştiremem — sadece açıklarım.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CONTEXT RAIL ─── -->
+  <aside class="cv-context">
+    <div class="cv-context-head">
+      <h3>Bağlam</h3>
+      <button class="btn btn-ghost btn-sm">Düzenle</button>
+    </div>
+
+    <div class="ctx-card">
+      <div class="ttl">Bebek 3+1, 165 m²</div>
+      <div class="lst">
+        <div class="ln"><span class="l">Fiyat</span><span class="v">18,5 M ₺</span></div>
+        <div class="ln"><span class="l">m² fiyatı</span><span class="v">112K ₺</span></div>
+        <div class="ln"><span class="l">Piyasa</span><span class="v" style="color: var(--kelepir);">−%19</span></div>
+        <div class="ln"><span class="l">Yapı yaşı</span><span class="v">7 yıl</span></div>
+        <div class="ln"><span class="l">Kat / Bina</span><span class="v">4 / 6</span></div>
+        <div class="ln"><span class="l">Tapu</span><span class="v">Kat mülkiyeti</span></div>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="ttl">Pilar dağılımı</div>
+      <div class="lst" style="gap: 2px;">
+        <div class="ctx-pill-mini fiyat"><span class="nm"><span class="sw"></span> Fiyat Avantajı</span><span class="vl">91</span></div>
+        <div class="ctx-pill-mini kalite"><span class="nm"><span class="sw"></span> Kalite</span><span class="vl">82</span></div>
+        <div class="ctx-pill-mini konum"><span class="nm"><span class="sw"></span> Konum</span><span class="vl">94</span></div>
+        <div class="ctx-pill-mini risk"><span class="nm"><span class="sw"></span> Risk</span><span class="vl">68</span></div>
+        <div class="ctx-pill-mini vision"><span class="nm"><span class="sw"></span> Vision</span><span class="vl">77</span></div>
+        <div class="ctx-pill-mini nlp"><span class="nm"><span class="sw"></span> NLP</span><span class="vl">71</span></div>
+        <div class="ctx-pill-mini pazar"><span class="nm"><span class="sw"></span> Pazar</span><span class="vl">85</span></div>
+        <div class="ctx-pill-mini finansal"><span class="nm"><span class="sw"></span> Finansal</span><span class="vl">79</span></div>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="ttl">Comparable kümesi</div>
+      <div class="lst">
+        <div class="ln"><span class="l">Toplam</span><span class="v">124 ilan</span></div>
+        <div class="ln"><span class="l">Medyan m²</span><span class="v">136K ₺</span></div>
+        <div class="ln"><span class="l">Q1 / Q3</span><span class="v">96K / 158K</span></div>
+        <div class="ln"><span class="l">Z-skoru</span><span class="v" style="color: var(--kelepir);">+1.42</span></div>
+        <div class="ln"><span class="l">Güven</span><span class="v" style="color: var(--kelepir);">YÜKSEK</span></div>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="ttl">İlişkili kaynaklar</div>
+      <div class="lst">
+        <div class="ln" style="font-size: 12.5px;"><a href="ilan.html" style="color: var(--navy); border-bottom: 1px solid var(--navy);">→ İlan detayı</a></div>
+        <div class="ln" style="font-size: 12.5px;"><a href="#" style="color: var(--navy); border-bottom: 1px solid var(--navy);">→ Mahalle raporu (Bebek)</a></div>
+        <div class="ln" style="font-size: 12.5px;"><a href="#" style="color: var(--navy); border-bottom: 1px solid var(--navy);">→ AFAD PGA haritası</a></div>
+        <div class="ln" style="font-size: 12.5px;"><a href="#" style="color: var(--navy); border-bottom: 1px solid var(--navy);">→ 3 alternatif ilan</a></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ─── TWEAKS ─── -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+
+<script>
+/* Auto-scroll stream to bottom on load */
+const stream = document.getElementById('stream');
+if (stream) stream.scrollTop = stream.scrollHeight;
+
+/* Conversation switcher */
+document.querySelectorAll('.cv-item').forEach(it => {
+  it.addEventListener('click', () => {
+    document.querySelectorAll('.cv-item').forEach(x => x.classList.remove('active'));
+    it.classList.add('active');
+  });
+});
+
+/* Textarea auto-grow */
+const ta = document.querySelector('.composer-input');
+if (ta) {
+  ta.addEventListener('input', () => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(160, ta.scrollHeight) + 'px';
+  });
+}
+
+/* Suggestion click → fill input */
+document.querySelectorAll('.composer-suggestions .sugg').forEach(s => {
+  s.addEventListener('click', () => {
+    if (ta) {
+      ta.value = s.textContent.replace(/^[ivxlcdm]+\.\s*/i, '').trim();
+      ta.focus();
+    }
+  });
+});
+</script>
+</body>
+</html>

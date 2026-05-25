@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bebek Sahile 180m, 2018 Yapı — Pusula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+.detail-shell {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 32px var(--pad-x) 64px;
+}
+.bc {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+.bc a { color: var(--ink-2); }
+.bc a:hover { color: var(--navy); }
+.bc .sep { color: var(--hairline-strong); }
+
+/* Hero detail card */
+.det-hero {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.det-gallery {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--paper-2);
+  position: relative;
+}
+.det-gallery .main-img {
+  height: 460px;
+  background: linear-gradient(135deg, #5a6a7c 0%, #2c3a4a 100%);
+  position: relative;
+}
+.det-gallery .main-img::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(45deg, transparent 47%, rgba(255,255,255,.12) 48%, rgba(255,255,255,.12) 49%, transparent 50%),
+    linear-gradient(-25deg, transparent 30%, rgba(255,255,255,.08) 31%, rgba(255,255,255,.08) 32%, transparent 33%);
+}
+.det-gallery .gh-tag {
+  position: absolute; top: 18px; left: 18px;
+  background: rgba(10,23,54,.84);
+  color: var(--cream);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+.det-gallery .gh-source {
+  position: absolute; top: 18px; right: 18px;
+  background: rgba(10,23,54,.5);
+  color: var(--cream);
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+.det-gallery .gh-source b { color: var(--gold-hi); font-weight: 500; }
+.det-gallery .thumbs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+}
+.det-gallery .thumbs i {
+  height: 86px;
+  background: linear-gradient(135deg, #4a5868, #1f2937);
+  cursor: pointer;
+  display: block;
+  position: relative;
+}
+.det-gallery .thumbs i:nth-child(2) { background: linear-gradient(135deg, #5a4838, #2c2014); }
+.det-gallery .thumbs i:nth-child(3) { background: linear-gradient(135deg, #4a5848, #1c241c); }
+.det-gallery .thumbs i:nth-child(4) { background: linear-gradient(135deg, #645468, #2f243c); }
+.det-gallery .thumbs i:nth-child(5) {
+  background: rgba(10,23,54,.8);
+  display: grid; place-items: center;
+  color: var(--cream);
+  font-family: var(--serif); font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+/* Right: score block */
+.det-score-card {
+  background: var(--navy-deep);
+  color: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(241,233,210,.08);
+}
+.det-score-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(700px 350px at 100% 0%, rgba(201,149,42,.20), transparent 60%),
+    radial-gradient(500px 250px at 0% 100%, rgba(24,44,90,.5), transparent 60%);
+  pointer-events: none;
+}
+.det-score-card > * { position: relative; }
+.det-score-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px;
+}
+.det-score-top .eyebrow {
+  color: rgba(241,233,210,.6);
+}
+.det-score-top .eyebrow .dot { background: var(--gold-hi); }
+.det-score-num {
+  font-family: var(--serif);
+  font-size: 180px;
+  line-height: 0.84;
+  letter-spacing: -0.05em;
+  color: var(--cream);
+  margin: 8px 0 12px;
+}
+.det-score-num em {
+  font-style: italic;
+  color: var(--gold-hi);
+  font-size: 0.28em;
+  vertical-align: super;
+  letter-spacing: 0;
+  margin-left: 4px;
+}
+.det-score-meta {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.det-score-meta .item {
+  font-size: 11.5px;
+  color: rgba(241,233,210,.6);
+  letter-spacing: 0.04em;
+}
+.det-score-meta .item b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--cream);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-top: 4px;
+}
+.det-score-actions {
+  display: flex; gap: 10px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(241,233,210,.12);
+}
+.det-score-actions .btn-ghost {
+  border-color: rgba(241,233,210,.25);
+  color: var(--cream);
+}
+.det-score-actions .btn-ghost:hover { background: rgba(241,233,210,.06); }
+
+/* Title block */
+.det-title-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--hairline);
+}
+.det-title-row h1 {
+  font-family: var(--serif);
+  font-size: 52px;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  margin: 8px 0 8px;
+  color: var(--navy);
+}
+.det-title-row .loc {
+  font-size: 14px;
+  color: var(--muted);
+}
+.det-title-row .loc .sep { color: var(--hairline-strong); margin: 0 8px; }
+.det-title-row .src {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--gold-deep);
+  margin-left: 12px;
+  padding: 3px 10px;
+  border: 1px solid var(--gold-deep);
+  border-radius: 999px;
+}
+.det-price-block {
+  text-align: right;
+}
+.det-price {
+  font-family: var(--serif);
+  font-size: 52px;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  color: var(--navy);
+}
+.det-price-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.det-price-piyasa {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--kelepir);
+  font-weight: 500;
+}
+.det-price-piyasa small {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Attribute grid */
+.det-attrs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.det-attr {
+  background: var(--surface);
+  padding: 16px 18px;
+}
+.det-attr .l {
+  font-size: 10.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.det-attr .v {
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+  line-height: 1;
+}
+.det-attr .v small {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+
+/* Section grids */
+.det-body {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Pillar deep card */
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.pc-head {
+  display: flex; justify-content: space-between; align-items: end;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 22px;
+}
+.pc-head h2 {
+  font-family: var(--serif);
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  margin: 4px 0 0;
+  color: var(--navy);
+}
+.pc-head .meta {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+.pc-head .meta b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
+
+.pc-pillars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.pc-pillar {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--hairline);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+.pc-pillar:nth-last-child(-n+2) { border-bottom: 0; }
+.pc-pillar .info { padding-right: 16px; }
+.pc-pillar .name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--navy);
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.pc-pillar .name .swatch {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
+.pc-pillar.fiyat    .name .swatch { background: var(--p-fiyat); }
+.pc-pillar.kalite   .name .swatch { background: var(--p-kalite); }
+.pc-pillar.konum    .name .swatch { background: var(--p-konum); }
+.pc-pillar.risk     .name .swatch { background: var(--p-risk); }
+.pc-pillar.vision   .name .swatch { background: var(--p-vision); }
+.pc-pillar.nlp      .name .swatch { background: var(--p-nlp); }
+.pc-pillar.pazar    .name .swatch { background: var(--p-pazar); }
+.pc-pillar.finansal .name .swatch { background: var(--p-finansal); }
+.pc-pillar .name .w {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.pc-pillar .note {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.pc-pillar .ring-small {
+  position: relative;
+  width: 56px; height: 56px;
+}
+.pc-pillar .ring-small svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.pc-pillar .ring-small .tr { stroke: var(--hairline); fill: none; }
+.pc-pillar .ring-small .pr { fill: none; stroke-linecap: round; }
+.pc-pillar.fiyat    .ring-small .pr { stroke: var(--p-fiyat); }
+.pc-pillar.kalite   .ring-small .pr { stroke: var(--p-kalite); }
+.pc-pillar.konum    .ring-small .pr { stroke: var(--p-konum); }
+.pc-pillar.risk     .ring-small .pr { stroke: var(--p-risk); }
+.pc-pillar.vision   .ring-small .pr { stroke: var(--p-vision); }
+.pc-pillar.nlp      .ring-small .pr { stroke: var(--p-nlp); }
+.pc-pillar.pazar    .ring-small .pr { stroke: var(--p-pazar); }
+.pc-pillar.finansal .ring-small .pr { stroke: var(--p-finansal); }
+.pc-pillar .ring-num {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--navy);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Comparable chart */
+.comparable {
+  margin-top: 8px;
+}
+.comp-chart {
+  position: relative;
+  height: 180px;
+  margin: 28px 0 16px;
+  border-bottom: 1px solid var(--hairline);
+  border-left: 1px solid var(--hairline);
+  padding-left: 16px;
+}
+.comp-chart .dots {
+  position: absolute; inset: 0 0 0 16px;
+}
+.comp-chart .dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--kelepir);
+  opacity: 0.4;
+  transform: translate(-50%, 50%);
+}
+.comp-chart .dot.this {
+  width: 14px; height: 14px;
+  background: var(--gold);
+  box-shadow: 0 0 0 4px var(--gold-glow);
+  opacity: 1;
+  z-index: 3;
+}
+.comp-chart .median {
+  position: absolute;
+  left: 16px; right: 0;
+  border-top: 1px dashed var(--ink-3);
+  z-index: 2;
+}
+.comp-chart .median-lbl {
+  position: absolute;
+  right: 8px; top: -12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  background: var(--surface);
+  padding: 0 6px;
+}
+.comp-x {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  padding-left: 16px;
+}
+.comp-legend {
+  display: flex; gap: 18px;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.comp-legend .it {
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.comp-legend .it .d {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.comp-legend .it.this .d { background: var(--gold); box-shadow: 0 0 0 3px var(--gold-glow); }
+.comp-legend .it.peers .d { background: var(--kelepir); opacity: 0.4; }
+.comp-legend .it.median .d { background: transparent; border-top: 2px dashed var(--ink-3); border-radius: 0; width: 14px; }
+
+/* Warnings */
+.warnings {
+  background: rgba(234,88,12,.06);
+  border: 1px solid rgba(234,88,12,.25);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.warnings h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--pahali);
+  margin: 0 0 14px;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 10px;
+}
+.warnings h3 .ic {
+  width: 24px; height: 24px;
+  background: var(--pahali);
+  color: var(--surface);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+}
+.warnings ul {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.warnings li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.warnings li .bullet {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--pahali);
+}
+
+/* AI summary */
+.ai-summary {
+  background: var(--cream);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.ai-summary .ai-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px;
+}
+.ai-summary .ai-head .who {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--serif);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+.ai-summary .ai-head .who .av {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--navy);
+  display: grid; place-items: center;
+}
+.ai-summary .ai-head .who .av::before {
+  content: "";
+  width: 0; height: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-bottom: 11px solid var(--gold-hi);
+}
+.ai-summary blockquote {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin: 0 0 16px;
+  font-style: italic;
+}
+.ai-summary blockquote em { color: var(--gold-deep); font-weight: 500; }
+.ai-summary p {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  margin: 0 0 14px;
+  max-width: 680px;
+}
+.ai-summary p strong { color: var(--navy); font-weight: 600; }
+.ai-summary .ai-actions {
+  display: flex; gap: 10px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--hairline-strong);
+  flex-wrap: wrap;
+}
+
+/* Side rail */
+.side {
+  position: sticky;
+  top: 96px;
+  display: flex; flex-direction: column;
+  gap: 16px;
+}
+
+.side-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.side-card h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  margin: 0 0 16px;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+
+.neg-tip {
+  background: var(--cream-2);
+  border-radius: var(--radius);
+  padding: 16px;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  font-style: italic;
+  margin-bottom: 12px;
+}
+.neg-tip strong { font-style: normal; color: var(--gold-deep); }
+.neg-numbers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.neg-numbers .n {
+  background: var(--paper-2);
+  padding: 12px 14px;
+  border-radius: 8px;
+}
+.neg-numbers .n .l {
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.neg-numbers .n .v {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+}
+
+.vision-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.vision-finding {
+  background: var(--paper-2);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.vision-finding .l {
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.vision-finding .v {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.vision-finding.warn { background: rgba(234,88,12,.08); }
+.vision-finding.warn .v { color: var(--pahali); }
+
+@media (max-width: 1100px) {
+  .det-hero { grid-template-columns: 1fr; }
+  .det-body { grid-template-columns: 1fr; }
+  .pc-pillars-grid { grid-template-columns: 1fr; }
+  .det-attrs { grid-template-columns: repeat(3, 1fr); }
+  .side { position: static; }
+}
+</style>
+</head>
+<body data-screen-label="03 İlan Detay">
+
+<!-- ─────────── NAV ─────────── -->
+<header class="nav app">
+  <div class="shell nav-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Pusula</span>
+    </a>
+    <div class="nav-search">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M10 10L13 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span>İlan, mahalle veya URL ara…</span>
+      <span class="key">⌘ K</span>
+    </div>
+    <div class="nav-cta">
+      <a href="panel.html" class="btn btn-ghost btn-sm">← Panele dön</a>
+      <div class="nav-user">
+        <div class="av">M</div>
+        <span>Mehmet D.</span>
+        <span class="chev">▾</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="detail-shell">
+  <!-- Breadcrumb -->
+  <div class="bc">
+    <a href="panel.html">Panel</a>
+    <span class="sep">/</span>
+    <a href="#">Konut</a>
+    <span class="sep">/</span>
+    <a href="#">İstanbul</a>
+    <span class="sep">/</span>
+    <a href="#">Beşiktaş</a>
+    <span class="sep">/</span>
+    <span>Bebek</span>
+  </div>
+
+  <!-- HERO -->
+  <section class="det-hero">
+    <div class="det-gallery">
+      <div class="main-img">
+        <span class="gh-tag">12 fotoğraf · 1080p</span>
+        <span class="gh-source">Kaynak: <b>sahibinden.com</b></span>
+      </div>
+      <div class="thumbs">
+        <i></i><i></i><i></i><i></i><i>+8</i>
+      </div>
+    </div>
+
+    <aside class="det-score-card">
+      <div class="det-score-top">
+        <span class="eyebrow"><span class="dot"></span> Kelepir Skoru · formul v1.0</span>
+        <span class="band kacirilmaz" style="background: var(--gold); color: var(--navy);">Kaçırılmaz</span>
+      </div>
+      <div class="det-score-num">86<em>/100</em></div>
+      <div class="det-score-meta">
+        <div class="item">Güven<b>YÜKSEK</b></div>
+        <div class="item">Comparable<b>124 ilan</b></div>
+        <div class="item">Medyan m²<b>136K ₺</b></div>
+        <div class="item">İlan m²<b>112K ₺</b></div>
+        <div class="item">Z-Score<b>+1.42</b></div>
+        <div class="item">Şüphe<b>22 / 100</b></div>
+      </div>
+      <div class="det-score-actions">
+        <button class="btn btn-gold btn-sm">Favoriye ekle</button>
+        <button class="btn btn-ghost btn-sm">Karşılaştır</button>
+        <button class="btn btn-ghost btn-sm">Pazarlık taktiği</button>
+        <button class="btn btn-ghost btn-sm" style="margin-left: auto;">⋯</button>
+      </div>
+    </aside>
+  </section>
+
+  <!-- TITLE / PRICE -->
+  <div class="det-title-row">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> Konut · 3+1 · 2018 yapı</span>
+      <h1>Bebek sahile 180m, çelik konstr. 165 m² <span class="src">sahibinden.com</span></h1>
+      <div class="loc">İstanbul <span class="sep">·</span> Beşiktaş <span class="sep">·</span> Bebek Mh. <span class="sep">·</span> Cevdet Paşa Cd.</div>
+    </div>
+    <div class="det-price-block">
+      <div class="det-price">18.500.000 ₺</div>
+      <div class="det-price-sub">112.121 ₺ / m²</div>
+      <div class="det-price-piyasa">
+        −%19 <small>piyasa altı</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATTRIBUTES -->
+  <div class="det-attrs">
+    <div class="det-attr"><div class="l">Net m²</div><div class="v">165</div></div>
+    <div class="det-attr"><div class="l">Oda</div><div class="v">3+1</div></div>
+    <div class="det-attr"><div class="l">Bina yaşı</div><div class="v">7<small>yıl</small></div></div>
+    <div class="det-attr"><div class="l">Kat</div><div class="v">4<small>/6</small></div></div>
+    <div class="det-attr"><div class="l">Isıtma</div><div class="v" style="font-size:16px;">Kombi</div></div>
+    <div class="det-attr"><div class="l">Konstrüksiyon</div><div class="v" style="font-size:16px;">Çelik</div></div>
+  </div>
+
+  <!-- BODY -->
+  <section class="det-body">
+    <div>
+      <!-- AI SUMMARY -->
+      <div class="ai-summary">
+        <div class="ai-head">
+          <div class="who">
+            <div class="av"></div>
+            <span>Pusula Asistan diyor ki</span>
+          </div>
+          <span class="conf high">
+            <span class="bars"><i></i><i></i><i></i></span>
+            Yüksek güven
+          </span>
+        </div>
+        <blockquote>
+          "Bu ilan <em>mahalle medyanının %19 altında</em>;
+          124 comparable üzerinden Z-skoru +1.42. Çelik konstrüksiyon
+          ve 2018 yapı sebebiyle risk skoru ortalama; <em>tapu kat mülkiyeti</em>
+          olarak görünüyor."
+        </blockquote>
+        <p>
+          <strong>Pazarlık marjı tahmini %4–6.</strong> Net teklif olarak
+          <strong>17,4 M ₺</strong> civarı makul. Karşı taraf sahip-emlakçı belirsizliği var;
+          ekspertiz öncesi tapu sorgusu ve KMO toplantı tutanağı talep edilmeli.
+        </p>
+        <p>
+          Vision analizinde 12 fotoğraftan <strong>2 tanesinde wide-angle distorsiyon</strong>
+          tespit edildi — alanı yerinde doğrulamak gerekir. NLP "denizi gören" ifadesini
+          yakaladı; cephe verisi yapısal alanda eksik, ilana sorulmalı.
+        </p>
+        <div class="ai-actions">
+          <a href="asistan.html" class="btn btn-primary btn-sm">Sorular sor</a>
+          <a href="sesli.html" class="btn btn-ghost btn-sm">Sesli konuş</a>
+          <button class="btn btn-ghost btn-sm">Pazarlık mesajı üret</button>
+          <button class="btn btn-ghost btn-sm">PDF raporu indir</button>
+        </div>
+      </div>
+
+      <!-- 8 PILLARS DEEP DIVE -->
+      <div class="pillar-card">
+        <div class="pc-head">
+          <div>
+            <span class="eyebrow"><span class="dot"></span> Skor anatomisi · 8 pilar</span>
+            <h2>Pilar bileşenleri</h2>
+          </div>
+          <div class="meta">
+            Toplam: <b>86</b><br>
+            Şüphe cezası: <b>−0</b>
+          </div>
+        </div>
+
+        <div class="pc-pillars-grid">
+          <div class="pc-pillar fiyat">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Fiyat Avantajı <span class="w">w 0.32</span></div>
+              <div class="note">Mahalle medyanının %19 altında · 124 comp. · Z+1.42 · Hedonik tahmin ₺20.4M</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="13.6"/>
+              </svg>
+              <div class="ring-num">91</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar kalite">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Kalite <span class="w">w 0.16</span></div>
+              <div class="note">7 yaşında yapı, çelik konstr., kombi, kapalı otopark, asansör — 13 alt-parametre</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="27.1"/>
+              </svg>
+              <div class="ring-num">82</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar konum">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Konum <span class="w">w 0.14</span></div>
+              <div class="note">Metro 320m · sahil 180m · 4 okul · TÜİK Q5 mahalle · gentrifikasyon +6.2% momentum</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="9.0"/>
+              </svg>
+              <div class="ring-num">94</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar risk">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Risk <span class="w">w 0.10</span></div>
+              <div class="note">PGA bandı 1 (yüksek) · TBDY 2019 sonrası değil (2018) · fay 4.2km · kat mülkiyeti</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="48.3"/>
+              </svg>
+              <div class="ring-num">68</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar vision">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Vision <span class="w">w 0.08</span></div>
+              <div class="note">Doğal ışık 78 · dekorasyon 82 · gizli kusur 0 · 2 fotoda lens distorsiyon</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="34.7"/>
+              </svg>
+              <div class="ring-num">77</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar nlp">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> NLP <span class="w">w 0.06</span></div>
+              <div class="note">Yanıltıcı kelime düşük (3) · "denizi gören" yapısal eksik · tonalite objektif</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="43.7"/>
+              </svg>
+              <div class="ring-num">71</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar pazar">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Pazar Dinamiği <span class="w">w 0.08</span></div>
+              <div class="note">DOM 9 gün · indirim 0 · mahalle 30g +%4.1 · TCMB 42.5 · sezonsallık yüksek</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="22.6"/>
+              </svg>
+              <div class="ring-num">85</div>
+            </div>
+          </div>
+
+          <div class="pc-pillar finansal">
+            <div class="info">
+              <div class="name"><span class="swatch"></span> Finansal Model <span class="w">w 0.06</span></div>
+              <div class="note">Ekspertiz ~₺20.4M · kredi limiti ₺16.3M · ROI %5.8 · geri ödeme 17.2 yıl</div>
+            </div>
+            <div class="ring-small">
+              <svg viewBox="0 0 60 60">
+                <circle class="tr" cx="30" cy="30" r="24" stroke-width="4"/>
+                <circle class="pr" cx="30" cy="30" r="24" stroke-width="4"
+                        stroke-dasharray="150.8" stroke-dashoffset="31.7"/>
+              </svg>
+              <div class="ring-num">79</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPARABLE CHART -->
+      <div class="pillar-card comparable">
+        <div class="pc-head">
+          <div>
+            <span class="eyebrow"><span class="dot"></span> Karşılaştırma havuzu</span>
+            <h2>Bebek 3+1 · 150-180 m² · 5-10 yaş</h2>
+          </div>
+          <div class="meta">
+            <b>124</b> ilan · son 90 gün<br>
+            IQR: <b>96K – 158K ₺/m²</b>
+          </div>
+        </div>
+
+        <div class="comp-chart" id="comp-chart">
+          <div class="median" style="bottom: 50%;"></div>
+          <div class="median-lbl">Medyan ₺136K/m²</div>
+          <div class="dots">
+            <!-- Comparable dots (positioned by m² price) -->
+            <div class="dot" style="left:8%;  bottom:18%;"></div>
+            <div class="dot" style="left:12%; bottom:24%;"></div>
+            <div class="dot" style="left:14%; bottom:14%;"></div>
+            <div class="dot" style="left:18%; bottom:32%;"></div>
+            <div class="dot" style="left:22%; bottom:28%;"></div>
+            <div class="dot" style="left:24%; bottom:38%;"></div>
+            <div class="dot" style="left:28%; bottom:42%;"></div>
+            <div class="dot this" style="left:32%; bottom:35%;" title="Bu ilan"></div>
+            <div class="dot" style="left:35%; bottom:46%;"></div>
+            <div class="dot" style="left:38%; bottom:52%;"></div>
+            <div class="dot" style="left:42%; bottom:48%;"></div>
+            <div class="dot" style="left:45%; bottom:58%;"></div>
+            <div class="dot" style="left:48%; bottom:54%;"></div>
+            <div class="dot" style="left:52%; bottom:62%;"></div>
+            <div class="dot" style="left:55%; bottom:56%;"></div>
+            <div class="dot" style="left:58%; bottom:68%;"></div>
+            <div class="dot" style="left:62%; bottom:72%;"></div>
+            <div class="dot" style="left:65%; bottom:64%;"></div>
+            <div class="dot" style="left:68%; bottom:78%;"></div>
+            <div class="dot" style="left:72%; bottom:82%;"></div>
+            <div class="dot" style="left:75%; bottom:74%;"></div>
+            <div class="dot" style="left:78%; bottom:84%;"></div>
+            <div class="dot" style="left:82%; bottom:88%;"></div>
+            <div class="dot" style="left:85%; bottom:78%;"></div>
+            <div class="dot" style="left:88%; bottom:90%;"></div>
+            <div class="dot" style="left:92%; bottom:92%;"></div>
+          </div>
+        </div>
+        <div class="comp-x">
+          <span>₺85K/m²</span><span>₺110K/m²</span><span>₺135K/m²</span><span>₺160K/m²</span><span>₺185K/m²</span>
+        </div>
+        <div class="comp-legend">
+          <span class="it this"><span class="d"></span> Bu ilan (₺112K/m²)</span>
+          <span class="it peers"><span class="d"></span> 124 comparable ilan</span>
+          <span class="it median"><span class="d"></span> Mahalle medyanı</span>
+        </div>
+      </div>
+
+      <!-- WARNINGS -->
+      <div class="warnings">
+        <h3><span class="ic">!</span> Dikkat edilmesi gerekenler</h3>
+        <ul>
+          <li><span class="bullet">i.</span><span><strong>Risk piları (68/100)</strong> — bina 2018 yapı, TBDY 2019 yönetmeliğinin tam kapsamında değil. PGA bandı 1 (yüksek deprem riski). Statik rapor talep edilmeli.</span></li>
+          <li><span class="bullet">ii.</span><span><strong>Vision uyarısı</strong> — 12 fotoğrafın 2'sinde wide-angle lens distorsiyonu tespit edildi. Salon ve oda boyutları yerinde ölçülmeli.</span></li>
+          <li><span class="bullet">iii.</span><span><strong>NLP uyarısı</strong> — açıklamada "denizi gören" geçiyor ancak yapısal cephe alanında belirtilmemiş. İlan sahibine doğrulatılmalı.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SIDE RAIL -->
+    <aside class="side">
+      <div class="side-card">
+        <h3>Pazarlık koçu</h3>
+        <div class="neg-tip">
+          "Karşı tarafa <strong>17.400.000 ₺</strong> net teklif sun.
+          Çelik konstr. ve yapı yaşı argümanlarını kullan; bir hafta
+          süre tanı."
+        </div>
+        <div class="neg-numbers">
+          <div class="n">
+            <div class="l">Hedef teklif</div>
+            <div class="v">17,4 M ₺</div>
+          </div>
+          <div class="n">
+            <div class="l">Pazarlık marjı</div>
+            <div class="v">%4–6</div>
+          </div>
+          <div class="n">
+            <div class="l">Ekspertiz tahmini</div>
+            <div class="v">~20,4 M</div>
+          </div>
+          <div class="n">
+            <div class="l">Kredi limiti</div>
+            <div class="v">~16,3 M</div>
+          </div>
+        </div>
+        <a href="asistan.html" class="btn btn-primary" style="margin-top: 16px; width: 100%; justify-content: center;">
+          Pazarlık metnini üret <span class="arrow">→</span>
+        </a>
+      </div>
+
+      <div class="side-card">
+        <h3>Vision bulguları</h3>
+        <div class="vision-grid">
+          <div class="vision-finding">
+            <div class="l">Doğal ışık</div>
+            <div class="v">78/100</div>
+          </div>
+          <div class="vision-finding">
+            <div class="l">Dekorasyon</div>
+            <div class="v">82/100</div>
+          </div>
+          <div class="vision-finding">
+            <div class="l">Manzara</div>
+            <div class="v">Deniz (tespit)</div>
+          </div>
+          <div class="vision-finding">
+            <div class="l">Gizli kusur</div>
+            <div class="v">0 tespit</div>
+          </div>
+          <div class="vision-finding warn">
+            <div class="l">Lens distorsiyon</div>
+            <div class="v">2 fotoğraf</div>
+          </div>
+          <div class="vision-finding">
+            <div class="l">Eşya kalite</div>
+            <div class="v">Premium</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Yapı &amp; hukuk</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+          <div class="row between"><span class="text-muted">Tapu durumu</span><b style="font-family:var(--mono); font-weight:500;">Kat mülkiyeti</b></div>
+          <div class="row between"><span class="text-muted">İskan</span><b style="font-family:var(--mono); font-weight:500;">Var</b></div>
+          <div class="row between"><span class="text-muted">Krediye uygun</span><b style="font-family:var(--mono); font-weight:500; color: var(--kelepir);">Uygun</b></div>
+          <div class="row between"><span class="text-muted">TBDY 2019</span><b style="font-family:var(--mono); font-weight:500; color: var(--pahali);">Kapsam dışı</b></div>
+          <div class="row between"><span class="text-muted">PGA bandı</span><b style="font-family:var(--mono); font-weight:500; color: var(--pahali);">1 · Yüksek</b></div>
+          <div class="row between"><span class="text-muted">Fay mesafesi</span><b style="font-family:var(--mono); font-weight:500;">4.2 km</b></div>
+          <div class="row between"><span class="text-muted">Kentsel dönüşüm</span><b style="font-family:var(--mono); font-weight:500;">Normal</b></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Mahalle bağlamı</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+          <div class="row between"><span class="text-muted">TÜİK gelir</span><b style="font-family:var(--mono); font-weight:500;">Q5 (en yüksek)</b></div>
+          <div class="row between"><span class="text-muted">Metro mesafe</span><b style="font-family:var(--mono); font-weight:500;">320 m</b></div>
+          <div class="row between"><span class="text-muted">Sahil mesafe</span><b style="font-family:var(--mono); font-weight:500;">180 m</b></div>
+          <div class="row between"><span class="text-muted">Okul sayısı</span><b style="font-family:var(--mono); font-weight:500;">4 (500m)</b></div>
+          <div class="row between"><span class="text-muted">12-ay fiyat ↑</span><b style="font-family:var(--mono); font-weight:500; color: var(--kelepir);">+%18.4</b></div>
+          <div class="row between"><span class="text-muted">Gentrifikasyon</span><b style="font-family:var(--mono); font-weight:500; color: var(--kelepir);">Yüksek</b></div>
+        </div>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<!-- ─────────── TWEAKS ─────────── -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
