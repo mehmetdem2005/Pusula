@@ -10,6 +10,7 @@ import {
   type VoiceOption,
 } from '../../lib/api';
 import {
+  earlyBreak,
   segmentSentences,
   splitForSpeech,
   startMicCapture,
@@ -201,6 +202,13 @@ export default function AsistanPage(): ReactElement {
         const tail = acc.slice(spoken).trim();
         if (tail) enqueueSpeech(tail);
         return;
+      }
+      if (spoken === 0) {
+        const cut = earlyBreak(acc);
+        if (cut > 0) {
+          enqueueSpeech(acc.slice(0, cut));
+          spoken = cut;
+        }
       }
       const { sentences, rest } = segmentSentences(acc.slice(spoken));
       if (sentences.length) {

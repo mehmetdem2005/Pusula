@@ -180,3 +180,19 @@ export function splitForSpeech(text: string): string[] {
   if (tail) sentences.push(tail);
   return sentences;
 }
+
+/**
+ * İlk sesi erken başlatmak için yumuşak sınır (time-to-first-audio düşer):
+ * min karakterden sonra ilk virgül/iki nokta/tire/satır; yoksa max'ta kelime sınırı.
+ * Kesme indeksi (exclusive) döner, uygun yer yoksa -1.
+ */
+export function earlyBreak(text: string, min = 22, max = 90): number {
+  for (let i = min; i < text.length; i++) {
+    if (',;:—\n'.includes(text[i]!)) return i + 1;
+  }
+  if (text.length >= max) {
+    const sp = text.lastIndexOf(' ', max);
+    if (sp >= min) return sp + 1;
+  }
+  return -1;
+}

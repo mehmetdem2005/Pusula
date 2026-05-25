@@ -45,13 +45,36 @@ export function signInPassword(email: string, password: string) {
 export function signUpPassword(
   email: string,
   password: string,
-  meta: { display_name?: string; role?: string },
+  meta: { display_name?: string; role?: string; handle?: string },
 ) {
   return getSupabaseBrowser().auth.signUp({
     email,
     password,
     options: { data: meta, emailRedirectTo: callbackUrl() },
   });
+}
+
+const HANDLE_RE = /^[a-z0-9_]{3,30}$/;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
+/** Kullanıcı adı (handle) formatı geçerli mi? */
+export function isHandleValid(handle: string): boolean {
+  return HANDLE_RE.test(handle);
+}
+
+/** Kayıt öncesi kullanıcı adı uygunluğu. true=uygun, false=alınmış, null=belirlenemedi. */
+export async function checkHandleAvailable(handle: string): Promise<boolean | null> {
+  if (!HANDLE_RE.test(handle)) return false;
+  try {
+    const res = await fetch(
+      `${API_BASE}/v1/public/handle-available?h=${encodeURIComponent(handle)}`,
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as { available?: boolean };
+    return data.available === true;
+  } catch {
+    return null;
+  }
 }
 
 export function signInMagicLink(email: string) {

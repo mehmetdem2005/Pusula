@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { authedFetch, chatStream, fetchVoices, ttsSynthesize } from '../../lib/api';
 import {
+  earlyBreak,
   segmentSentences,
   splitForSpeech,
   startMicCapture,
@@ -161,6 +162,13 @@ function VoiceMode(): ReactElement {
           acc += delta;
           setReplyText(acc);
           setStatus('speaking');
+          if (spoken === 0) {
+            const cut = earlyBreak(acc);
+            if (cut > 0) {
+              enqueueSpeech(acc.slice(0, cut));
+              spoken = cut;
+            }
+          }
           const { sentences, rest } = segmentSentences(acc.slice(spoken));
           if (sentences.length) {
             sentences.forEach(enqueueSpeech);

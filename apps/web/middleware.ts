@@ -11,7 +11,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
  *
  * NOT: Asıl JWT doğrulama backend'de (apps/api/src/auth/jwt.guard.ts). Burada UX redirect.
  */
-const PROTECTED_PATHS = ['/dashboard', '/settings'];
+const PROTECTED_PATHS = ['/dashboard', '/settings', '/admin'];
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request: req });
