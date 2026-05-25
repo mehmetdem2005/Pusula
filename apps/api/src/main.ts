@@ -59,7 +59,7 @@ async function bootstrap(): Promise<void> {
   };
 
   app.enableCors({
-    origin: (origin, cb) => {
+    origin: (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return cb(null, true);
       if (allowedOrigins.includes(origin)) return cb(null, true);
       if (isVercelOrigin(origin)) return cb(null, true);
