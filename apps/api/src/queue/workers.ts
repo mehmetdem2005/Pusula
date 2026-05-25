@@ -6,13 +6,22 @@
  * (henüz yok — V1) entry point'ten yönetilecek.
  */
 import type { Logger } from '@nestjs/common';
-import { Q, EnrichmentJob, NotificationJob } from './queue.tokens.js';
+import { Q, ListBatchJob, EnrichmentJob, NotificationJob } from './queue.tokens.js';
 
 interface Job<T> {
   id?: string;
   name: string;
   data: T;
   attemptsMade?: number;
+}
+
+export function listBatchWorker(logger: Logger) {
+  return async (job: Job<unknown>) => {
+    const parsed = ListBatchJob.parse(job.data);
+    logger.log(`list-batch ingest: ${parsed.items.length} item (user=${parsed.user_id})`);
+    // TODO V1: her item için INGEST + skor + scoring_results insert
+    return { processed: parsed.items.length };
+  };
 }
 
 export function enrichmentWorker(logger: Logger) {
@@ -33,4 +42,4 @@ export function notificationWorker(logger: Logger) {
   };
 }
 
-export const WORKER_QUEUES = [Q.ENRICHMENT, Q.NOTIFICATION];
+export const WORKER_QUEUES = [Q.LIST_BATCH_INGEST, Q.ENRICHMENT, Q.NOTIFICATION];

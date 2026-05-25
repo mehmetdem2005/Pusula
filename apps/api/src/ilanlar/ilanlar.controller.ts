@@ -1,14 +1,16 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { KonutInput } from '@pusula/shared';
 import { IlanlarService } from './ilanlar.service.js';
 import {
   CreateListingSchema,
   ExtractSchema,
+  ListBatchSchema,
   PublishSchema,
   UpdateListingSchema,
   type CreateListingInput,
   type ExtractInput,
+  type ListBatchInput,
   type UpdateListingInput,
 } from './dto.js';
 import { JwtAuthGuard, type AuthedUser, CurrentUser } from '../auth/jwt.guard.js';
@@ -91,5 +93,19 @@ export class IlanlarController {
     @Body(new ZodValidationPipe(ExtractSchema)) body: ExtractInput,
   ): Promise<{ id: string; score_id: string }> {
     return this.service.extractAndIngest(user.id, body);
+  }
+
+  /**
+   * Liste sayfasından batch — passive collector çıktısı (eklenti).
+   * Sıkı validation, boyut limiti, sadece sahibinden URL.
+   */
+  @Post('list-batch')
+  @HttpCode(202)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async listBatch(
+    @CurrentUser() user: AuthedUser,
+    @Body(new ZodValidationPipe(ListBatchSchema)) body: ListBatchInput,
+  ): Promise<{ accepted: number }> {
+    return this.service.acceptListBatch(user.id, body.items);
   }
 }

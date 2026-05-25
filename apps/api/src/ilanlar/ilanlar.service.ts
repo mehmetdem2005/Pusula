@@ -10,6 +10,12 @@ import { buildRiskContext } from './risk-enrichment.js';
 
 type Comparable = ScoringContext['comparables'][number];
 
+interface ListBatchItem {
+  url: string;
+  baslik: string;
+  fiyat: string;
+}
+
 @Injectable()
 export class IlanlarService {
   private readonly logger = new Logger(IlanlarService.name);
@@ -468,6 +474,16 @@ export class IlanlarService {
       const { media: _m, ...rest } = row as Record<string, unknown>;
       return { ...rest, media_count: mediaCount, skor: latest };
     });
+  }
+
+  /**
+   * Liste batch — passive collector çıktısı (eklenti liste sayfasından toplar).
+   * V1: hemen ack, ingest sonra (BullMQ LIST_BATCH_INGEST). Şimdilik sayım döner.
+   */
+  async acceptListBatch(userId: string, batch: ListBatchItem[]): Promise<{ accepted: number }> {
+    this.logger.debug(`list-batch from ${userId}: ${batch.length} items`);
+    // TODO V1: BullMQ queue.add(Q.LIST_BATCH_INGEST, { user_id: userId, items: batch })
+    return { accepted: batch.length };
   }
 
   /** UGC: yayından kaldır (paused + private). Yeniden yayınlamak publishListing ile. */
