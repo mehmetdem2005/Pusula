@@ -39,7 +39,9 @@ export default function SignupPage(): ReactElement {
     }
     setHStatus('checking');
     const t = setTimeout(() => {
-      void checkHandleAvailable(h).then((ok) => setHStatus(ok ? 'ok' : 'taken'));
+      void checkHandleAvailable(h).then((ok) =>
+        setHStatus(ok === null ? 'idle' : ok ? 'ok' : 'taken'),
+      );
     }, 400);
     return () => clearTimeout(t);
   }, [form.handle]);

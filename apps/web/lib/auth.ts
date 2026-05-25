@@ -62,18 +62,18 @@ export function isHandleValid(handle: string): boolean {
   return HANDLE_RE.test(handle);
 }
 
-/** Kayıt öncesi kullanıcı adı uygunluğu (public uç, oturum gerektirmez). */
-export async function checkHandleAvailable(handle: string): Promise<boolean> {
+/** Kayıt öncesi kullanıcı adı uygunluğu. true=uygun, false=alınmış, null=belirlenemedi. */
+export async function checkHandleAvailable(handle: string): Promise<boolean | null> {
   if (!HANDLE_RE.test(handle)) return false;
   try {
     const res = await fetch(
       `${API_BASE}/v1/public/handle-available?h=${encodeURIComponent(handle)}`,
     );
-    if (!res.ok) return false;
+    if (!res.ok) return null;
     const data = (await res.json()) as { available?: boolean };
     return data.available === true;
   } catch {
-    return false;
+    return null;
   }
 }
 
