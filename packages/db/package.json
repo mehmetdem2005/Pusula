@@ -8,6 +8,6 @@
     "generate": "supabase gen types typescript --local > src/types.ts"
   },
   "devDependencies": {
-    "supabase": "^1.226.4"
+    "supabase": "^2.101.0"
   }
 }
