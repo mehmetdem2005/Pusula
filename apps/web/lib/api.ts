@@ -26,8 +26,8 @@ export async function sttTranscribe(audio: Blob): Promise<string> {
   return data.text;
 }
 
-/** Metin → konuşma (Gemini TTS). Audio blob döner. */
-export async function ttsSynthesize(text: string): Promise<Blob> {
+/** Metin → konuşma (Gemini TTS). `voice` = ses kimliği (örn 'Kore'). Audio blob döner. */
+export async function ttsSynthesize(text: string, voice?: string): Promise<Blob> {
   const token = await getToken();
   const res = await fetch(`${BASE}/v1/voice/tts`, {
     method: 'POST',
@@ -35,10 +35,64 @@ export async function ttsSynthesize(text: string): Promise<Blob> {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ text: text.slice(0, 2000) }),
+    body: JSON.stringify({ text: text.slice(0, 2000), ...(voice ? { voice } : {}) }),
   });
   if (!res.ok) throw new Error(`TTS ${res.status}`);
   return res.blob();
+}
+
+export interface VoiceOption {
+  id: string;
+  label: string;
+  gender: string;
+}
+
+/** Kullanılabilir TTS seslerini çek (GET /v1/voice/voices). */
+export async function fetchVoices(): Promise<VoiceOption[]> {
+  const data = await authedFetch<{ voices: VoiceOption[] }>('/v1/voice/voices');
+  return data?.voices ?? [];
+}
+
+/**
+ * Streaming sohbet (SSE). `onDelta` her metin parçası için çağrılır. Stream bitince döner.
+ * Sunucu `data: {"error": ...}` yazarsa fırlatır → çağıran non-streaming /chat'e düşebilir.
+ */
+export async function chatStream(body: unknown, onDelta: (delta: string) => void): Promise<void> {
+  const token = await getToken();
+  const res = await fetch(`${BASE}/v1/llm/chat/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok || !res.body) throw new Error(`chat-stream ${res.status}`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue;
+      const payload = trimmed.slice(5).trim();
+      if (!payload) continue;
+      let evt: { delta?: string; done?: boolean; error?: string };
+      try {
+        evt = JSON.parse(payload);
+      } catch {
+        continue; // SSE parça/parse hatası — atla
+      }
+      if (evt.error) throw new Error(evt.error);
+      if (evt.delta) onDelta(evt.delta);
+    }
+  }
 }
 
 /**

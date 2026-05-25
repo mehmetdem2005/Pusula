@@ -29,6 +29,32 @@ export class LLMService {
     options: ChatOptions,
     providerKeysFromBody: Partial<Record<Provider, string>>,
   ): Promise<ChatResponse> {
+    const gateway = this.buildGateway(userId, options, providerKeysFromBody);
+    return gateway.chat(messages, options);
+  }
+
+  /**
+   * Streaming sohbet (SSE) — token'lar geldikçe akar; sesli yanıtın "tüm metni bekleme"
+   * gecikmesini ortadan kaldırır. Gateway.chatStream tek aday kullanır (failover yok); hata
+   * olursa controller error event'i yazar, client non-streaming /chat'e (failover'lı) düşer.
+   * NOT: streaming yolunda usage_events loglanmaz (quick-chat ucuz/ücretsiz modeller). Maliyet
+   * takibi gereken pahalı işlemler (extract/score) zaten non-streaming chat() üzerinden gider.
+   */
+  chatStream(
+    userId: string,
+    messages: ChatMessage[],
+    options: ChatOptions,
+    providerKeysFromBody: Partial<Record<Provider, string>>,
+  ): AsyncIterable<{ delta: string; done: boolean }> {
+    const gateway = this.buildGateway(userId, options, providerKeysFromBody);
+    return gateway.chatStream(messages, options);
+  }
+
+  private buildGateway(
+    userId: string,
+    options: ChatOptions,
+    providerKeysFromBody: Partial<Record<Provider, string>>,
+  ): LLMGateway {
     const hasByok = Object.values(providerKeysFromBody).some((v) => !!v);
 
     const keyResolver = hasByok
@@ -46,7 +72,7 @@ export class LLMService {
             : Promise.reject(new Error(`Platform key tanımlı değil: ${provider}`));
         });
 
-    const gateway = new LLMGateway({
+    return new LLMGateway({
       keyResolver,
       onUsage: async (resp, keySource) => {
         const { error } = await this.sb.from('usage_events').insert({
@@ -63,8 +89,6 @@ export class LLMService {
         if (error) this.logger.warn(`usage_events insert failed: ${error.message}`);
       },
     });
-
-    return gateway.chat(messages, options);
   }
 
   private modelsCache: { at: number; data: ModelOption[] } | null = null;
