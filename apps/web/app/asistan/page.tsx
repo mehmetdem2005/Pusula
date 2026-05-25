@@ -37,7 +37,7 @@ const PROVIDER_LABEL: Record<string, string> = {
   anthropic: 'Claude',
 };
 const SUGGESTIONS = [
-  'İlanlarımı karşılaştır',
+  'Kayıtlı ilanlarımı karşılaştır',
   'En kelepir olanı hangisi?',
   'Pazarlık payı ne olur?',
   'Riskli olanları göster',
@@ -67,17 +67,19 @@ export default function AsistanPage(): ReactElement {
   const voiceRef = useRef('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Bağlam (kullanıcı ilanları) + modeller + sesler.
+  // Bağlam (tüm kayıtlı ilanlar + skor) + modeller + sesler.
   useEffect(() => {
     let alive = true;
-    authedFetch<unknown>('/v1/ilanlar')
-      .then((ilanlar) => {
+    authedFetch<unknown>('/v1/lists/saved-context')
+      .then((saved) => {
         if (!alive) return;
         contextRef.current = [
           "Sen Pusula'nın emlak danışmanısın. Sade, net Türkçe yardımcı ol; karşılaştır,",
-          'en iyi/en riskli olanı bul, öneride bulun. Skoru DEĞİŞTİRME, yalnız yorumla.',
+          'en kelepir/en riskli olanı bul, kullanıcıya öneride bulun. Aşağıdaki JSON kullanıcının',
+          'TÜM listelerine + Favorilerim’e kaydettiği ilanlar (skor/etiket + hangi listelerde).',
+          'Skoru DEĞİŞTİRME, yalnız yorumla ve gerekçelendir.',
           '',
-          `İLANLAR (JSON): ${JSON.stringify(ilanlar)}`,
+          `KAYITLI İLANLAR (JSON): ${JSON.stringify(saved)}`,
         ].join('\n');
       })
       .catch(() => undefined);
@@ -302,15 +304,46 @@ export default function AsistanPage(): ReactElement {
   const empty = messages.length === 0;
 
   return (
-    <main className="bg-paper text-ink flex h-[100dvh] flex-col">
-      <header className="border-hairline flex items-center justify-between border-b px-4 py-3">
-        <Link href="/dashboard" className="text-ink-3 hover:text-navy text-sm font-medium">
-          ← Panel
+    <main className="bg-night font-body text-fg flex h-[100dvh] flex-col">
+      <header className="glass border-line flex items-center justify-between border-b px-2 py-2.5">
+        <Link
+          href="/kesfet"
+          aria-label="Geri"
+          className="press text-fg flex h-9 w-9 items-center justify-center rounded-full"
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </Link>
-        <span className="text-navy font-serif text-lg">AI Asistan</span>
-        <div className="flex items-center gap-2">
-          <Link href="/sesli" className="text-ink-3 hover:text-navy text-sm" title="Sesli mod">
-            Sesli
+        <span className="font-display text-fg text-base font-bold">AI Asistan</span>
+        <div className="flex items-center gap-1.5">
+          <Link
+            href="/sesli"
+            aria-label="Sesli mod"
+            className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
+              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+            </svg>
           </Link>
           <button
             type="button"
@@ -319,21 +352,35 @@ export default function AsistanPage(): ReactElement {
               setMessages([]);
               setError(null);
             }}
-            className="border-hairline-strong text-ink-2 hover:border-navy hover:text-navy rounded-full border px-3 py-1 text-xs font-medium"
+            aria-label="Yeni sohbet"
+            className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
           >
-            Yeni sohbet
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
           </button>
         </div>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-3xl px-4 py-6">
+        <div className="mx-auto w-full max-w-2xl px-4 py-6">
           {empty ? (
-            <div className="mt-[12vh] text-center">
-              <div className="orb mx-auto !h-20 !w-20" aria-hidden />
-              <h1 className="text-navy mt-6 font-serif text-3xl">Nasıl yardımcı olayım?</h1>
-              <p className="text-muted mt-2 text-sm">
-                İlanlarını biliyorum — karşılaştırma, pazarlık, risk. Yaz ya da konuş.
+            <div className="mt-[10vh] text-center">
+              <div className="orb orb-idle mx-auto !h-20 !w-20" aria-hidden />
+              <h1 className="font-display text-fg mt-6 text-2xl font-bold">
+                Nasıl yardımcı olayım?
+              </h1>
+              <p className="text-fg-dim mt-2 text-sm">
+                Tüm kaydettiğin ilanları biliyorum — karşılaştır, kelepir bul, riskleri gör.
               </p>
               <div className="mx-auto mt-8 grid max-w-xl gap-2 sm:grid-cols-2">
                 {SUGGESTIONS.map((s) => (
@@ -341,7 +388,7 @@ export default function AsistanPage(): ReactElement {
                     key={s}
                     type="button"
                     onClick={() => void send(s)}
-                    className="rounded-card border-hairline bg-surface text-ink-2 hover:shadow-card border px-4 py-3 text-left text-sm transition-shadow"
+                    className="press border-line bg-panel text-fg-dim hover:text-fg rounded-xl border px-4 py-3 text-left text-sm"
                   >
                     {s}
                   </button>
@@ -349,7 +396,7 @@ export default function AsistanPage(): ReactElement {
               </div>
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-3">
               {messages.map((m, i) => {
                 if (m.role === 'assistant' && m.content === '') return null;
                 return (
@@ -358,10 +405,10 @@ export default function AsistanPage(): ReactElement {
                     className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
                   >
                     <div
-                      className={`rounded-card-lg max-w-[85%] whitespace-pre-wrap px-4 py-3 text-[15px] leading-relaxed ${
+                      className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${
                         m.role === 'user'
-                          ? 'bg-navy text-cream'
-                          : 'border-hairline bg-surface text-ink border'
+                          ? 'bg-brand text-white'
+                          : 'border-line bg-panel text-fg border'
                       }`}
                     >
                       {m.content}
@@ -371,8 +418,10 @@ export default function AsistanPage(): ReactElement {
               })}
               {loading && (messages[messages.length - 1]?.content ?? '') === '' && (
                 <div className="flex justify-start">
-                  <div className="rounded-card-lg border-hairline bg-surface text-muted border px-4 py-3 text-sm">
-                    Düşünüyor…
+                  <div className="border-line bg-panel text-fg-dim flex items-center gap-1.5 rounded-2xl border px-4 py-3 text-sm">
+                    <span className="bg-fg-faint h-1.5 w-1.5 animate-bounce rounded-full [animation-delay:-0.3s]" />
+                    <span className="bg-fg-faint h-1.5 w-1.5 animate-bounce rounded-full [animation-delay:-0.15s]" />
+                    <span className="bg-fg-faint h-1.5 w-1.5 animate-bounce rounded-full" />
                   </div>
                 </div>
               )}
@@ -381,16 +430,19 @@ export default function AsistanPage(): ReactElement {
         </div>
       </div>
 
-      <div className="border-hairline bg-paper border-t">
-        <div className="mx-auto w-full max-w-3xl px-4 py-3">
-          {error && <p className="text-band-asiri mb-2 text-sm">{error}</p>}
+      <div
+        className="glass border-line border-t"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="mx-auto w-full max-w-2xl px-4 py-3">
+          {error && <p className="text-danger mb-2 text-sm">{error}</p>}
           <div className="mb-2 flex items-center gap-2">
             <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
               disabled={loading || recording}
               aria-label="AI modeli"
-              className="border-hairline-strong bg-surface text-ink-2 focus:border-navy max-w-[11rem] rounded-full border px-2 py-1 text-xs focus:outline-none disabled:opacity-50"
+              className="border-line bg-panel text-fg-dim focus:border-brand max-w-[11rem] rounded-full border px-2.5 py-1 text-xs focus:outline-none disabled:opacity-50"
             >
               <option value="">Otomatik model</option>
               {Object.entries(
@@ -412,8 +464,8 @@ export default function AsistanPage(): ReactElement {
               type="button"
               onClick={toggleVoiceOut}
               aria-pressed={voiceOut}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                voiceOut ? 'bg-navy text-cream' : 'bg-paper-2 text-ink-3'
+              className={`press rounded-full px-3 py-1 text-xs font-medium ${
+                voiceOut ? 'bg-brand text-white' : 'bg-panel text-fg-dim'
               }`}
             >
               {voiceOut ? '🔊 Sesli yanıt' : '🔈 Sesli yanıt'}
@@ -426,7 +478,7 @@ export default function AsistanPage(): ReactElement {
                   voiceRef.current = e.target.value;
                 }}
                 aria-label="Ses"
-                className="border-hairline-strong bg-surface text-ink-2 focus:border-navy max-w-[8rem] rounded-full border px-2 py-1 text-xs focus:outline-none"
+                className="border-line bg-panel text-fg-dim focus:border-brand max-w-[8rem] rounded-full border px-2.5 py-1 text-xs focus:outline-none"
               >
                 {voices.map((v) => (
                   <option key={v.id} value={v.id}>
@@ -442,14 +494,14 @@ export default function AsistanPage(): ReactElement {
               e.preventDefault();
               void send(input);
             }}
-            className="rounded-card-lg border-hairline-strong bg-surface flex items-end gap-2 border p-2"
+            className="border-line bg-panel flex items-end gap-2 rounded-2xl border p-2"
           >
             <button
               type="button"
               onClick={toggleMic}
               aria-label={recording ? 'Kaydı durdur' : 'Sesli yaz'}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg ${
-                recording ? 'bg-band-asiri text-cream animate-pulse' : 'bg-paper-2 text-ink-2'
+              className={`press flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg ${
+                recording ? 'bg-danger animate-pulse text-white' : 'bg-panel-soft text-fg'
               }`}
             >
               {recording ? '■' : '🎤'}
@@ -466,17 +518,29 @@ export default function AsistanPage(): ReactElement {
               }}
               rows={1}
               placeholder={recording ? 'Dinliyorum…' : 'Bir şey sor… (Enter ile gönder)'}
-              className="text-ink max-h-[200px] flex-1 resize-none bg-transparent px-1 py-2 text-[15px] focus:outline-none"
+              className="text-fg placeholder:text-fg-faint max-h-[200px] flex-1 resize-none bg-transparent px-1 py-2 text-[15px] focus:outline-none"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="btn btn-gold h-10 shrink-0 disabled:opacity-50"
+              className="press bg-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white disabled:opacity-40"
+              aria-label="Gönder"
             >
-              Gönder
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" />
+              </svg>
             </button>
           </form>
-          <p className="text-muted mt-1.5 text-center text-[11px]">
+          <p className="text-fg-faint mt-1.5 text-center text-[11px]">
             Pusula AI yanıtları bilgilendiricidir; skoru deterministik motor hesaplar.
           </p>
         </div>

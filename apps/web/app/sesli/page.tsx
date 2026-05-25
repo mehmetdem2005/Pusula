@@ -48,20 +48,21 @@ export default function SesliPage(): ReactElement {
   useEffect(() => {
     let alive = true;
     (async () => {
-      let ilanlar: unknown = [];
+      let saved: unknown = { items: [] };
       try {
-        ilanlar = await authedFetch<unknown>('/v1/ilanlar');
+        saved = await authedFetch<unknown>('/v1/lists/saved-context');
       } catch {
-        ilanlar = [];
+        saved = { items: [] };
       }
       const sys: Msg = {
         role: 'system',
         content: [
           "Sen Pusula'nın sesli emlak danışmanısın. Sesli yanıta uygun konuş: KISA, sohbet dilinde,",
-          'madde işareti/markdown yok, en fazla 2-3 cümle. Kullanıcının ilanları aşağıdaki JSON’da;',
-          'karşılaştır, öneride bulun, soruları yanıtla. Skoru DEĞİŞTİRME, yalnız yorumla.',
+          'madde işareti/markdown yok, en fazla 2-3 cümle. Aşağıdaki JSON kullanıcının tüm listelerine',
+          've Favorilerim’e kaydettiği ilanlar (skor/etiket dahil); karşılaştır, kelepiri bul, öneride',
+          'bulun. Skoru DEĞİŞTİRME, yalnız yorumla.',
           '',
-          `İLANLAR (JSON): ${JSON.stringify(ilanlar)}`,
+          `KAYITLI İLANLAR (JSON): ${JSON.stringify(saved)}`,
         ].join('\n'),
       };
       if (!alive) return;
@@ -335,16 +336,44 @@ export default function SesliPage(): ReactElement {
   };
 
   return (
-    <main className="bg-navy-deep text-cream relative flex h-[100dvh] w-full flex-col items-center justify-between overflow-hidden px-6 py-8">
+    <main className="bg-night font-body text-fg relative flex h-[100dvh] w-full flex-col items-center justify-between overflow-hidden px-6 py-7">
       <div className="flex w-full max-w-2xl items-center justify-between">
-        <Link href="/dashboard" className="text-cream/70 hover:text-cream text-sm">
-          ← Panel
+        <Link
+          href="/asistan"
+          aria-label="Geri"
+          className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </Link>
-        <span className="eyebrow !text-cream/60">
-          <span className="dot" /> Sesli mod
-        </span>
-        <Link href="/kesfet" className="text-cream/70 hover:text-cream text-sm">
-          Keşfet
+        <span className="font-display text-fg text-base font-bold">Sesli mod</span>
+        <Link
+          href="/asistan"
+          aria-label="Yazılı sohbet"
+          className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />
+          </svg>
         </Link>
       </div>
 
@@ -370,16 +399,16 @@ export default function SesliPage(): ReactElement {
           />
         </div>
         <div className="text-center">
-          <div className="text-cream font-serif text-2xl">{statusLabel[status]}</div>
-          {!ready && <div className="text-cream/50 mt-1 text-xs">Hazırlanıyor…</div>}
+          <div className="font-display text-fg text-xl font-bold">{statusLabel[status]}</div>
+          {!ready && <div className="text-fg-faint mt-1 text-xs">Hazırlanıyor…</div>}
         </div>
       </div>
 
       {/* Transcript */}
       <div className="min-h-[5rem] w-full max-w-2xl space-y-2 text-center">
-        {userText && <p className="text-cream/70 text-sm">“{userText}”</p>}
-        {replyText && <p className="text-cream">{replyText}</p>}
-        {error && <p className="text-band-pahali text-sm">{error}</p>}
+        {userText && <p className="text-fg-dim text-sm">“{userText}”</p>}
+        {replyText && <p className="text-fg">{replyText}</p>}
+        {error && <p className="text-danger text-sm">{error}</p>}
       </div>
 
       {/* Mic kontrol */}
@@ -388,15 +417,13 @@ export default function SesliPage(): ReactElement {
           type="button"
           onClick={toggle}
           aria-label={status === 'listening' ? 'Durdur' : 'Konuş'}
-          className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl transition-colors ${
-            status === 'listening'
-              ? 'bg-band-asiri text-cream animate-pulse'
-              : 'bg-gold text-navy hover:bg-gold-hi'
+          className={`press brand-glow flex h-16 w-16 items-center justify-center rounded-full text-2xl text-white transition-colors ${
+            status === 'listening' ? 'bg-danger animate-pulse' : 'bg-brand'
           }`}
         >
           {status === 'listening' ? '■' : '🎤'}
         </button>
-        <span className="text-cream/50 text-xs">Boşluk tuşu ile aç/kapat</span>
+        <span className="text-fg-faint text-xs">Boşluk tuşu ile aç/kapat</span>
       </div>
     </main>
   );
