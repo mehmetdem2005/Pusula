@@ -3,15 +3,15 @@ import type { ReactElement } from 'react';
 
 export default function KvkkPage(): ReactElement {
   return (
-    <main className="min-h-screen bg-white px-6 py-12">
-      <article className="prose prose-slate container mx-auto max-w-3xl">
+    <main className="bg-night font-body text-fg min-h-[100dvh] px-6 py-12">
+      <article className="prose prose-invert container mx-auto max-w-3xl">
         <div className="mb-6 text-sm">
-          <Link href="/" className="text-sky-600 underline">
+          <Link href="/" className="text-brand no-underline">
             ← Anasayfa
           </Link>
         </div>
         <h1>KVKK Aydınlatma Metni</h1>
-        <p className="text-sm text-slate-500">Son güncelleme: 22 Mayıs 2026</p>
+        <p className="text-fg-faint text-sm">Son güncelleme: 25 Mayıs 2026</p>
 
         <h2>1. Veri Sorumlusu</h2>
         <p>
@@ -25,8 +25,15 @@ export default function KvkkPage(): ReactElement {
             <strong>Kimlik &amp; iletişim:</strong> ad, e-posta, rol (alıcı / emlakçı / galerici)
           </li>
           <li>
-            <strong>İşlem verisi:</strong> Kaydedilen ilan URL&apos;leri, skor hesaplama kayıtları,
+            <strong>Profil verisi:</strong> kullanıcı adı (handle), avatar, biyografi
+          </li>
+          <li>
+            <strong>İçerik verisi:</strong> yüklediğin ilan bilgileri, fotoğraf ve videolar (medya),
             AI sohbet geçmişi
+          </li>
+          <li>
+            <strong>Etkileşim verisi:</strong> beğeni, kaydetme, izlenme/görüntülenme kayıtları
+            (öneri akışı için)
           </li>
           <li>
             <strong>Teknik veri:</strong> IP, tarayıcı, çerez, log
@@ -66,7 +73,7 @@ export default function KvkkPage(): ReactElement {
           kullanılır. Reklam çerezi yoktur.
         </p>
 
-        <p className="mt-8 text-xs text-slate-400">
+        <p className="text-fg-faint mt-8 text-xs">
           Bu metin bilgi amaçlıdır, hukuki tavsiye değildir. Bir hukukçunun gözden geçirmesi tavsiye
           edilir.
         </p>

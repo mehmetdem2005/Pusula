@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0A1736',
+  themeColor: '#0b0b0f',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
@@ -65,7 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }): React
       lang="tr"
       className={`${cormorant.variable} ${manrope.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
-      <body>
+      <body className="bg-night text-fg">
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <ThemeProvider>
           <PostHogProvider>{children}</PostHogProvider>
