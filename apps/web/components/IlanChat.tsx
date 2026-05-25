@@ -15,6 +15,41 @@ interface Msg {
   content: string;
 }
 
+// Web Speech API (canlı dikte) — tarayıcıda yerleşik, ücretsiz, interim (canlı) sonuç verir.
+interface SRAlternative {
+  transcript: string;
+}
+interface SRResult {
+  isFinal: boolean;
+  0: SRAlternative;
+}
+interface SREvent {
+  resultIndex: number;
+  results: { length: number; [i: number]: SRResult };
+}
+interface SRInstance {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  maxAlternatives: number;
+  onresult: ((e: SREvent) => void) | null;
+  onerror: ((e: { error?: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort?: () => void;
+}
+type SRCtor = new () => SRInstance;
+
+function getSpeechRecognition(): SRCtor | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as {
+    SpeechRecognition?: SRCtor;
+    webkitSpeechRecognition?: SRCtor;
+  };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
+
 const DEFAULT_SUGGESTIONS = [
   'Bu skoru açıkla',
   'Pazarlık payı ne olur?',
@@ -112,6 +147,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
   const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recognitionRef = useRef<SRInstance | null>(null);
   // TTS kuyruğu — voiceRef güncel sesi stale closure olmadan okur.
   const speechQueueRef = useRef<string[]>([]);
   const speechRunningRef = useRef(false);
@@ -126,6 +162,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
       speechQueueRef.current = [];
       speechRunningRef.current = false;
       audioRef.current?.pause();
+      recognitionRef.current?.abort?.();
     };
   }, []);
 
@@ -320,7 +357,53 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
     }
   }
 
-  async function startRecording() {
+  // Canlı dikte (Web Speech API) varsa onu kullan — konuşurken kelimeler anında görünür;
+  // yoksa MediaRecorder + Groq Whisper'a düş (kayıt → sunucu STT).
+  function startRecording() {
+    setError(null);
+    const SR = getSpeechRecognition();
+    if (SR) startLiveDictation(SR);
+    else void startWhisperRecording();
+  }
+
+  function startLiveDictation(SR: SRCtor) {
+    try {
+      const rec = new SR();
+      rec.lang = 'tr-TR';
+      rec.interimResults = true;
+      rec.continuous = true;
+      rec.maxAlternatives = 1;
+      let finalText = '';
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const r = e.results[i];
+          const t = r?.[0]?.transcript ?? '';
+          if (r?.isFinal) finalText += `${t} `;
+          else interim += t;
+        }
+        setInput((finalText + interim).trimStart());
+      };
+      rec.onerror = (ev) => {
+        if (ev?.error === 'not-allowed' || ev?.error === 'service-not-allowed') {
+          setError('Mikrofona erişilemedi (izin gerekli).');
+        }
+      };
+      rec.onend = () => {
+        setRecording(false);
+        recognitionRef.current = null;
+        const t = finalText.trim();
+        if (t) void send(t);
+      };
+      recognitionRef.current = rec;
+      rec.start();
+      setRecording(true);
+    } catch {
+      void startWhisperRecording();
+    }
+  }
+
+  async function startWhisperRecording() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
@@ -362,8 +445,10 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
   }
 
   function toggleRecord() {
-    if (recording) mrRef.current?.stop();
-    else void startRecording();
+    if (recording) {
+      if (recognitionRef.current) recognitionRef.current.stop();
+      else mrRef.current?.stop();
+    } else startRecording();
   }
 
   function toggleVoiceOut() {

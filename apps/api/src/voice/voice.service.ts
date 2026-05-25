@@ -33,7 +33,7 @@ export class VoiceService {
     const ext = contentType.includes('webm') ? 'webm' : contentType.includes('mp3') ? 'mp3' : 'wav';
     const form = new FormData();
     form.append('file', new Blob([new Uint8Array(audio)], { type: contentType }), `audio.${ext}`);
-    form.append('model', 'whisper-large-v3-turbo');
+    form.append('model', 'whisper-large-v3');
     form.append('response_format', 'json');
     form.append('temperature', '0');
     if (language && language !== 'auto') form.append('language', language);
@@ -54,7 +54,7 @@ export class VoiceService {
       text: data.text.trim(),
       duration_ms: Date.now() - t0,
       provider: 'groq',
-      model: 'whisper-large-v3-turbo',
+      model: 'whisper-large-v3',
     };
   }
 
