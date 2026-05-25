@@ -4,6 +4,8 @@ import { Logger } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 import { loadEnv } from './config/env.schema.js';
+import { ListsService } from './lists/lists.service.js';
+import { attachVoiceLiveRelay } from './voice/voice-live.gateway.js';
 
 /**
  * Pusula API bootstrap.
@@ -84,6 +86,9 @@ async function bootstrap(): Promise<void> {
   });
 
   app.setGlobalPrefix('v1', { exclude: ['health', 'ready'] });
+
+  // Realtime sesli sohbet: HTTP server'a WS relay bağla (path /v1/voice/live).
+  attachVoiceLiveRelay(app.getHttpServer(), { lists: app.get(ListsService) });
 
   await app.listen(env.PORT, '0.0.0.0');
   logger.log(`🧭 Pusula API listening on :${env.PORT} (${env.NODE_ENV})`);

@@ -195,14 +195,14 @@ em.gold {
   border-radius: 50%;
   background: radial-gradient(
     circle at 35% 30%,
-    var(--gold-hi) 0%,
-    var(--gold) 38%,
-    var(--navy-soft) 100%
+    color-mix(in srgb, var(--c-brand) 80%, white) 0%,
+    var(--c-brand) 42%,
+    var(--c-panel-soft) 100%
   );
   box-shadow:
-    0 0 90px var(--gold-glow),
-    0 0 40px rgba(201, 149, 42, 0.25),
-    inset 0 0 70px rgba(255, 255, 255, 0.22);
+    0 0 90px color-mix(in srgb, var(--c-brand) 32%, transparent),
+    0 0 40px rgba(0, 149, 246, 0.25),
+    inset 0 0 70px rgba(255, 255, 255, 0.18);
   transition: transform 0.08s ease-out;
   will-change: transform;
 }
@@ -232,7 +232,7 @@ em.gold {
 .orb-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   inset: -6%;
   opacity: 0;
 }

@@ -46,6 +46,10 @@ export const EnvSchema = z.object({
   VIDEO_PROVIDER_API_KEY: z.string().optional(),
   VIDEO_MAX_PER_USER_DAY: z.coerce.number().int().positive().default(3),
   VIDEO_MAX_COST_USD_DAY: z.coerce.number().positive().default(5),
+
+  // ── Realtime sesli sohbet (Gemini Live) — MANAGED_GEMINI_KEY ile çalışır.
+  VOICE_LIVE_MODEL: z.string().default('gemini-live-2.5-flash-native-audio'),
+  VOICE_LIVE_MAX_MIN_PER_DAY: z.coerce.number().int().positive().default(30),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
