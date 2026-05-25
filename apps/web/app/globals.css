@@ -299,3 +299,21 @@ em.gold {
 .brand-glow {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
+
+/* Filtre giriş alanı (liste detay) — token tabanlı koyu input/select. */
+.filter-input {
+  width: 100%;
+  background: var(--c-panel-soft);
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--c-fg);
+  outline: none;
+}
+.filter-input::placeholder {
+  color: var(--c-fg-faint);
+}
+.filter-input:focus {
+  border-color: var(--c-brand);
+}
