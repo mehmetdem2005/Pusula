@@ -461,16 +461,16 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
   const lastIsStreaming = (messages[messages.length - 1]?.content ?? '') === '';
 
   return (
-    <div className="rounded-card-lg border-hairline bg-surface border p-6">
+    <div className="border-line bg-panel rounded-2xl border p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-navy font-serif text-xl">AI Danışman</h2>
+        <h2 className="font-display text-fg text-base font-bold">AI Danışman</h2>
         <div className="flex items-center gap-2">
           <select
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
             disabled={loading || recording}
             aria-label="AI modeli seç"
-            className="border-hairline-strong bg-paper text-ink-2 focus:border-navy focus:ring-navy max-w-[10rem] rounded-full border px-2 py-1 text-xs focus:outline-none focus:ring-1 disabled:opacity-50"
+            className="border-line bg-panel-soft text-fg-dim focus:border-brand max-w-[10rem] rounded-full border px-2 py-1 text-xs focus:outline-none focus:ring-1 disabled:opacity-50"
           >
             <option value="">Otomatik</option>
             {Object.entries(
@@ -502,7 +502,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
                 }
               }}
               aria-label="Yanıt sesini seç"
-              className="border-hairline-strong bg-paper text-ink-2 focus:border-navy focus:ring-navy max-w-[9rem] rounded-full border px-2 py-1 text-xs focus:outline-none focus:ring-1"
+              className="border-line bg-panel-soft text-fg-dim focus:border-brand max-w-[9rem] rounded-full border px-2 py-1 text-xs focus:outline-none focus:ring-1"
             >
               {voices.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -514,8 +514,8 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
           <button
             type="button"
             onClick={toggleVoiceOut}
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
-              voiceOut ? 'bg-navy text-cream' : 'bg-paper-2 text-ink-3'
+            className={`press rounded-full px-3 py-1 text-xs font-medium ${
+              voiceOut ? 'bg-brand text-white' : 'bg-panel-soft text-fg-dim'
             }`}
             aria-pressed={voiceOut}
           >
@@ -525,7 +525,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
       </div>
 
       {messages.length === 0 && (
-        <p className="text-muted mb-3 text-sm">
+        <p className="text-fg-dim mb-3 text-sm">
           {intro ??
             'Skorun her metriğini biliyorum — pazarlık, yatırım, riskler hakkında yazarak veya konuşarak sor.'}
         </p>
@@ -538,7 +538,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
             <div key={i} className={m.role === 'user' ? 'text-right' : 'text-left'}>
               <span
                 className={`inline-block max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm ${
-                  m.role === 'user' ? 'bg-navy text-cream' : 'bg-paper-2 text-ink'
+                  m.role === 'user' ? 'bg-brand text-white' : 'bg-panel-soft text-fg'
                 }`}
               >
                 {m.content}
@@ -546,10 +546,10 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
             </div>
           );
         })}
-        {loading && lastIsStreaming && <p className="text-muted text-sm">Düşünüyor…</p>}
+        {loading && lastIsStreaming && <p className="text-fg-dim text-sm">Düşünüyor…</p>}
       </div>
 
-      {error && <p className="text-band-asiri mb-2 text-sm">{error}</p>}
+      {error && <p className="text-danger mb-2 text-sm">{error}</p>}
 
       <div className="mb-2 flex flex-wrap gap-2">
         {chips.map((s) => (
@@ -558,7 +558,7 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
             type="button"
             disabled={loading || recording}
             onClick={() => void send(s)}
-            className="border-hairline-strong text-ink-2 hover:bg-paper-2 rounded-full border px-3 py-1 text-xs transition-colors disabled:opacity-50"
+            className="press border-line text-fg-dim rounded-full border px-3 py-1 text-xs transition-colors hover:bg-white/5 disabled:opacity-50"
           >
             {s}
           </button>
@@ -576,8 +576,8 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
           type="button"
           onClick={toggleRecord}
           disabled={loading && !recording}
-          className={`rounded-card-sm px-3 py-2 text-sm ${
-            recording ? 'bg-band-asiri text-cream animate-pulse' : 'bg-paper-2 text-ink-2'
+          className={`press rounded-lg px-3 py-2 text-sm ${
+            recording ? 'bg-danger animate-pulse text-white' : 'bg-panel-soft text-fg'
           }`}
           aria-label={recording ? 'Kaydı durdur' : 'Sesli sor'}
         >
@@ -589,12 +589,12 @@ export function IlanChat({ context, intro, suggestions }: Props): ReactElement {
           placeholder={recording ? 'Dinliyorum…' : 'Bir soru yazın…'}
           disabled={recording}
           aria-label="AI danışmana soru yaz"
-          className="rounded-card-sm border-hairline-strong bg-paper text-ink focus:border-navy focus:ring-navy flex-1 border px-3 py-2 text-sm focus:outline-none focus:ring-1"
+          className="border-line bg-panel-soft text-fg placeholder:text-fg-faint focus:border-brand flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none"
         />
         <button
           type="submit"
           disabled={loading || recording || !input.trim()}
-          className="btn btn-gold disabled:opacity-60"
+          className="press bg-brand rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           Gönder
         </button>

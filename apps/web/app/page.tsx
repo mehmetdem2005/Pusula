@@ -1,375 +1,218 @@
 import Link from 'next/link';
 import type { ReactElement } from 'react';
-import '../styles/components.css';
-import { MarketingNav } from '../components/marketing/MarketingNav';
-import { StatCounter } from '../components/marketing/StatCounter';
-import { PricingTiers } from '../components/marketing/PricingTiers';
 
-const STEPS = [
-  {
-    n: '01',
-    t: 'İlanı yakala',
-    d: 'Tarayıcı eklentisi ilan sayfasını arka planda yapılandırılmış veriye çevirir.',
-  },
-  {
-    n: '02',
-    t: 'Sekiz pilarda ölç',
-    d: 'Fiyat, kalite, konum, risk ve dört pilar daha — 80+ parametre paralel hesaplanır.',
-  },
-  {
-    n: '03',
-    t: 'AI ile karar al',
-    d: 'Asistan skoru açıklar, pazarlık payını söyler, gizli riskleri yüzeye çıkarır.',
-  },
+const STEPS: [string, string, string][] = [
+  ['Paylaş', 'Evini, arabanı ya da arsanı fotoğraf ve videoyla saniyeler içinde yükle.', '01'],
+  ['Keşfet', 'Dikey kaydırmalı akışta ilanları izle, beğen, kaydet — tıpkı Reels gibi.', '02'],
+  ['Değerlendir', 'Kaydettiğin ilanları AI panelinde karşılaştır; en kelepiri bul.', '03'],
 ];
 
-const PILLARS: [string, string, number][] = [
-  ['Fiyat Avantajı', '0.32', 91],
-  ['Kalite', '0.16', 82],
-  ['Konum', '0.14', 94],
-  ['Risk', '0.10', 68],
-  ['Vision', '0.08', 77],
-  ['NLP', '0.06', 71],
-  ['Pazar Dinamiği', '0.08', 85],
-  ['Finansal Model', '0.06', 79],
+const FEATURES: [string, string][] = [
+  [
+    'Dikey video akışı',
+    'Her ilan tam ekran; kaydırdıkça keşfet. Fotoğraf ya da video, fark etmez.',
+  ],
+  ['AI sanal tur', 'Odaları gezen kısa tur videoları — yapay zekâ ile, “temsilî” etiketiyle.'],
+  ['Kaydet & AI analiz', 'İlanları listelere kaydet; asistan hepsini karşılaştırıp yorumlasın.'],
+  ['Sesli & yazılı asistan', 'Konuşarak ya da yazarak sor; kayıtlı ilanlarını bilen bir danışman.'],
 ];
-
-const HERO_PILLARS: [string, number, string][] = [
-  ['Fiyat Avt.', 88, 'var(--p-fiyat)'],
-  ['Konum', 74, 'var(--p-konum)'],
-  ['Kalite', 62, 'var(--p-kalite)'],
-  ['Risk', 46, 'var(--p-risk)'],
-];
-
-const FAQ: { q: string; a: ReactElement }[] = [
-  {
-    q: 'Skor nasıl hesaplanıyor?',
-    a: (
-      <>
-        Sekiz pilar her biri kendi ağırlığıyla ağırlıklı toplam alır; alt-bileşenler comparable
-        kümesi, kamu verisi, görsel ve metin analizinden gelir.
-      </>
-    ),
-  },
-  {
-    q: 'LLM skoru değiştirebilir mi?',
-    a: (
-      <>
-        Hayır. LLM sayısal skora <strong>asla dokunmaz</strong> — yalnızca açıklar, pazarlık ipucu
-        ve metin üretir. Skor deterministik bir motorla hesaplanır.
-      </>
-    ),
-  },
-  {
-    q: 'Veri gizliliği nasıl?',
-    a: (
-      <>
-        Yalnızca açıkça analiz ettiğin ilanlar işlenir. KVKK ve GDPR uyumlu; sohbet geçmişin
-        hesabına özeldir.
-      </>
-    ),
-  },
-  {
-    q: 'Sesli mod nasıl çalışır?',
-    a: (
-      <>
-        Mikrofona konuşursun; yanıt cümle cümle, gerçek konuşma temposunda sesli gelir. Eller
-        serbest.
-      </>
-    ),
-  },
-];
-
-const RING_C = 264; // 2π·42
-const heroScore = 78;
 
 export default function LandingPage(): ReactElement {
   return (
-    <div className="bg-paper text-ink min-h-screen">
-      <MarketingNav />
+    <div className="bg-night font-body text-fg min-h-[100dvh]">
+      {/* Top bar */}
+      <header className="glass border-line sticky top-0 z-30 border-b">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-3">
+          <span className="font-display text-fg text-xl font-bold tracking-tight">Pusula</span>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/auth/login"
+              className="press text-fg-dim hover:text-fg px-3 py-2 text-sm font-semibold"
+            >
+              Giriş
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="press bg-brand rounded-full px-4 py-2 text-sm font-semibold text-white"
+            >
+              Katıl
+            </Link>
+          </div>
+        </div>
+      </header>
 
-      {/* HERO */}
-      <section className="shell grid items-center gap-16 py-20 md:grid-cols-2 md:py-28">
+      {/* Hero */}
+      <section className="mx-auto grid w-full max-w-5xl items-center gap-12 px-5 py-16 md:grid-cols-2 md:py-24">
         <div>
-          <span className="eyebrow">
-            <span className="dot" /> Emlak · Arsa · Oto zekâsı
+          <span className="text-fg-faint text-xs font-semibold uppercase tracking-[0.18em]">
+            Ev · Arsa · Oto
           </span>
-          <h1 className="h1 text-navy mt-5">
-            Karar verirken
+          <h1 className="font-display text-fg mt-4 text-4xl font-extrabold leading-[1.05] md:text-5xl">
+            Paylaş.
             <br />
-            <em className="serif-it text-gold-deep">kaybolma.</em>
+            Kaydır.
+            <br />
+            <span className="text-brand">Keşfet.</span>
           </h1>
-          <p className="text-ink-2 mt-6 max-w-md text-lg leading-relaxed">
-            Pusula bir ilanı sekiz pilarda inceler ve sana <strong>tek bir net skor</strong> verir.
-            AI asistanı her kararı gerekçesiyle açıklar.
+          <p className="text-fg-dim mt-5 max-w-md text-base leading-relaxed">
+            Pusula, insanların kendi ev, araba ve arsa ilanlarını fotoğraf ve videoyla paylaştığı,
+            herkesin dikey kaydırmalı akışta keşfettiği sosyal platform. Beğen, kaydet, AI ile
+            değerlendir.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/dashboard" className="btn btn-gold btn-lg">
-              Panele git <span className="arrow">→</span>
+            <Link
+              href="/kesfet"
+              className="press brand-glow bg-brand rounded-full px-6 py-3 text-sm font-semibold text-white"
+            >
+              Akışı keşfet →
             </Link>
-            <Link href="/auth/signup" className="btn btn-ghost btn-lg">
-              Ücretsiz başla
+            <Link
+              href="/auth/signup"
+              className="press border-line text-fg rounded-full border px-6 py-3 text-sm font-semibold"
+            >
+              Ücretsiz katıl
             </Link>
-          </div>
-          <div className="mt-12 flex gap-10">
-            {[
-              { v: <StatCounter count={3200000} suffix="+" />, l: 'analiz edilen ilan' },
-              { v: <StatCounter count={8} />, l: 'pilar · 80+ parametre' },
-              { v: <StatCounter count={4.2} decimals={1} prefix="±%" />, l: 'fiyat sapması' },
-            ].map((s, i) => (
-              <div key={i}>
-                <div className="mono text-navy text-2xl font-medium">{s.v}</div>
-                <div className="text-muted mt-1 text-xs">{s.l}</div>
-              </div>
-            ))}
           </div>
         </div>
 
-        {/* Canlı skor kartı */}
-        <aside className="rounded-card-lg border-hairline bg-surface shadow-card border p-7">
-          <div className="flex items-center justify-between">
-            <span className="eyebrow">
-              <span className="dot" /> Canlı analiz
-            </span>
-            <span className="band kelepir">Kelepir</span>
-          </div>
-          <h3 className="text-ink mt-4 font-serif text-2xl leading-tight">
-            Mudanya Bademli — denize bakan parsel
-          </h3>
-          <div className="text-muted mt-1 text-sm">Bursa · Mudanya · İmar: konut · E:0,30</div>
-
-          <div className="mt-6 flex items-end justify-between">
-            <div>
-              <div className="text-ink font-serif text-3xl">4.250.000 ₺</div>
-              <div className="text-muted text-sm">2.305 ₺ / m²</div>
+        {/* Reel önizleme (dekoratif) */}
+        <div className="mx-auto w-full max-w-[280px]">
+          <div className="border-line bg-night-soft relative aspect-[9/16] overflow-hidden rounded-[2rem] border shadow-2xl">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_25%,#2a2342,#0b0b0f_70%)]" />
+            <div className="absolute inset-0 grid place-items-center">
+              <span className="grid h-16 w-16 place-items-center rounded-full bg-white/10 backdrop-blur">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="text-white"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
             </div>
-            <div className="text-right">
-              <div className="mono text-band-kelepir text-xl font-semibold">−%28</div>
-              <div className="text-muted text-xs">piyasa altı</div>
-            </div>
-          </div>
-
-          <div className="border-hairline mt-7 flex items-center gap-6 border-t pt-6">
-            <div className="relative h-[120px] w-[120px] shrink-0">
-              <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="42"
-                  fill="none"
-                  stroke="var(--hairline)"
-                  strokeWidth="6"
-                />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="42"
-                  fill="none"
-                  stroke="var(--gold)"
-                  strokeWidth="6"
-                  strokeLinecap="round"
-                  strokeDasharray={RING_C}
-                  strokeDashoffset={RING_C * (1 - heroScore / 100)}
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-navy font-serif text-3xl">
-                  {heroScore}
-                  <small className="text-muted text-sm">/100</small>
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+              <div className="flex items-center gap-2">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[10px] text-white">
+                  M
                 </span>
+                <span className="text-xs text-white/80">@mudanya_ev</span>
               </div>
+              <div className="font-display mt-1 text-lg font-bold text-white">4.250.000 ₺</div>
+              <div className="text-xs text-white/70">Bursa · Mudanya · denize bakan</div>
             </div>
-            <div className="flex-1 space-y-2.5">
-              {HERO_PILLARS.map(([label, val, color]) => (
-                <div key={label} className="flex items-center gap-3 text-xs">
-                  <span className="text-ink-3 w-16 shrink-0">{label}</span>
-                  <span className="bg-hairline h-1.5 flex-1 overflow-hidden rounded-full">
-                    <span
-                      className="block h-full rounded-full"
-                      style={{ width: `${val}%`, background: color }}
-                    />
-                  </span>
-                  <span className="mono text-ink-2 w-5 text-right">{val}</span>
-                </div>
-              ))}
+            <div className="absolute bottom-24 right-3 flex flex-col items-center gap-4 text-white">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="text-like"
+              >
+                <path d="M12 20s-7-4.4-9.3-8.7C1.3 8.5 2.7 5.2 6 5.2c2 0 3.2 1.2 4 2.6.8-1.4 2-2.6 4-2.6 3.3 0 4.7 3.3 3.3 6.1C19 15.6 12 20 12 20Z" />
+              </svg>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M6 4h12v17l-6-4-6 4V4Z" />
+              </svg>
             </div>
           </div>
-
-          <div className="border-hairline text-muted mt-5 flex items-center justify-between border-t pt-4 text-xs">
-            <span>
-              <b className="text-ink-2">147</b> benzer ilan
-            </span>
-            <span>
-              Güven · <b className="text-ink-2">YÜKSEK</b>
-            </span>
-            <Link href="/dashboard" className="text-navy hover:text-gold-deep font-medium">
-              Detay →
-            </Link>
-          </div>
-        </aside>
-      </section>
-
-      {/* NASIL ÇALIŞIR */}
-      <section id="nasil" className="shell border-hairline border-t py-20 md:py-28">
-        <div className="max-w-2xl">
-          <span className="eyebrow">
-            <span className="dot" /> Nasıl çalışır
-          </span>
-          <h2 className="h2 text-navy mt-4">
-            Üç adımda, <em className="serif-it text-gold-deep">açıklanabilir</em> zekâ.
-          </h2>
-        </div>
-        <div className="mt-14 grid gap-10 md:grid-cols-3">
-          {STEPS.map((s) => (
-            <div key={s.n}>
-              <div className="mono text-gold-deep text-sm">{s.n}</div>
-              <h3 className="text-ink mt-3 font-serif text-2xl">{s.t}</h3>
-              <p className="text-ink-3 mt-2 leading-relaxed">{s.d}</p>
-            </div>
-          ))}
         </div>
       </section>
 
-      {/* SKOR ANATOMİSİ */}
-      <section id="skor" className="border-hairline bg-paper-2 border-t py-20 md:py-28">
-        <div className="shell grid items-center gap-14 md:grid-cols-2">
-          <div className="rounded-card-lg border-hairline bg-surface shadow-card border p-8">
-            <div className="flex items-start justify-between">
-              <div className="text-muted text-sm">
-                Bebek · 3+1 · 165 m² · 2018
-                <br />
-                <b className="text-ink-2">18.500.000 ₺</b> · 112.121 ₺/m²
+      {/* Nasıl çalışır */}
+      <section className="border-line border-t">
+        <div className="mx-auto w-full max-w-5xl px-5 py-16 md:py-20">
+          <h2 className="font-display text-fg text-2xl font-bold md:text-3xl">Üç adımda</h2>
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
+            {STEPS.map(([t, d, n]) => (
+              <div key={n}>
+                <div className="text-brand font-mono text-sm">{n}</div>
+                <h3 className="font-display text-fg mt-2 text-xl font-bold">{t}</h3>
+                <p className="text-fg-dim mt-2 text-sm leading-relaxed">{d}</p>
               </div>
-              <span className="band kacirilmaz">Kaçırılmaz</span>
-            </div>
-            <div className="text-navy mt-4 font-serif text-6xl">
-              86<em className="serif-it text-muted text-2xl">/100</em>
-            </div>
-            <div className="mt-5 space-y-3">
-              {PILLARS.map(([name, w, val]) => (
-                <div key={name}>
-                  <div className="flex items-baseline justify-between text-sm">
-                    <span className="text-ink-2">
-                      {name} <span className="mono text-muted text-xs">w {w}</span>
-                    </span>
-                    <span className="mono text-ink">{val}</span>
-                  </div>
-                  <span className="bg-hairline mt-1 block h-1.5 overflow-hidden rounded-full">
-                    <span
-                      className="bg-navy block h-full rounded-full"
-                      style={{ width: `${val}%` }}
-                    />
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <span className="eyebrow">
-              <span className="dot" /> Skor anatomisi
-            </span>
-            <h2 className="h2 text-navy mt-4">
-              Tek rakamın <em className="serif-it text-gold-deep">arkasındaki</em> sekiz pilar.
-            </h2>
-            <p className="text-ink-2 mt-6 max-w-md leading-relaxed">
-              Pusula skoru bir kara kutu değil. Her pilar kendi alt-bileşenlerine ayrılır;
-              comparable kümen, görsel ve metin sinyallerin hep izlenebilir.
-            </p>
-            <p className="text-ink-3 mt-4 max-w-md leading-relaxed">
-              En güçlü pilar <strong className="text-ink-2">%32 ağırlıkla fiyat avantajı</strong>:
-              mahalle medyanı ile ilan m² fiyatı sigmoid eğrisinde normalize edilir.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* FİYAT */}
-      <section id="fiyat" className="shell border-hairline border-t py-20 md:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="eyebrow justify-center">
-            <span className="dot" /> Fiyatlandırma
-          </span>
-          <h2 className="h2 text-navy mt-4">
-            Açık ve <em className="serif-it text-gold-deep">dürüst.</em>
-          </h2>
-          <p className="text-ink-3 mt-4">Kredi kartı gerekmez; iptal tek tık.</p>
-        </div>
-        <div className="mt-14">
-          <PricingTiers />
-        </div>
-      </section>
-
-      {/* SSS */}
-      <section id="sss" className="border-hairline bg-paper-2 border-t py-20 md:py-28">
-        <div className="shell mx-auto max-w-3xl">
-          <div className="text-center">
-            <span className="eyebrow justify-center">
-              <span className="dot" /> Sıkça sorulanlar
-            </span>
-            <h2 className="h2 text-navy mt-4">
-              Bilmek <em className="serif-it text-gold-deep">istediklerin.</em>
-            </h2>
-          </div>
-          <div className="divide-hairline border-hairline mt-12 divide-y border-y">
-            {FAQ.map((f) => (
-              <details key={f.q} className="group py-5">
-                <summary className="text-ink flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-xl [&::-webkit-details-marker]:hidden">
-                  {f.q}
-                  <span className="text-muted transition-transform group-open:rotate-45">+</span>
-                </summary>
-                <p className="text-ink-3 mt-3 max-w-2xl leading-relaxed">{f.a}</p>
-              </details>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Özellikler */}
+      <section className="border-line border-t">
+        <div className="mx-auto w-full max-w-5xl px-5 py-16 md:py-20">
+          <h2 className="font-display text-fg text-2xl font-bold md:text-3xl">Neler var?</h2>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            {FEATURES.map(([t, d]) => (
+              <div key={t} className="border-line bg-panel rounded-2xl border p-6">
+                <h3 className="font-display text-fg text-lg font-bold">{t}</h3>
+                <p className="text-fg-dim mt-2 text-sm leading-relaxed">{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Güven / yasal */}
+      <section className="border-line border-t">
+        <div className="mx-auto w-full max-w-3xl px-5 py-14 text-center">
+          <p className="text-fg-dim text-sm leading-relaxed">
+            Pusula bir <strong className="text-fg">ilan ve keşif platformudur</strong> — emlak ya da
+            oto komisyonculuğu yapmaz. İletişim ve işlem taraflar arasında, platform dışında
+            gerçekleşir.
+          </p>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="shell py-20 md:py-28">
-        <div className="rounded-card-xl bg-navy text-cream px-8 py-16 text-center md:py-20">
-          <h2 className="h2 text-cream mx-auto max-w-xl">
-            Bir sonraki ilana <em className="serif-it text-gold-hi">hazırlıklı</em> git.
+      <section className="mx-auto w-full max-w-5xl px-5 py-16 md:py-20">
+        <div className="border-line bg-panel rounded-3xl border px-8 py-14 text-center">
+          <h2 className="font-display text-fg mx-auto max-w-xl text-2xl font-bold md:text-3xl">
+            İlk ilanı sen paylaş.
           </h2>
+          <p className="text-fg-dim mx-auto mt-3 max-w-md text-sm">
+            Birkaç fotoğraf, kısa bir video — ve akışta herkes keşfetsin.
+          </p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link href="/dashboard" className="btn btn-gold btn-lg">
-              Panele git <span className="arrow">→</span>
-            </Link>
             <Link
               href="/auth/signup"
-              className="btn btn-lg text-cream border border-[rgba(241,233,210,.3)] hover:bg-[rgba(241,233,210,.1)]"
+              className="press brand-glow bg-brand rounded-full px-6 py-3 text-sm font-semibold text-white"
             >
-              Ücretsiz başla
+              Ücretsiz katıl
+            </Link>
+            <Link
+              href="/kesfet"
+              className="press border-line text-fg rounded-full border px-6 py-3 text-sm font-semibold"
+            >
+              Önce keşfet
             </Link>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-hairline border-t">
-        <div className="shell flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/" className="brand !text-xl">
-            <span className="brand-mark" aria-hidden="true" />
-            <span>Pusula</span>
-          </Link>
-          <nav className="text-ink-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            <Link href="/dashboard" className="hover:text-navy">
-              Panel
+      {/* Footer */}
+      <footer className="border-line border-t">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">
+          <span className="font-display text-fg text-lg font-bold">Pusula</span>
+          <nav className="text-fg-dim flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <Link href="/kesfet" className="hover:text-fg">
+              Akış
             </Link>
-            <a href="#skor" className="hover:text-navy">
-              Skor
-            </a>
-            <a href="#fiyat" className="hover:text-navy">
-              Fiyat
-            </a>
-            <Link href="/legal/kvkk" className="hover:text-navy">
+            <Link href="/legal/kvkk" className="hover:text-fg">
               KVKK
             </Link>
-            <Link href="/legal/kullanim" className="hover:text-navy">
+            <Link href="/legal/kullanim" className="hover:text-fg">
               Kullanım
             </Link>
           </nav>
-          <div className="text-muted text-xs">© 2026 Pusula</div>
+          <div className="text-fg-faint text-xs">© 2026 Pusula</div>
         </div>
       </footer>
     </div>
