@@ -24,6 +24,10 @@ export const EnvSchema = z.object({
   CORS_ALLOWED_ORIGINS: z.string().default(''),
   EXT_IDS: z.string().default(''),
 
+  // Süper admin allowlist (virgülle ayrılmış e-posta). Bu e-postalar her zaman admin;
+  // DB rolü beklemeden tam erişim alır (ilk girişte rol kendiliğinden admin'e çekilir).
+  SUPER_ADMIN_EMAILS: z.string().default(''),
+
   // Platform LLM havuzu (key girişsiz AI). Tanımlı değilse ilgili sağlayıcı kullanılamaz.
   MANAGED_GROQ_KEY: z.string().optional(),
   MANAGED_GEMINI_KEY: z.string().optional(),

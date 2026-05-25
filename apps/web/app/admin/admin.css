@@ -1,0 +1,244 @@
+/* Admin paneli — kendine yeten AÇIK tema (uygulamanın koyu temasıyla çakışmaz).
+   Token tabanı flagship/_kit ile aynı: Inter, ink, yeşil = yalnız olumlu sinyal. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.admin-root {
+  --ink: #0a0b0d;
+  --sub: #5b6470;
+  --faint: #9aa1ab;
+  --line: #ececf0;
+  --line-2: #e4e6ea;
+  --bg: #fff;
+  --soft: #f6f7f9;
+  --page: #f4f5f7;
+  --green: #15803d;
+  --green-bg: #e7f3ec;
+  --green-line: #cfe6d8;
+  --amber: #b45309;
+  --amber-bg: #fdf3e7;
+  --red: #dc2626;
+  --red-bg: #fdeaea;
+
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--page);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.admin-root *,
+.admin-root *::before,
+.admin-root *::after {
+  box-sizing: border-box;
+}
+.admin-root h1,
+.admin-root h2,
+.admin-root h3 {
+  margin: 0;
+  letter-spacing: -0.022em;
+  font-weight: 700;
+}
+.admin-root .tnum {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.admin-root .eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* Düzen */
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100dvh;
+}
+.admin-side {
+  border-right: 1px solid var(--line);
+  background: var(--bg);
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-brand {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding: 4px 10px 18px;
+}
+.admin-brand small {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-top: 2px;
+}
+.admin-navlink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sub);
+  cursor: pointer;
+  text-decoration: none;
+}
+.admin-navlink:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+.admin-navlink.on {
+  background: var(--ink);
+  color: #fff;
+}
+.admin-main {
+  padding: 32px 36px 64px;
+  max-width: 1180px;
+  width: 100%;
+}
+@media (max-width: 860px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+  .admin-side {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding: 12px;
+  }
+  .admin-brand {
+    display: none;
+  }
+  .admin-main {
+    padding: 22px 18px 60px;
+  }
+}
+
+/* Bileşenler */
+.a-card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.a-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font: 600 14px Inter, sans-serif;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+}
+.a-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.a-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  font: 600 14px Inter, sans-serif;
+  padding: 0 14px;
+  height: 40px;
+  cursor: pointer;
+}
+.a-btn-sm {
+  height: 32px;
+  padding: 0 11px;
+  font-size: 13px;
+  border-radius: 9px;
+}
+.a-btn-danger {
+  background: var(--red-bg);
+  border: 1px solid #f1c8c8;
+  color: var(--red);
+}
+.a-input,
+.a-select {
+  height: 40px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  font-family: inherit;
+}
+.a-input:focus,
+.a-select:focus {
+  border-color: var(--ink);
+}
+.a-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sub);
+  cursor: pointer;
+}
+.a-chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.a-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.a-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.a-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  vertical-align: middle;
+}
+.a-table tr:last-child td {
+  border-bottom: none;
+}
+.a-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
