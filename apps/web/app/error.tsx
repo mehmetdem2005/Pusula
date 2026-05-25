@@ -19,30 +19,21 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
+    <main className="bg-paper text-ink flex min-h-screen items-center justify-center px-6">
       <div className="max-w-md text-center">
         <div className="mb-4 text-6xl" aria-hidden>
           🧭
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-[#0F1F4B]">Beklenmedik bir hata oluştu</h1>
-        <p className="mb-2 text-slate-600">
-          Birkaç saniye sonra tekrar denemek genellikle işe yarar.
-        </p>
+        <h1 className="text-navy mb-2 font-serif text-3xl">Beklenmedik bir hata oluştu</h1>
+        <p className="text-ink-3 mb-2">Birkaç saniye sonra tekrar denemek genellikle işe yarar.</p>
         {error.digest && (
-          <p className="mb-6 font-mono text-xs text-slate-400">Hata kimliği: {error.digest}</p>
+          <p className="mono text-muted mb-6 text-xs">Hata kimliği: {error.digest}</p>
         )}
         <div className="flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-full bg-[#0F1F4B] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-          >
+          <button type="button" onClick={reset} className="btn btn-primary">
             Tekrar Dene
           </button>
-          <a
-            href="/"
-            className="rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-          >
+          <a href="/" className="btn btn-ghost">
             Anasayfa
           </a>
         </div>

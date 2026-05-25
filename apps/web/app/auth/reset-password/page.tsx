@@ -64,14 +64,15 @@ export default function ResetPasswordPage(): ReactElement {
   }
 
   const inputCls =
-    'w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F1F4B]';
+    'w-full rounded-card-sm border border-hairline-strong bg-paper px-3 py-2 text-ink focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy';
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#0F1F4B] to-[#1a2d5e] px-6">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
-        <div className="mb-6 text-center">
-          <Link href="/" className="text-2xl font-bold text-[#0F1F4B]">
-            🧭 Pusula
+    <main className="bg-paper text-ink flex min-h-screen items-center justify-center px-6">
+      <div className="rounded-card-lg border-hairline bg-surface shadow-card w-full max-w-sm border p-8">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <Link href="/" className="brand !text-2xl">
+            <span className="brand-mark" aria-hidden="true" />
+            <span>Pusula</span>
           </Link>
         </div>
         {done ? (
@@ -79,27 +80,27 @@ export default function ResetPasswordPage(): ReactElement {
             <div className="mb-3 text-4xl" aria-hidden>
               ✅
             </div>
-            <h2 className="mb-2 text-lg font-bold">Şifren güncellendi</h2>
-            <Link
-              href="/dashboard"
-              className="mt-3 inline-block rounded-full bg-[#0F1F4B] px-5 py-2 text-sm font-semibold text-white"
-            >
+            <h2 className="text-navy mb-2 font-serif text-xl">Şifren güncellendi</h2>
+            <Link href="/dashboard" className="btn btn-primary mt-3">
               Panele git
             </Link>
           </div>
         ) : hasSession === false ? (
           <div className="py-6 text-center">
-            <h2 className="mb-2 text-lg font-bold">Bağlantı geçersiz</h2>
-            <p className="text-sm text-slate-600">
+            <h2 className="text-navy mb-2 font-serif text-xl">Bağlantı geçersiz</h2>
+            <p className="text-ink-3 text-sm">
               Sıfırlama bağlantısı süresi dolmuş olabilir.{' '}
-              <Link href="/auth/forgot-password" className="text-sky-600 underline">
+              <Link
+                href="/auth/forgot-password"
+                className="text-navy hover:text-gold-deep underline"
+              >
                 Yeniden dene
               </Link>
             </p>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
-            <h2 className="text-center text-xl font-bold">Yeni Şifre Belirle</h2>
+            <h2 className="text-navy text-center font-serif text-2xl">Yeni Şifre Belirle</h2>
             <PasswordInput
               required
               minLength={8}
@@ -117,11 +118,11 @@ export default function ResetPasswordPage(): ReactElement {
               className={inputCls}
               placeholder="Yeni şifre (tekrar)"
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-band-asiri text-sm">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-[#0F1F4B] py-2.5 font-semibold text-white disabled:opacity-60"
+              className="btn btn-primary w-full disabled:opacity-60"
             >
               {loading ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
             </button>

@@ -47,16 +47,20 @@ export default function SignupPage(): ReactElement {
     }
   }
 
-  const inputCls = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2';
+  const inputCls =
+    'mt-1 w-full rounded-card-sm border border-hairline-strong bg-paper px-3 py-2 text-ink focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy';
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-[#0F1F4B] to-[#1a2d5e] px-6 py-10">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
-        <div className="mb-6 text-center">
-          <Link href="/" className="text-2xl font-bold text-[#0F1F4B]">
-            🧭 Pusula
+    <main className="bg-paper text-ink flex min-h-screen items-center justify-center px-6 py-10">
+      <div className="rounded-card-lg border-hairline bg-surface shadow-card w-full max-w-sm border p-8">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <Link href="/" className="brand !text-2xl">
+            <span className="brand-mark" aria-hidden="true" />
+            <span>Pusula</span>
           </Link>
-          <p className="mt-1 text-sm font-semibold text-[#D4A22E]">Karar verirken kaybolma.</p>
+          <p className="text-muted mt-2 text-xs uppercase tracking-wider">
+            Karar verirken kaybolma
+          </p>
         </div>
 
         {sent ? (
@@ -64,18 +68,18 @@ export default function SignupPage(): ReactElement {
             <div className="mb-3 text-4xl" aria-hidden>
               🎉
             </div>
-            <h2 className="mb-2 text-lg font-bold">Son bir adım</h2>
-            <p className="text-sm text-slate-600">
+            <h2 className="text-navy mb-2 font-serif text-xl">Son bir adım</h2>
+            <p className="text-ink-3 text-sm">
               <strong>{form.email}</strong> adresine onay bağlantısı yolladık. Tıkla, hesabın
               aktifleşsin.
             </p>
           </div>
         ) : (
           <>
-            <h2 className="mb-4 text-center text-xl font-bold">Beta&apos;ya Katıl</h2>
+            <h2 className="text-navy mb-4 text-center font-serif text-2xl">Beta&apos;ya Katıl</h2>
             <form onSubmit={onSubmit} className="space-y-3">
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">İsim</span>
+                <span className="text-ink-2 text-sm font-medium">İsim</span>
                 <input
                   type="text"
                   required
@@ -85,7 +89,7 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">E-posta</span>
+                <span className="text-ink-2 text-sm font-medium">E-posta</span>
                 <input
                   type="email"
                   required
@@ -97,7 +101,7 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Şifre (min 8)</span>
+                <span className="text-ink-2 text-sm font-medium">Şifre (min 8)</span>
                 <PasswordInput
                   required
                   minLength={8}
@@ -108,7 +112,7 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Şifre (tekrar)</span>
+                <span className="text-ink-2 text-sm font-medium">Şifre (tekrar)</span>
                 <PasswordInput
                   required
                   autoComplete="new-password"
@@ -118,11 +122,11 @@ export default function SignupPage(): ReactElement {
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Profil</span>
+                <span className="text-ink-2 text-sm font-medium">Profil</span>
                 <select
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value as typeof form.role })}
-                  className={`${inputCls} bg-white`}
+                  className={`${inputCls}`}
                 >
                   <option value="individual">Bireysel (alıcı / yatırımcı)</option>
                   <option value="agent">Emlakçı</option>
@@ -130,30 +134,30 @@ export default function SignupPage(): ReactElement {
                 </select>
               </label>
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-band-asiri text-sm">{error}</p>}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-md bg-[#D4A22E] py-2.5 font-bold text-[#0F1F4B] disabled:opacity-60"
+                className="btn btn-gold w-full disabled:opacity-60"
               >
                 {loading ? 'Hesap oluşturuluyor...' : 'Beta’ya Katıl'}
               </button>
             </form>
 
-            <div className="my-4 flex items-center gap-3 text-xs text-slate-400">
-              <span className="h-px flex-1 bg-slate-200" /> veya{' '}
-              <span className="h-px flex-1 bg-slate-200" />
+            <div className="text-muted my-4 flex items-center gap-3 text-xs">
+              <span className="bg-hairline h-px flex-1" /> veya{' '}
+              <span className="bg-hairline h-px flex-1" />
             </div>
             <OAuthButtons />
 
-            <p className="mt-4 text-center text-xs text-slate-500">
+            <p className="text-muted mt-4 text-center text-xs">
               Hesabın var mı?{' '}
-              <Link href="/auth/login" className="text-sky-600 underline">
+              <Link href="/auth/login" className="text-navy hover:text-gold-deep underline">
                 Giriş yap
               </Link>
             </p>
-            <p className="mt-2 text-center text-[10px] text-slate-400">
+            <p className="text-muted mt-2 text-center text-[10px]">
               Devam ederek{' '}
               <Link href="/legal/kullanim" className="underline">
                 Kullanım Şartları

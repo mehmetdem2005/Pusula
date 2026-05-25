@@ -50,7 +50,7 @@ export function PasteIngest(): ReactElement {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mb-6 w-full rounded-lg border border-dashed border-[#0F1F4B]/30 bg-white p-4 text-sm font-semibold text-[#0F1F4B] hover:bg-slate-50"
+        className="rounded-card border-hairline-strong bg-surface text-navy hover:bg-paper-2 w-full border border-dashed p-4 text-sm font-semibold transition-colors"
       >
         + İlan Yapıştır & Analiz Et
       </button>
@@ -58,21 +58,21 @@ export function PasteIngest(): ReactElement {
   }
 
   return (
-    <form onSubmit={submit} className="mb-6 rounded-lg bg-white p-4 shadow-sm">
+    <form onSubmit={submit} className="rounded-card-lg border-hairline bg-surface border p-4">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold">İlan Yapıştır</h2>
+        <h2 className="text-ink text-sm font-semibold">İlan Yapıştır</h2>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-xs text-slate-400 hover:text-slate-600"
+          className="text-muted hover:text-ink-2 text-xs"
         >
           Kapat
         </button>
       </div>
-      <p className="mb-2 text-xs text-slate-500">
+      <p className="text-ink-3 mb-2 text-xs">
         İlan <strong>metnini</strong> yapıştır (başlık, fiyat, m², konum, oda sayısı...). Herhangi
         bir siteden veya Facebook&apos;tan kopyalayabilirsin — AI alanları çıkarıp skorlar.{' '}
-        <span className="text-slate-400">
+        <span className="text-muted">
           Not: Sadece link yetmez; sahibinden gibi siteler bot koruması nedeniyle sunucudan açılamaz
           — metni kopyala ya da eklentiyi kullan.
         </span>
@@ -82,13 +82,13 @@ export function PasteIngest(): ReactElement {
         onChange={(e) => setText(e.target.value)}
         rows={5}
         placeholder="Örn: Kadıköy Caferağa'da 3+1, 110 m², 8 yaşında, doğalgaz kombi, 4.250.000 TL ..."
-        className="w-full rounded-md border border-slate-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F1F4B]"
+        className="rounded-card-sm border-hairline-strong bg-paper text-ink focus:border-navy focus:ring-navy w-full border p-3 text-sm focus:outline-none focus:ring-1"
       />
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="text-band-asiri mt-2 text-sm">{error}</p>}
       <button
         type="submit"
         disabled={loading || !text.trim()}
-        className="mt-3 rounded-md bg-[#0F1F4B] px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="btn btn-primary mt-3 disabled:opacity-60"
       >
         {loading ? 'Analiz ediliyor…' : 'Analiz Et'}
       </button>
