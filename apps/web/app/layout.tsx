@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode, ReactElement } from 'react';
-import { Cormorant, Manrope, JetBrains_Mono } from 'next/font/google';
+import { Cormorant, Manrope, JetBrains_Mono, Outfit, Work_Sans } from 'next/font/google';
 import { PostHogProvider } from '../lib/posthog';
 import { ThemeProvider, THEME_INIT_SCRIPT } from '../components/ThemeProvider';
 
@@ -21,6 +21,17 @@ const manrope = Manrope({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-jetbrains',
+  display: 'swap',
+});
+// Reels rebuild — sosyal/içerik-öncelikli (Outfit başlık + Work Sans gövde).
+const outfit = Outfit({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-outfit',
+  display: 'swap',
+});
+const workSans = Work_Sans({
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-worksans',
   display: 'swap',
 });
 
@@ -57,7 +68,7 @@ export default function RootLayout({ children }: { children: ReactNode }): React
   return (
     <html
       lang="tr"
-      className={`${cormorant.variable} ${manrope.variable} ${jetbrainsMono.variable}`}
+      className={`${cormorant.variable} ${manrope.variable} ${jetbrainsMono.variable} ${outfit.variable} ${workSans.variable}`}
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

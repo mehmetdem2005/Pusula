@@ -255,3 +255,47 @@ em.gold {
     opacity: 0;
   }
 }
+
+/* ═════════════════════════════════════════════════════════════════════════
+   REELS REBUILD — Modern Dark (Cinema Mobile) tasarım sistemi (ui-ux-pro-max)
+   Yeni token'lar (--c-*); eski token'lar korunur (sayfa sayfa geçiş).
+   ═════════════════════════════════════════════════════════════════════════ */
+:root {
+  --c-brand: #ec4899;
+  --c-brand2: #db2777;
+  --c-accent: #2563eb;
+  --c-bg: #0f172a;
+  --c-bg-soft: #16213e;
+  --c-fg: #ffffff;
+  --c-fg-dim: rgba(255, 255, 255, 0.62);
+  --c-fg-faint: rgba(255, 255, 255, 0.4);
+  --c-panel: #201a32;
+  --c-panel-soft: #2a2342;
+  --c-line: rgba(255, 255, 255, 0.08);
+  --c-danger: #dc2626;
+}
+
+/* Frosted glass yüzey (nav/header/sheet). */
+.glass {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+}
+/* Bas-geri-bırak (scale 0.97 → 1), reduced-motion saygılı. */
+.press {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.press:active {
+  transform: scale(0.97);
+}
+@media (prefers-reduced-motion: reduce) {
+  .press {
+    transition: none;
+  }
+  .press:active {
+    transform: none;
+  }
+}
+.brand-glow {
+  box-shadow: 0 0 44px rgba(236, 72, 153, 0.35);
+}

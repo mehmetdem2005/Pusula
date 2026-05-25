@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { authedFetch } from '../../lib/api';
 import { TRY } from '../../lib/score-ui';
+import { BottomNav } from '../../components/shell/BottomNav';
 
 interface FeedMedia {
   id: string;
@@ -26,7 +27,6 @@ interface FeedCard {
   like_count: number;
   liked_by_me: boolean;
 }
-
 type EventType = 'view' | 'dwell' | 'like' | 'unlike' | 'save' | 'skip';
 interface PendingEvent {
   listing_id: string;
@@ -53,11 +53,8 @@ export default function KesfetPage(): ReactElement {
     void authedFetch('/v1/events', {
       method: 'POST',
       body: JSON.stringify({ events: batch }),
-    }).catch(() => {
-      /* yut — kayıp tolere edilir */
-    });
+    }).catch(() => undefined);
   }, []);
-
   const queue = useCallback(
     (e: PendingEvent, immediate = false) => {
       pendingRef.current.push(e);
@@ -83,17 +80,14 @@ export default function KesfetPage(): ReactElement {
     }
   }, [cursor, loading]);
 
-  // İlk yükleme.
   useEffect(() => {
     void loadMore();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Periyodik + sayfa kapanışında event flush.
   useEffect(() => {
     const t = setInterval(flush, 5000);
     const onHide = () => {
-      // Aktif kartın dwell'ini kapat.
       const a = activeRef.current;
       if (a) queue({ listing_id: a.id, event_type: 'dwell', dwell_ms: Date.now() - a.start });
       flush();
@@ -108,14 +102,14 @@ export default function KesfetPage(): ReactElement {
     };
   }, [flush, queue]);
 
-  // Görünürlük gözlemcisi — aktif kart + view/dwell.
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
+          const el = entry.target as HTMLElement;
           if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-            const id = (entry.target as HTMLElement).dataset.id;
-            const pos = Number((entry.target as HTMLElement).dataset.pos ?? '0');
+            const id = el.dataset.id;
+            const pos = Number(el.dataset.pos ?? '0');
             if (!id) continue;
             const prev = activeRef.current;
             if (prev && prev.id !== id) {
@@ -131,12 +125,11 @@ export default function KesfetPage(): ReactElement {
                 viewedRef.current.add(id);
                 queue({ listing_id: id, event_type: 'view', position: pos });
               }
-              // autoplay yalnız aktif video
-              const v = (entry.target as HTMLElement).querySelector('video');
+              const v = el.querySelector('video');
               if (v) void v.play().catch(() => undefined);
             }
           } else {
-            const v = (entry.target as HTMLElement).querySelector('video');
+            const v = el.querySelector('video');
             if (v) v.pause();
           }
         }
@@ -158,30 +151,26 @@ export default function KesfetPage(): ReactElement {
     );
     queue({ listing_id: card.id, event_type: liked ? 'like' : 'unlike' }, true);
   }
-
   function save(card: FeedCard) {
+    setItems((prev) => prev.map((c) => (c.id === card.id ? { ...c } : c)));
     queue({ listing_id: card.id, event_type: 'save' }, true);
   }
 
   return (
-    <main className="bg-navy-deep text-cream relative h-[100dvh] w-full overflow-hidden">
-      {/* Üst ince overlay */}
-      <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-4 py-3">
-        <Link href="/" className="text-cream font-serif text-lg">
+    <main className="bg-night font-body text-fg relative h-[100dvh] w-full overflow-hidden">
+      {/* Glass üst bar */}
+      <header className="glass border-line absolute inset-x-0 top-0 z-30 flex items-center justify-between border-b px-4 py-3">
+        <Link href="/" className="font-display text-fg text-lg font-bold tracking-tight">
           Pusula
         </Link>
-        <div className="flex items-center gap-3 text-sm">
-          <Link
-            href="/ilan/yeni"
-            className="bg-gold text-navy rounded-full px-3 py-1 font-semibold"
-          >
-            + İlan
-          </Link>
-          <Link href="/dashboard" className="text-cream/80 hover:text-cream">
-            Panel
-          </Link>
-        </div>
-      </div>
+        <Link
+          href="/dashboard"
+          aria-label="Ara"
+          className="press text-fg-dim flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
+        >
+          <Icon name="search" />
+        </Link>
+      </header>
 
       <div className="h-full snap-y snap-mandatory overflow-y-scroll">
         {items.map((card, i) => {
@@ -198,7 +187,6 @@ export default function KesfetPage(): ReactElement {
               }}
               className="relative flex h-[100dvh] w-full snap-start items-center justify-center overflow-hidden"
             >
-              {/* Medya */}
               {primary?.url ? (
                 primary.type === 'video' ? (
                   <video
@@ -207,7 +195,7 @@ export default function KesfetPage(): ReactElement {
                     muted
                     loop
                     playsInline
-                    preload="metadata"
+                    preload="none"
                   />
                 ) : (
                   <img
@@ -217,54 +205,62 @@ export default function KesfetPage(): ReactElement {
                   />
                 )
               ) : (
-                <div className="from-navy-soft to-navy-deep absolute inset-0 bg-gradient-to-br" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,#2a2342,#0f172a_70%)]" />
               )}
-              {/* Karartma */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+              {/* Sinematik karartma */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/40" />
 
               {primary?.is_ai_generated && (
-                <span className="text-cream/90 absolute left-4 top-16 z-10 rounded-full bg-black/50 px-2 py-1 text-[11px]">
-                  Yapay zeka ile oluşturuldu — temsilî
+                <span className="glass border-line text-fg-dim absolute left-4 top-20 z-10 rounded-full border px-2.5 py-1 text-[11px]">
+                  Yapay zeka ile oluşturuldu · temsilî
                 </span>
               )}
 
               {/* Sağ aksiyon rayı */}
-              <div className="absolute bottom-28 right-3 z-10 flex flex-col items-center gap-5">
-                <button
-                  type="button"
+              <div className="absolute bottom-32 right-3 z-20 flex flex-col items-center gap-6">
+                <RailButton
                   onClick={() => toggleLike(card)}
-                  className="text-cream flex flex-col items-center"
-                  aria-pressed={card.liked_by_me}
+                  active={card.liked_by_me}
+                  label={String(card.like_count)}
                 >
-                  <span className={`text-3xl ${card.liked_by_me ? 'text-gold-hi' : ''}`}>♥</span>
-                  <span className="mono text-xs">{card.like_count}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => save(card)}
-                  className="text-cream flex flex-col items-center"
+                  <Icon name="heart" filled={card.liked_by_me} />
+                </RailButton>
+                <RailButton onClick={() => save(card)} label="Kaydet">
+                  <Icon name="bookmark" />
+                </RailButton>
+                <Link
+                  href={`/ilan/${card.id}`}
+                  className="press text-fg flex flex-col items-center gap-1"
                 >
-                  <span className="text-3xl">☆</span>
-                  <span className="text-xs">Kaydet</span>
-                </button>
-                <Link href={`/ilan/${card.id}`} className="text-cream flex flex-col items-center">
-                  <span className="text-3xl">ⓘ</span>
-                  <span className="text-xs">Detay</span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
+                    <Icon name="info" />
+                  </span>
+                  <span className="text-fg-dim text-[10px]">Detay</span>
                 </Link>
               </div>
 
               {/* Sol-alt bilgi */}
-              <div className="absolute bottom-10 left-4 right-20 z-10">
-                <div className="text-cream/80 text-sm">@{card.owner.handle ?? 'kullanıcı'}</div>
-                <h2 className="text-cream mt-1 font-serif text-2xl leading-tight">{card.baslik}</h2>
-                {loc && <div className="text-cream/80 mt-1 text-sm">{loc}</div>}
+              <div className="absolute bottom-28 left-4 right-20 z-10">
+                <div className="flex items-center gap-2">
+                  <span className="text-brand grid h-7 w-7 place-items-center rounded-full bg-[color-mix(in_srgb,var(--c-brand)_22%,transparent)] text-xs">
+                    {(card.owner.handle ?? 'K')[0]?.toUpperCase()}
+                  </span>
+                  <span className="text-fg-dim text-sm">@{card.owner.handle ?? 'kullanıcı'}</span>
+                  <span className="text-fg-dim rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide">
+                    {card.kategori}
+                  </span>
+                </div>
+                <h2 className="font-display text-fg mt-2 text-2xl font-semibold leading-tight">
+                  {card.baslik}
+                </h2>
+                {loc && <div className="text-fg-dim mt-1 text-sm">{loc}</div>}
                 <div className="mt-2 flex items-center gap-3">
-                  <span className="text-gold-hi font-serif text-xl">
+                  <span className="bg-brand font-display rounded-lg px-3 py-1 text-lg font-bold text-white">
                     {TRY.format(card.fiyat_tl)}
                   </span>
-                  {card.net_m2 && <span className="text-cream/80 text-sm">{card.net_m2} m²</span>}
+                  {card.net_m2 && <span className="text-fg-dim text-sm">{card.net_m2} m²</span>}
                   {card.oda_sayisi && (
-                    <span className="text-cream/80 text-sm">{card.oda_sayisi}</span>
+                    <span className="text-fg-dim text-sm">{card.oda_sayisi}</span>
                   )}
                 </div>
               </div>
@@ -272,33 +268,109 @@ export default function KesfetPage(): ReactElement {
           );
         })}
 
-        {/* Yükle/durum */}
         {cursor !== null && items.length > 0 && (
           <section className="flex h-[40vh] snap-start items-center justify-center">
-            <button onClick={() => void loadMore()} disabled={loading} className="btn btn-gold">
+            <button
+              onClick={() => void loadMore()}
+              disabled={loading}
+              className="press text-fg rounded-full bg-white/10 px-6 py-3 text-sm"
+            >
               {loading ? 'Yükleniyor…' : 'Daha fazla'}
             </button>
           </section>
         )}
 
         {!loading && items.length === 0 && (
-          <section className="flex h-[100dvh] snap-start flex-col items-center justify-center gap-4 px-6 text-center">
-            <p className="text-cream font-serif text-2xl">Henüz ilan yok</p>
-            <p className="text-cream/70 max-w-sm text-sm">
-              İlk ilanı sen paylaş — fotoğraf/video ekle, herkes keşfetsin.
+          <section className="flex h-[100dvh] snap-start flex-col items-center justify-center gap-4 px-8 text-center">
+            <div className="orb h-24 w-24" aria-hidden />
+            <p className="font-display text-fg text-2xl font-semibold">Akış henüz boş</p>
+            <p className="text-fg-dim max-w-sm text-sm">
+              İlk ilanı sen paylaş — fotoğraf/video ekle, herkes kaydırarak keşfetsin.
             </p>
-            <Link href="/ilan/yeni" className="btn btn-gold">
-              + İlan Ekle
+            <Link
+              href="/ilan/yeni"
+              className="press brand-glow bg-brand rounded-full px-6 py-3 font-semibold text-white"
+            >
+              İlan paylaş
             </Link>
           </section>
         )}
 
         {error && (
-          <section className="text-cream/80 flex h-[40vh] snap-start items-center justify-center px-6 text-center text-sm">
-            Feed yüklenemedi: {error}
+          <section className="text-fg-dim flex h-[40vh] snap-start items-center justify-center px-6 text-center text-sm">
+            Akış yüklenemedi: {error}
           </section>
         )}
       </div>
+
+      <BottomNav />
     </main>
+  );
+}
+
+function RailButton({
+  children,
+  label,
+  active,
+  onClick,
+}: {
+  children: ReactElement;
+  label: string;
+  active?: boolean;
+  onClick: () => void;
+}): ReactElement {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="press text-fg flex flex-col items-center gap-1"
+    >
+      <span
+        className={`flex h-12 w-12 items-center justify-center rounded-full ${
+          active ? 'bg-brand text-white' : 'text-fg bg-white/10'
+        }`}
+      >
+        {children}
+      </span>
+      <span className="text-fg-dim text-[10px]">{label}</span>
+    </button>
+  );
+}
+
+function Icon({ name, filled }: { name: string; filled?: boolean }): ReactElement {
+  const common = {
+    width: 22,
+    height: 22,
+    viewBox: '0 0 24 24',
+    fill: filled ? 'currentColor' : 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.9,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+  if (name === 'heart')
+    return (
+      <svg {...common}>
+        <path d="M12 20s-7-4.4-9.3-8.7C1.3 8.5 2.7 5.2 6 5.2c2 0 3.2 1.2 4 2.6.8-1.4 2-2.6 4-2.6 3.3 0 4.7 3.3 3.3 6.1C19 15.6 12 20 12 20Z" />
+      </svg>
+    );
+  if (name === 'bookmark')
+    return (
+      <svg {...common}>
+        <path d="M6 4h12v17l-6-4-6 4V4Z" />
+      </svg>
+    );
+  if (name === 'info')
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v5M12 8h.01" />
+      </svg>
+    );
+  return (
+    <svg {...common}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
   );
 }
