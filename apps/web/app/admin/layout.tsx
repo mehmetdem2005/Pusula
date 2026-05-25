@@ -111,7 +111,7 @@ export default function AdminLayout({ children }: { children: ReactNode }): Reac
             const active =
               n.href === '/admin' ? pathname === '/admin' : pathname.startsWith(n.href);
             return (
-              <Link key={n.href} href={n.href} className={`admin-navlink${active ? 'on' : ''}`}>
+              <Link key={n.href} href={n.href} className={`admin-navlink ${active ? 'on' : ''}`}>
                 {n.icon}
                 {n.label}
               </Link>

@@ -58,7 +58,7 @@ export default function AdminListings(): ReactElement {
           <button
             key={f.value}
             type="button"
-            className={`a-chip${status === f.value ? 'on' : ''}`}
+            className={`a-chip ${status === f.value ? 'on' : ''}`}
             onClick={() => setStatus(f.value)}
           >
             {f.label}
