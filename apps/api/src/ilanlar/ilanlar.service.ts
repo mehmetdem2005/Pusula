@@ -8,12 +8,6 @@ import { SUPABASE } from '../supabase/supabase.module.js';
 import { LLMService } from '../llm/llm.service.js';
 import { buildRiskContext } from './risk-enrichment.js';
 
-interface ListBatchItem {
-  url: string;
-  baslik: string;
-  fiyat: string;
-}
-
 type Comparable = ScoringContext['comparables'][number];
 
 @Injectable()
@@ -113,16 +107,6 @@ export class IlanlarService {
     }
 
     return { id: persistedIlanId, score_id: scoreId };
-  }
-
-  /**
-   * Liste batch — URL'leri queue'ya at (V1: hemen ack, ingest sonra).
-   * Şimdilik sadece sayım döner; BullMQ job ileride.
-   */
-  async acceptListBatch(userId: string, batch: ListBatchItem[]): Promise<{ accepted: number }> {
-    this.logger.debug(`list-batch from ${userId}: ${batch.length} items`);
-    // TODO: BullMQ queue.add('list-batch-ingest', { userId, batch })
-    return { accepted: batch.length };
   }
 
   /**
@@ -292,7 +276,7 @@ export class IlanlarService {
       .from('ilanlar')
       .select('id, net_m2, fiyat_tl, bina_yasi, oda_sayisi, mahalle, ilce')
       .eq('kategori', 'konut')
-      .eq('status', 'aktif')
+      .eq('status', 'published')
       .eq('ilce', input.ilce)
       .gte('net_m2', m2Lo)
       .lte('net_m2', m2Hi)

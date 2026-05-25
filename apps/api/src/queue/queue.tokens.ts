@@ -5,29 +5,12 @@
 import { z } from 'zod';
 
 export const Q = {
-  LIST_BATCH_INGEST: 'pusula.list-batch-ingest',
   ENRICHMENT: 'pusula.enrichment',
   TREND_DAILY: 'pusula.trend-daily',
   NOTIFICATION: 'pusula.notification',
   PARSE_TELEMETRY: 'pusula.parse-telemetry',
 } as const;
 export type QueueName = (typeof Q)[keyof typeof Q];
-
-export const ListBatchJob = z.object({
-  user_id: z.string().uuid(),
-  items: z
-    .array(
-      z.object({
-        url: z.string().url(),
-        baslik: z.string(),
-        fiyat: z.string(),
-      }),
-    )
-    .min(1)
-    .max(200),
-  trace_id: z.string().uuid(),
-});
-export type ListBatchJob = z.infer<typeof ListBatchJob>;
 
 export const EnrichmentJob = z.object({
   ilan_id: z.string().uuid(),
