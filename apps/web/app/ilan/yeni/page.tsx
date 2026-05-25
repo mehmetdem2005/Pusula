@@ -1,7 +1,7 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, type ReactElement } from 'react';
-import { Navbar } from '../../../components/Navbar';
 import { authedFetch } from '../../../lib/api';
 import { uploadListingMedia, deleteMedia } from '../../../lib/media';
 
@@ -13,9 +13,9 @@ interface MediaItem {
 }
 
 const inputCls =
-  'mt-1 w-full rounded-card-sm border border-hairline-strong bg-paper px-3 py-2 text-sm text-ink focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy';
-const labelCls = 'block text-sm';
-const spanCls = 'font-medium text-ink-2';
+  'mt-1.5 w-full rounded-xl border border-line bg-panel px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fg-faint focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand';
+const labelCls = 'block';
+const spanCls = 'text-sm font-medium text-fg-dim';
 
 const KATEGORILER: { id: Kategori; label: string }[] = [
   { id: 'konut', label: 'Konut' },
@@ -161,22 +161,43 @@ export default function YeniIlanPage(): ReactElement {
   }
 
   return (
-    <main className="bg-paper text-ink min-h-screen">
-      <Navbar />
-      <div className="shell max-w-2xl py-8 md:py-10">
-        <h1 className="text-navy font-serif text-3xl">İlan ekle</h1>
-        <p className="text-muted mt-1 text-sm">
-          {step === 'form' ? 'Önce ilan bilgilerini gir.' : 'Fotoğraf/video ekle ve yayınla.'}
-        </p>
+    <main className="bg-night font-body text-fg min-h-[100dvh]">
+      {/* Üst bar */}
+      <header className="glass border-line sticky top-0 z-30 flex items-center justify-between border-b px-4 py-3">
+        {step === 'media' ? (
+          <button
+            type="button"
+            onClick={() => setStep('form')}
+            className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
+            aria-label="Geri"
+          >
+            <Arrow dir="left" />
+          </button>
+        ) : (
+          <Link
+            href="/kesfet"
+            className="press text-fg flex h-9 w-9 items-center justify-center rounded-full bg-white/5"
+            aria-label="Kapat"
+          >
+            <Close />
+          </Link>
+        )}
+        <span className="font-semibold">{step === 'form' ? 'Yeni ilan' : 'Medya & yayınla'}</span>
+        <div className="flex gap-1.5" aria-hidden>
+          <Dot active={step === 'form'} />
+          <Dot active={step === 'media'} />
+        </div>
+      </header>
 
+      <div className="mx-auto w-full max-w-xl px-4 py-5 pb-28">
         {error && (
-          <div className="rounded-card border-band-asiri bg-surface text-band-asiri mt-4 border p-3 text-sm">
+          <div className="border-danger bg-panel text-danger mb-4 rounded-xl border p-3 text-sm">
             {error}
           </div>
         )}
 
         {step === 'form' ? (
-          <div className="rounded-card-lg border-hairline bg-surface mt-6 space-y-5 border p-6">
+          <div className="space-y-5">
             <div>
               <span className={spanCls}>Kategori</span>
               <div className="mt-2 flex gap-2">
@@ -185,10 +206,10 @@ export default function YeniIlanPage(): ReactElement {
                     key={k.id}
                     type="button"
                     onClick={() => setKategori(k.id)}
-                    className={`rounded-card-sm border px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`press rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
                       kategori === k.id
-                        ? 'border-navy bg-navy text-cream'
-                        : 'border-hairline-strong text-ink-2 hover:bg-paper-2'
+                        ? 'bg-fg text-night'
+                        : 'border-line bg-panel text-fg-dim hover:text-fg border'
                     }`}
                   >
                     {k.label}
@@ -353,7 +374,7 @@ export default function YeniIlanPage(): ReactElement {
                 onChange={(e) => setIletisim(e.target.value)}
                 placeholder="+90 5xx …"
               />
-              <span className="text-muted mt-1 block text-xs">
+              <span className="text-fg-faint mt-1.5 block text-xs">
                 İletişim platform dışıdır; alıcılar seni doğrudan arar.
               </span>
             </label>
@@ -362,23 +383,23 @@ export default function YeniIlanPage(): ReactElement {
               type="button"
               onClick={() => void proceedToMedia()}
               disabled={loading}
-              className="btn btn-gold w-full disabled:opacity-60"
+              className="press bg-brand w-full rounded-xl py-3 font-semibold text-white disabled:opacity-50"
             >
-              {loading ? 'Kaydediliyor…' : 'İleri: Fotoğraf & video'}
+              {loading ? 'Kaydediliyor…' : 'İleri · Fotoğraf & video'}
             </button>
           </div>
         ) : (
-          <div className="rounded-card-lg border-hairline bg-surface mt-6 space-y-5 border p-6">
+          <div className="space-y-5">
             <div>
               <span className={spanCls}>Fotoğraflar / video</span>
-              <p className="text-muted mt-1 text-xs">
+              <p className="text-fg-faint mt-1 text-xs">
                 Net, gerçek görseller ekle. Yüzler/plakalar/belgeler görünmesin (KVKK).
               </p>
-              <div className="mt-3 grid grid-cols-3 gap-3">
+              <div className="mt-3 grid grid-cols-3 gap-2.5">
                 {media.map((m) => (
                   <div
                     key={m.id}
-                    className="rounded-card-sm border-hairline bg-paper-2 group relative aspect-square overflow-hidden border"
+                    className="border-line bg-panel group relative aspect-square overflow-hidden rounded-xl border"
                   >
                     {m.type === 'video' ? (
                       <video src={m.previewUrl} className="h-full w-full object-cover" muted />
@@ -388,14 +409,15 @@ export default function YeniIlanPage(): ReactElement {
                     <button
                       type="button"
                       onClick={() => void removeItem(m.id)}
-                      className="bg-navy/80 text-cream absolute right-1 top-1 rounded-full px-2 py-0.5 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+                      className="press absolute right-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm"
                     >
                       Sil
                     </button>
                   </div>
                 ))}
-                <label className="rounded-card-sm border-hairline-strong text-muted hover:bg-paper-2 flex aspect-square cursor-pointer items-center justify-center border border-dashed text-3xl">
-                  +
+                <label className="press border-line bg-panel text-fg-faint hover:text-fg flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed">
+                  <Plus />
+                  <span className="text-[11px]">Ekle</span>
                   <input
                     type="file"
                     accept="image/*,video/mp4,video/quicktime"
@@ -405,15 +427,28 @@ export default function YeniIlanPage(): ReactElement {
                   />
                 </label>
               </div>
-              {uploading && <p className="text-muted mt-2 text-xs">Yükleniyor…</p>}
+              {uploading && <p className="text-fg-dim mt-2 text-xs">Yükleniyor…</p>}
             </div>
 
-            <label className="text-ink-2 flex items-start gap-2 text-sm">
+            {/* AI sanal tur — Faz 3 (yakında) */}
+            <div className="border-line bg-panel rounded-xl border p-3.5">
+              <div className="flex items-center justify-between">
+                <span className="text-fg text-sm font-medium">AI sanal tur videosu</span>
+                <span className="text-fg-dim rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide">
+                  yakında
+                </span>
+              </div>
+              <p className="text-fg-faint mt-1 text-xs">
+                Fotoğraflarından otomatik kısa gezinti videosu üret (temsilî). Çok yakında.
+              </p>
+            </div>
+
+            <label className="text-fg-dim flex items-start gap-2.5 text-sm">
               <input
                 type="checkbox"
                 checked={tos}
                 onChange={(e) => setTos(e.target.checked)}
-                className="mt-1"
+                className="accent-brand mt-0.5"
               />
               <span>
                 Bu medyanın bana ait olduğunu / yayın hakkım olduğunu ve içeriğin doğru olduğunu
@@ -421,30 +456,72 @@ export default function YeniIlanPage(): ReactElement {
               </span>
             </label>
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setStep('form')}
-                className="btn btn-ghost"
-                disabled={loading}
-              >
-                ← Geri
-              </button>
-              <button
-                type="button"
-                onClick={() => void publish()}
-                disabled={loading || uploading}
-                className="btn btn-gold flex-1 disabled:opacity-60"
-              >
-                {loading ? 'Yayınlanıyor…' : 'Yayınla'}
-              </button>
-            </div>
-            <p className="text-muted text-center text-xs">
-              Taslağın kaydedildi; istersen sonra panelden devam edebilirsin.
+            <button
+              type="button"
+              onClick={() => void publish()}
+              disabled={loading || uploading}
+              className="press bg-brand w-full rounded-xl py-3 font-semibold text-white disabled:opacity-50"
+            >
+              {loading ? 'Yayınlanıyor…' : 'Yayınla'}
+            </button>
+            <p className="text-fg-faint text-center text-xs">
+              Taslağın kaydedildi; istersen sonra devam edebilirsin.
             </p>
           </div>
         )}
       </div>
     </main>
+  );
+}
+
+function Dot({ active }: { active: boolean }): ReactElement {
+  return <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-brand' : 'bg-white/20'}`} />;
+}
+function Arrow({ dir }: { dir: 'left' }): ReactElement {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {dir === 'left' ? <path d="M15 18l-6-6 6-6" /> : <path d="M9 18l6-6-6-6" />}
+    </svg>
+  );
+}
+function Close(): ReactElement {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+function Plus(): ReactElement {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 5v14M5 12h14" />
+    </svg>
   );
 }
