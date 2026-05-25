@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import type { ReactElement } from 'react';
 import { Navbar } from '../../../components/Navbar';
 import { useApi } from '../../../lib/api';
-import { scoreBadge, scoreColor, TRY } from '../../../lib/score-ui';
+import { pillarColor, pillarLabel, scoreBand, scoreBandByValue, TRY } from '../../../lib/score-ui';
 import { IlanChat } from '../../../components/IlanChat';
 
 interface Bilesen {
@@ -34,27 +34,26 @@ interface IlanDetail {
   } | null;
 }
 
-const PILLAR_LABELS: Record<string, string> = {
-  fiyat_avantaji: 'Fiyat Avantajı',
-  kalite: 'Kalite',
-  konum: 'Konum',
-  risk: 'Risk',
+const BAND_VARS: Record<string, string> = {
+  kacirilmaz: 'var(--kacirilmaz)',
+  kelepir: 'var(--kelepir)',
+  iyi: 'var(--iyi-fiyat)',
+  piyasa: 'var(--piyasa)',
+  pahali: 'var(--pahali)',
+  asiri: 'var(--asiri)',
 };
+
+const RING_C = 264; // 2π·42
 
 export default function IlanDetayPage(): ReactElement {
   const params = useParams();
   const id = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '');
   const { data, loading, error } = useApi<IlanDetail>(id ? `/v1/ilanlar/${id}` : null);
 
-  const badge = scoreBadge(data?.skor?.etiket);
-
-  // Asistan context'i TAMAMEN API'nin döndürdüğü `data` nesnesinden üretilir.
-  // Böylece ileride eklenen her yeni metrik/pilar/alan (vision, nlp, finansal, yeni ilan
-  // alanları...) elle eklemeye gerek kalmadan otomatik olarak asistana yansır.
   const chatContext = data
     ? [
         "Sen Pusula'nın emlak danışmanısın. Kullanıcıya sade, kısa ve net Türkçe yardımcı ol.",
-        'Aşağıdaki JSON, bu ilanın TÜM verisini ve skor metriklerini içerir (4 pilar, alt',
+        'Aşağıdaki JSON, bu ilanın TÜM verisini ve skor metriklerini içerir (pilarlar, alt',
         'bileşenler, comparable istatistikleri, uyarılar ve eklenen diğer tüm alanlar).',
         'Soruları yalnız bu veriye dayanarak yanıtla; ileride eklenen yeni metrikleri de',
         'aynı şekilde kullan. Skoru DEĞİŞTİRME, yalnızca yorumla ve gerekçelendir.',
@@ -63,109 +62,161 @@ export default function IlanDetayPage(): ReactElement {
       ].join('\n')
     : '';
 
-  return (
-    <main className="min-h-screen bg-slate-50">
-      <Navbar />
-      <div className="container mx-auto max-w-5xl px-6 py-8">
-        <div className="mb-4 text-sm">
-          <Link href="/dashboard" className="text-sky-600 underline">
-            ← Tüm ilanlar
-          </Link>
-        </div>
+  const band = data?.skor ? scoreBand(data.skor.etiket) : null;
+  const bandKey = data?.skor ? band?.band || scoreBandByValue(data.skor.toplam) : '';
+  const ringColor = BAND_VARS[bandKey] ?? 'var(--navy)';
 
-        {loading && <div className="h-40 animate-pulse rounded-lg bg-white" />}
+  return (
+    <main className="bg-paper text-ink min-h-screen">
+      <Navbar />
+      <div className="shell max-w-4xl py-8 md:py-10">
+        <Link href="/dashboard" className="text-ink-3 hover:text-navy text-sm font-medium">
+          ← Tüm ilanlar
+        </Link>
+
+        {loading && (
+          <div className="rounded-card border-hairline bg-surface mt-6 h-44 animate-pulse border" />
+        )}
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="rounded-card border-band-asiri bg-surface text-band-asiri mt-6 border p-4 text-sm">
             İlan yüklenemedi: {error}
           </div>
         )}
 
         {data && (
           <>
-            <div className="mb-4 rounded-lg bg-white p-6">
-              <h1 className="mb-1 text-xl font-bold">{data.baslik}</h1>
-              <div className="text-sm text-slate-500">
+            <header className="mt-6">
+              <h1 className="text-navy font-serif text-3xl leading-tight md:text-4xl">
+                {data.baslik}
+              </h1>
+              <div className="text-muted mt-2 text-sm">
                 {[data.il, data.ilce, data.mahalle].filter(Boolean).join(' · ')}
-                {data.net_m2 ? ` · ${data.net_m2}m²` : ''}
+                {data.net_m2 ? ` · ${data.net_m2} m²` : ''}
                 {data.oda_sayisi ? ` · ${data.oda_sayisi}` : ''}
                 {typeof data.bina_yasi === 'number' ? ` · ${data.bina_yasi} yaş` : ''}
               </div>
-              <div className="mt-2 text-lg font-bold text-[#0F1F4B]">
-                {TRY.format(data.fiyat_tl)}
+              <div className="mt-4 flex flex-wrap items-baseline gap-4">
+                <span className="text-ink font-serif text-3xl">{TRY.format(data.fiyat_tl)}</span>
+                <a
+                  href={data.ilan_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-navy hover:text-gold-deep text-sm font-medium"
+                >
+                  İlana git →
+                </a>
               </div>
-              <a
-                href={data.ilan_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-sky-600 underline"
-              >
-                İlana git →
-              </a>
-            </div>
+            </header>
 
             {data.skor ? (
               <>
-                <div className="mb-4 grid gap-4 md:grid-cols-3">
-                  <div className="rounded-lg bg-white p-6 text-center">
-                    <div className="mb-1 text-xs text-slate-500">Kelepir Skoru</div>
-                    <div className={`text-5xl font-bold ${scoreColor(data.skor.toplam)}`}>
-                      {Math.round(data.skor.toplam)}
+                {/* Skor kartı */}
+                <section className="rounded-card-lg border-hairline bg-surface shadow-card mt-8 grid gap-6 border p-7 sm:grid-cols-[auto_1fr] sm:items-center">
+                  <div className="relative mx-auto h-[140px] w-[140px] shrink-0">
+                    <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        fill="none"
+                        stroke="var(--hairline)"
+                        strokeWidth="6"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        fill="none"
+                        stroke={ringColor}
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                        strokeDasharray={RING_C}
+                        strokeDashoffset={
+                          RING_C * (1 - Math.max(0, Math.min(100, data.skor.toplam)) / 100)
+                        }
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-navy font-serif text-4xl">
+                        {Math.round(data.skor.toplam)}
+                      </span>
+                      <span className="text-muted text-xs">/100</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center rounded-lg bg-white p-6">
-                    <div className="mb-1 text-xs text-slate-500">Etiket</div>
-                    <span className={`rounded-full px-3 py-1 text-sm font-semibold ${badge.cls}`}>
-                      {badge.label}
-                    </span>
-                  </div>
-                  <div className="rounded-lg bg-white p-6 text-center">
-                    <div className="mb-1 text-xs text-slate-500">Güven</div>
-                    <div className="text-lg font-semibold capitalize">{data.skor.confidence}</div>
-                    {data.skor.comparable && (
-                      <div className="mt-1 text-xs text-slate-400">
-                        {data.skor.comparable.count} benzer ilan
+                  <div>
+                    <div className="text-muted text-xs uppercase tracking-wider">Kelepir skoru</div>
+                    {band?.band && <span className={`band ${band.band} mt-2`}>{band.label}</span>}
+                    <div className="mt-4 flex gap-8 text-sm">
+                      <div>
+                        <div className="text-muted text-xs">Güven</div>
+                        <div className="text-ink mt-0.5 font-medium capitalize">
+                          {data.skor.confidence}
+                        </div>
                       </div>
-                    )}
+                      {data.skor.comparable && (
+                        <div>
+                          <div className="text-muted text-xs">Benzer ilan</div>
+                          <div className="mono text-ink mt-0.5 font-medium">
+                            {data.skor.comparable.count}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </section>
 
-                <div className="mb-4 rounded-lg bg-white p-6">
-                  <h2 className="mb-4 text-lg font-semibold">Skor Bileşenleri</h2>
-                  <div className="space-y-3">
-                    {Object.entries(data.skor.bilesenler).map(([key, b]) => (
-                      <div key={key}>
-                        <div className="mb-1 flex justify-between text-sm">
-                          <span className="font-medium">{PILLAR_LABELS[key] ?? key}</span>
-                          <span className="text-slate-500">
-                            {Math.round(b.deger)} · ağırlık %{Math.round(b.agirlik * 100)}
+                {/* Pilarlar (dinamik: 4 bugün, 8 gelecekte) */}
+                <section className="rounded-card-lg border-hairline bg-surface mt-6 border p-7">
+                  <h2 className="text-navy font-serif text-2xl">Skor bileşenleri</h2>
+                  <div className="mt-5 space-y-4">
+                    {Object.entries(data.skor.bilesenler).map(([key, b]) => {
+                      const w = Math.max(0, Math.min(100, b.deger));
+                      const color = pillarColor(key);
+                      return (
+                        <div key={key}>
+                          <div className="mb-1.5 flex items-baseline justify-between text-sm">
+                            <span className="text-ink-2 font-medium">
+                              {pillarLabel(key)}{' '}
+                              <span className="mono text-muted text-xs">
+                                w {b.agirlik.toFixed(2)}
+                              </span>
+                            </span>
+                            <span className="mono text-ink">{Math.round(b.deger)}</span>
+                          </div>
+                          <span className="bg-hairline block h-2 overflow-hidden rounded-full">
+                            <span
+                              className="block h-full rounded-full"
+                              style={{ width: `${w}%`, background: color }}
+                            />
                           </span>
                         </div>
-                        <div className="h-2 w-full rounded-full bg-slate-100">
-                          <div
-                            className="h-2 rounded-full bg-[#0F1F4B]"
-                            style={{ width: `${Math.max(0, Math.min(100, b.deger))}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                </div>
+                </section>
 
                 {data.skor.uyarilar && data.skor.uyarilar.length > 0 && (
-                  <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                    <div className="mb-1 font-semibold">⚠️ Uyarılar</div>
-                    <ul className="list-inside list-disc space-y-1">
+                  <section className="rounded-card border-hairline bg-surface mt-6 border p-6">
+                    <h2 className="text-pillar-risk flex items-center gap-2 font-serif text-xl">
+                      Uyarılar
+                    </h2>
+                    <ul className="text-ink-2 mt-3 space-y-2 text-sm">
                       {data.skor.uyarilar.map((u, i) => (
-                        <li key={i}>{u}</li>
+                        <li key={i} className="flex gap-2.5">
+                          <span className="text-pillar-risk">•</span>
+                          {u}
+                        </li>
                       ))}
                     </ul>
-                  </div>
+                  </section>
                 )}
 
-                <IlanChat context={chatContext} />
+                <div className="mt-8">
+                  <IlanChat context={chatContext} />
+                </div>
               </>
             ) : (
-              <div className="rounded-lg bg-white p-6 text-sm text-slate-500">
+              <div className="rounded-card-lg border-hairline bg-surface text-muted mt-8 border p-8 text-sm">
                 Bu ilan için henüz skor hesaplanmamış.
               </div>
             )}

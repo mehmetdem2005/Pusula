@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactElement } from 'react';
 import { getSupabaseBrowser } from '../lib/supabase';
+import { useTheme } from './ThemeProvider';
 
 interface NavItem {
   href: string;
@@ -17,10 +18,11 @@ const NAV: NavItem[] = [
 
 /**
  * Ortak üst menü — Dashboard ve Settings sayfalarında. Aktif rota highlight'lanır,
- * giriş yapan kullanıcı gösterilir, "Çıkış" gerçekten signOut() yapar.
+ * giriş yapan kullanıcı gösterilir, "Çıkış" gerçekten signOut() yapar. Tema anahtarı içerir.
  */
 export function Navbar(): ReactElement {
   const pathname = usePathname();
+  const { theme, toggle } = useTheme();
   const [email, setEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -38,11 +40,11 @@ export function Navbar(): ReactElement {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0F1F4B] text-white">
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <Link href="/dashboard" className="flex flex-col leading-tight">
-          <span className="flex items-center gap-2 text-xl font-bold">🧭 Pusula</span>
-          <span className="text-xs text-[#D4A22E]">Karar verirken kaybolma.</span>
+    <header className="border-hairline sticky top-0 z-40 border-b bg-[color-mix(in_srgb,var(--paper)_85%,transparent)] backdrop-blur-md">
+      <div className="shell flex h-[68px] items-center justify-between">
+        <Link href="/dashboard" className="brand !text-xl">
+          <span className="brand-mark" aria-hidden="true" />
+          <span>Pusula</span>
         </Link>
 
         <nav className="flex items-center gap-1 text-sm">
@@ -52,19 +54,27 @@ export function Navbar(): ReactElement {
               <Link
                 key={item.href}
                 href={item.href}
-                className={
-                  active
-                    ? 'rounded-full bg-white/10 px-3 py-1.5 font-semibold text-[#D4A22E]'
-                    : 'rounded-full px-3 py-1.5 transition hover:bg-white/5 hover:text-[#D4A22E]'
-                }
+                className={`rounded-card-sm px-3 py-1.5 font-medium transition-colors ${
+                  active ? 'bg-paper-2 text-navy' : 'text-ink-3 hover:text-navy'
+                }`}
                 aria-current={active ? 'page' : undefined}
               >
                 {item.label}
               </Link>
             );
           })}
+
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Aydınlık moda geç' : 'Karanlık moda geç'}
+            className="text-ink-3 hover:bg-paper-2 hover:text-navy ml-1 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+          >
+            {theme === 'dark' ? '☀' : '☾'}
+          </button>
+
           {email && (
-            <span className="ml-2 hidden max-w-[160px] truncate text-xs text-white/60 sm:inline">
+            <span className="text-muted ml-1 hidden max-w-[160px] truncate text-xs sm:inline">
               {email}
             </span>
           )}
@@ -72,9 +82,9 @@ export function Navbar(): ReactElement {
             type="button"
             onClick={() => void logout()}
             disabled={busy}
-            className="ml-2 rounded-full border border-white/20 px-3 py-1.5 text-xs hover:bg-white/5 disabled:opacity-60"
+            className="border-hairline-strong text-ink-2 hover:border-navy hover:text-navy ml-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60"
           >
-            {busy ? 'Çıkılıyor...' : 'Çıkış'}
+            {busy ? 'Çıkılıyor…' : 'Çıkış'}
           </button>
         </nav>
       </div>

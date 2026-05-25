@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { ReactElement } from 'react';
 import { Navbar } from '../../components/Navbar';
 import { useApi } from '../../lib/api';
-import { scoreBadge, scoreColor, TRY } from '../../lib/score-ui';
+import { scoreBand, scoreColor, TRY } from '../../lib/score-ui';
 import { IlanChat } from '../../components/IlanChat';
 import { PasteIngest } from '../../components/PasteIngest';
 
@@ -24,7 +24,22 @@ export default function DashboardPage(): ReactElement {
   const { data, loading, error } = useApi<IlanCard[]>('/v1/ilanlar');
   const ilanlar = data ?? [];
 
-  // Portföy asistanı context'i — API'nin döndürdüğü tüm ilan verisinden dinamik üretilir.
+  // KPI'lar portföydeki ilanlardan client-side türetilir (backend ayrı uç sağlamıyor).
+  const scored = ilanlar.filter((i) => i.skor);
+  const avgScore = scored.length
+    ? Math.round(scored.reduce((s, i) => s + (i.skor?.toplam ?? 0), 0) / scored.length)
+    : null;
+  const kelepirCount = ilanlar.filter(
+    (i) => i.skor?.etiket === 'kacirilmaz' || i.skor?.etiket === 'kelepir',
+  ).length;
+
+  const kpis: { label: string; value: string }[] = [
+    { label: 'Toplam ilan', value: String(ilanlar.length) },
+    { label: 'Ortalama skor', value: avgScore !== null ? `${avgScore}` : '—' },
+    { label: 'Kelepir+', value: String(kelepirCount) },
+    { label: 'Skorlanan', value: String(scored.length) },
+  ];
+
   const portfolioContext = [
     "Sen Pusula'nın emlak danışmanısın. Kullanıcının TÜM ilanları ve skorları aşağıdaki JSON'da.",
     'Sade, kısa Türkçe yardımcı ol: karşılaştır, en iyi/en riskli olanı bul, ortalama hesapla,',
@@ -34,85 +49,99 @@ export default function DashboardPage(): ReactElement {
   ].join('\n');
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="bg-paper text-ink min-h-screen">
       <Navbar />
-      <div className="container mx-auto px-6 py-8">
-        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm">
-          🚧 <strong>Beta:</strong> AI analizleri uygulama içinde sağlanır. Eklentiyi yükleyip bir
-          ilan sayfasına gidin — analiz burada belirir.
+      <div className="shell py-8 md:py-10">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h1 className="h3 text-navy">İlanlarım</h1>
+            <p className="text-muted mt-1 text-sm">Analiz edilen ilanların ve portföy özetin.</p>
+          </div>
+          <div className="mono text-muted text-sm">{loading ? '…' : `${ilanlar.length} kayıt`}</div>
         </div>
 
-        <PasteIngest />
-
-        <div className="mb-6 flex items-end justify-between">
-          <h1 className="text-2xl font-bold">İlanlarım</h1>
-          <div className="text-sm text-slate-500">
-            {loading ? '...' : `${ilanlar.length} kayıt`}
+        {!loading && ilanlar.length > 0 && (
+          <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {kpis.map((k) => (
+              <div key={k.label} className="rounded-card border-hairline bg-surface border p-5">
+                <div className="text-muted text-xs">{k.label}</div>
+                <div className="mono text-navy mt-2 text-3xl font-medium">{k.value}</div>
+              </div>
+            ))}
           </div>
+        )}
+
+        <div className="mb-8">
+          <PasteIngest />
         </div>
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="rounded-card border-band-asiri bg-surface text-band-asiri border p-4 text-sm">
             İlanlar yüklenemedi: {error}
           </div>
         )}
 
         {loading && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-32 animate-pulse rounded-lg bg-white" />
+              <div
+                key={i}
+                className="rounded-card border-hairline bg-surface h-44 animate-pulse border"
+              />
             ))}
           </div>
         )}
 
         {!loading && !error && ilanlar.length === 0 && (
-          <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
-            <p className="mb-2 text-lg font-medium">Henüz ilan yok</p>
-            <p className="mb-4 text-sm">
-              Pusula tarayıcı eklentisini yükleyip bir ilan sayfasına gidin — ilk analiziniz burada
-              belirecek.
+          <div className="rounded-card-lg border-hairline-strong bg-surface border border-dashed p-12 text-center">
+            <p className="text-navy font-serif text-2xl">Henüz ilan yok</p>
+            <p className="text-ink-3 mx-auto mt-2 max-w-md text-sm">
+              Pusula tarayıcı eklentisini yükleyip bir ilan sayfasına gidin — ya da yukarıdan bir
+              ilan bağlantısı yapıştırın. İlk analiziniz burada belirecek.
             </p>
-            <Link
-              href="/settings"
-              className="inline-block rounded-full bg-[#0F1F4B] px-5 py-2 text-sm font-semibold text-white hover:opacity-90"
-            >
-              Eklenti & Ayarlar
+            <Link href="/settings" className="btn btn-gold mt-6 inline-flex">
+              Eklenti &amp; Ayarlar
             </Link>
           </div>
         )}
 
         {!loading && ilanlar.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {ilanlar.map((ilan) => {
-              const badge = scoreBadge(ilan.skor?.etiket);
+              const band = scoreBand(ilan.skor?.etiket);
+              const loc = [ilan.ilce, ilan.mahalle].filter(Boolean).join(' · ');
+              const meta = [ilan.net_m2 ? `${ilan.net_m2} m²` : null, ilan.oda_sayisi].filter(
+                Boolean,
+              );
               return (
                 <Link
                   key={ilan.id}
                   href={`/ilan/${ilan.id}`}
-                  className="block rounded-lg bg-white p-5 shadow-sm transition hover:shadow-md"
+                  className="rounded-card border-hairline bg-surface hover:shadow-card group flex flex-col border p-5 transition-shadow"
                 >
-                  <div className="mb-2 flex items-start justify-between gap-2">
-                    <h2 className="line-clamp-2 text-sm font-semibold text-slate-800">
-                      {ilan.baslik}
-                    </h2>
+                  <div className="flex items-start justify-between gap-3">
+                    {band.band ? (
+                      <span className={`band ${band.band}`}>{band.label}</span>
+                    ) : (
+                      <span className="text-muted text-xs">Skor yok</span>
+                    )}
                     {ilan.skor && (
-                      <span className={`text-2xl font-bold ${scoreColor(ilan.skor.toplam)}`}>
+                      <span
+                        className={`font-serif text-3xl leading-none ${scoreColor(ilan.skor.toplam)}`}
+                      >
                         {Math.round(ilan.skor.toplam)}
                       </span>
                     )}
                   </div>
-                  <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${badge.cls}`}
-                  >
-                    {badge.label}
-                  </span>
-                  <div className="mt-3 text-lg font-bold text-[#0F1F4B]">
-                    {TRY.format(ilan.fiyat_tl)}
-                  </div>
-                  <div className="mt-1 text-xs text-slate-500">
-                    {[ilan.ilce, ilan.mahalle].filter(Boolean).join(' · ')}
-                    {ilan.net_m2 ? ` · ${ilan.net_m2}m²` : ''}
-                    {ilan.oda_sayisi ? ` · ${ilan.oda_sayisi}` : ''}
+                  <h2 className="text-ink mt-3 line-clamp-2 font-medium leading-snug">
+                    {ilan.baslik}
+                  </h2>
+                  {loc && <div className="text-muted mt-1 text-xs">{loc}</div>}
+                  <div className="mt-auto pt-4">
+                    <div className="text-navy font-serif text-xl">{TRY.format(ilan.fiyat_tl)}</div>
+                    {meta.length > 0 && (
+                      <div className="mono text-muted mt-1 text-xs">{meta.join(' · ')}</div>
+                    )}
                   </div>
                 </Link>
               );
@@ -121,7 +150,7 @@ export default function DashboardPage(): ReactElement {
         )}
 
         {!loading && (
-          <div className="mt-8">
+          <div className="mt-10">
             <IlanChat
               context={portfolioContext}
               intro="Tüm ilanlarını biliyorum — karşılaştırma, en iyi/en riskli olanlar, ortalama skor. Yazarak veya konuşarak sor."
