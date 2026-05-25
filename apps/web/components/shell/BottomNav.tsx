@@ -34,7 +34,7 @@ const ITEMS: Item[] = [
   { href: '/dashboard', label: 'Keşfet', icon: I.search },
   { href: '/ilan/yeni', label: 'Paylaş', icon: I.plus, center: true },
   { href: '/asistan', label: 'Asistan', icon: I.spark },
-  { href: '/ayarlar', label: 'Profil', icon: I.user },
+  { href: '/profil', label: 'Profil', icon: I.user },
 ];
 
 /** Reels rebuild — frosted-glass alt navigasyon (mobil-öncelikli). SVG ikonlar. */
@@ -79,7 +79,7 @@ export function BottomNav(): ReactElement {
                 href={it.href}
                 aria-current={active ? 'page' : undefined}
                 className={`press flex min-w-[56px] flex-col items-center gap-1 py-1 text-[10px] font-medium ${
-                  active ? 'text-brand' : 'text-fg-faint hover:text-fg-dim'
+                  active ? 'text-fg' : 'text-fg-faint hover:text-fg-dim'
                 }`}
               >
                 <svg
