@@ -3,12 +3,17 @@
 > **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
 > If that file exists, its rules **override** this Master file.
 > If not, strictly follow the rules below.
+>
+> **TOKEN BASE:** The canonical, runnable source of these tokens is
+> `tools/_kit.mjs` (`TOKENS` + `CSS`). All mockups in `design/mockups/` are
+> rendered from it. Keep this file and the kit in sync.
 
 ---
 
 **Project:** Pusula
-**Generated:** 2026-05-25 05:00:10
-**Category:** Real Estate/Property
+**Updated:** 2026-05-25
+**Category:** Real Estate / second-hand listings marketplace
+**Direction:** Light Editorial — Apple / Linear minimal (content-first, real photography)
 
 ---
 
@@ -16,54 +21,64 @@
 
 ### Color Palette
 
-| Role        | Hex                      | CSS Variable          |
-| ----------- | ------------------------ | --------------------- |
-| Primary     | `#EC4899`                | `--color-primary`     |
-| On Primary  | `#FFFFFF`                | `--color-on-primary`  |
-| Secondary   | `#DB2777`                | `--color-secondary`   |
-| Accent/CTA  | `#2563EB`                | `--color-accent`      |
-| Background  | `#0F172A`                | `--color-background`  |
-| Foreground  | `#FFFFFF`                | `--color-foreground`  |
-| Muted       | `#201A32`                | `--color-muted`       |
-| Border      | `rgba(255,255,255,0.08)` | `--color-border`      |
-| Destructive | `#DC2626`                | `--color-destructive` |
-| Ring        | `#EC4899`                | `--color-ring`        |
+| Role                  | Hex / Value | CSS Variable |
+| --------------------- | ----------- | ------------ |
+| Ink (text, dark CTA)  | `#0A0B0D`   | `--ink`      |
+| Sub (secondary text)  | `#5B6470`   | `--sub`      |
+| Faint (tertiary/meta) | `#9AA1AB`   | `--faint`    |
+| Background (surface)  | `#FFFFFF`   | `--bg`       |
+| Page (canvas)         | `#E9EAEE`   | `--page`     |
+| Soft (fill / inputs)  | `#F6F7F9`   | `--soft`     |
+| Line (border)         | `#ECECF0`   | `--line`     |
+| Line-2 (control edge) | `#E4E6EA`   | `--line-2`   |
+| Kelepir / positive    | `#15803D`   | `--green`    |
+| Kelepir fill          | `#E7F3EC`   | `--green-bg` |
+| Warning               | `#B45309`   | `--amber`    |
 
-**Color Notes:** Video pink on dark + timeline blue
+**Color Notes:** One ink for text and the single dark CTA. Green is reserved
+**only** for the Kelepir (bargain) signal — never decorative. No gradients on
+chrome, no neon, no pink. Photography supplies the color.
 
 ### Typography
 
-- **Heading Font:** Cinzel
-- **Body Font:** Josefin Sans
-- **Mood:** real estate, luxury, elegant, sophisticated, property, premium
-- **Google Fonts:** [Cinzel + Josefin Sans](https://fonts.google.com/share?selection.family=Cinzel:wght@400;500;600;700|Josefin+Sans:wght@300;400;500;600;700)
+- **Font (heading + body):** Inter
+- **Headings:** weight 600–700, tracking `-0.022em` (`.h`)
+- **Prices / numerics:** `font-variant-numeric: tabular-nums`, tracking `-0.01em` (`.tnum`)
+- **Eyebrow:** 11px, 600, `letter-spacing:.15em`, uppercase, color `--faint`
+- **Mood:** trustworthy, calm, editorial, premium, content-first
 
 **CSS Import:**
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 ```
 
-### Spacing Variables
+### Spacing Scale
 
-| Token         | Value             | Usage                     |
-| ------------- | ----------------- | ------------------------- |
-| `--space-xs`  | `4px` / `0.25rem` | Tight gaps                |
-| `--space-sm`  | `8px` / `0.5rem`  | Icon gaps, inline spacing |
-| `--space-md`  | `16px` / `1rem`   | Standard padding          |
-| `--space-lg`  | `24px` / `1.5rem` | Section padding           |
-| `--space-xl`  | `32px` / `2rem`   | Large gaps                |
-| `--space-2xl` | `48px` / `3rem`   | Section margins           |
-| `--space-3xl` | `64px` / `4rem`   | Hero padding              |
+| Token         | Value  | Usage                      |
+| ------------- | ------ | -------------------------- |
+| `--space-xs`  | `4px`  | Tight gaps                 |
+| `--space-sm`  | `8px`  | Icon gaps, chip gaps       |
+| `--space-md`  | `16px` | Standard padding           |
+| `--space-lg`  | `24px` | Section padding / dividers |
+| `--space-xl`  | `32px` | Large gaps                 |
+| `--space-2xl` | `48px` | Section margins            |
 
-### Shadow Depths
+### Radii
 
-| Level         | Value                          | Usage                       |
-| ------------- | ------------------------------ | --------------------------- |
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)`   | Subtle lift                 |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)`    | Cards, buttons              |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)`  | Modals, dropdowns           |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+| Element          | Radius    |
+| ---------------- | --------- |
+| Chips / pills    | `999px`   |
+| Buttons / inputs | `12–14px` |
+| Cards            | `16–18px` |
+| Avatars          | `50%`     |
+
+### Shadows (soft, never harsh)
+
+| Token           | Value                                                                | Usage          |
+| --------------- | -------------------------------------------------------------------- | -------------- |
+| `--shadow-soft` | `0 1px 2px rgba(16,24,40,.04), 0 12px 30px -16px rgba(16,24,40,.16)` | Hero, featured |
+| `--shadow-card` | `0 1px 2px rgba(16,24,40,.05), 0 8px 24px -18px rgba(16,24,40,.22)`  | Listing cards  |
 
 ---
 
@@ -72,31 +87,32 @@
 ### Buttons
 
 ```css
-/* Primary Button */
-.btn-primary {
-  background: #2563eb;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
+/* Primary — the single ink CTA per view */
+.btn-dark {
+  background: #0a0b0d;
+  color: #fff;
+  border: none;
+  font: 600 15px Inter;
+  border-radius: 12px;
+  height: 46–54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   cursor: pointer;
+  transition: all 200ms ease;
 }
-
-.btn-primary:hover {
-  opacity: 0.9;
+.btn-dark:hover {
   transform: translateY(-1px);
 }
 
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #ec4899;
-  border: 2px solid #ec4899;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
+/* Ghost — secondary action */
+.btn-ghost {
+  background: #fff;
+  color: #0a0b0d;
+  border: 1px solid #e4e6ea;
+  font: 600 15px Inter;
+  border-radius: 12px;
   cursor: pointer;
 }
 ```
@@ -105,16 +121,15 @@
 
 ```css
 .card {
-  background: #0f172a;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
+  background: #fff;
+  border: 1px solid #ececf0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
   transition: all 200ms ease;
   cursor: pointer;
 }
-
 .card:hover {
-  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 ```
@@ -123,87 +138,97 @@
 
 ```css
 .input {
-  padding: 12px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 16px;
+  background: #f6f7f9;
+  border: 1px solid #ececf0;
+  border-radius: 14px;
+  padding: 0 16px;
+  height: 46px;
+  font-size: 15px;
   transition: border-color 200ms ease;
 }
-
+.input::placeholder {
+  color: #9aa1ab;
+}
 .input:focus {
-  border-color: #ec4899;
+  border-color: #0a0b0d;
   outline: none;
-  box-shadow: 0 0 0 3px #ec489920;
 }
 ```
 
-### Modals
+### Chips
 
 ```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+.chip {
+  background: #f6f7f9;
+  border: 1px solid #ececf0;
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5b6470;
+  cursor: pointer;
 }
+.chip.on {
+  background: #0a0b0d;
+  border-color: #0a0b0d;
+  color: #fff;
+}
+```
 
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
+### Kelepir badge (the brand signal)
+
+```css
+/* On photography: translucent green pill, white text, sparkle icon */
+.badge-green {
+  background: rgba(21, 128, 61, 0.92);
+  color: #fff;
+}
+/* On surfaces: tinted pill */
+.badge-soft {
+  background: #e7f3ec;
+  border: 1px solid #cfe6d8;
+  color: #15803d;
 }
 ```
 
 ---
 
-## Style Guidelines
+## Navigation
 
-**Style:** Modern Dark (Cinema Mobile)
+- **Mobile:** frosted bottom nav, 5 slots — Akış · Keşfet · **(+ İlan ver, center ink tile)** · Listeler · Profil.
+- **Web:** hairline top nav — `Pusula` wordmark · Akış / Keşfet / Listelerim / Asistan · `İlan ver` (ghost) + avatar.
 
-**Keywords:** dark mode, cinematic, ambient light, glassmorphism, deep black, indigo, glow, blur, atmospheric, reanimated, haptic, premium, layered, frosted glass, linear gradient
+## Page Pattern
 
-**Best For:** Developer tools, pro productivity apps, fintech/trading dashboards, media/streaming platforms, AI tool interfaces, high-end gaming companion apps
-
-**Key Effects:** Expo.out Bezier(0.16,1,0.3,1) easing; spring modals (damping:20 stiffness:90); haptic-linked press (Impact Light/Medium); animated ambient light blobs (Reanimated translateX/Y slow oscillation); BlurView glassmorphism headers/nav (intensity 20); scale press 0.97 → 1.0; avoid pure #000000 (OLED smear)
-
-### Page Pattern
-
-**Pattern Name:** Minimal Single Column
-
-- **Conversion Strategy:** Single CTA focus. Large typography. Lots of whitespace. No nav clutter. Mobile-first.
-- **CTA Placement:** Center, large CTA button
-- **Section Order:** 1. Hero headline, 2. Short description, 3. Benefit bullets (3 max), 4. CTA, 5. Footer
+- **Strategy:** content-first; photography leads; one ink CTA per view.
+- **Section order (detail):** 1. Photo/hero, 2. Title + price (tnum), 3. Specs, 4. Kelepir skoru, 5. Gallery/details, 6. CTA.
+- **Feed/Explore:** photo-led cards with overlaid Kelepir badge + save; tabular prices; hairline meta.
 
 ---
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Poor photos
-- ❌ No virtual tours
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
+- ❌ Dark "cinema" backgrounds, neon glow, pink, heavy gradients on chrome
+- ❌ Green used decoratively (reserve it for the Kelepir signal)
+- ❌ Poor / stocky photos — use real, well-lit property photography
+- ❌ **Emojis as icons** — use SVG icons (Lucide / Heroicons)
+- ❌ **Missing cursor:pointer** on clickable elements
+- ❌ **Layout-shifting hovers** (use translate, not size jumps)
+- ❌ **Low contrast text** (< 4.5:1)
+- ❌ **Instant state changes** — always transition 150–300ms
+- ❌ **Invisible focus states**
 
 ---
 
 ## Pre-Delivery Checklist
 
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
+- [ ] Tokens match `tools/_kit.mjs` (`TOKENS` + `CSS`)
+- [ ] Inter font; headings `-0.022em`; prices `tabular-nums`
+- [ ] Single ink CTA per view; green only for Kelepir
+- [ ] No emojis as icons; consistent SVG icon set
 - [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
+- [ ] Hover/focus states with 150–300ms transitions
+- [ ] Text contrast ≥ 4.5:1
 - [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+- [ ] Responsive: 375 / 768 / 1024 / 1440px
+- [ ] No content hidden behind fixed navbars; no horizontal scroll on mobile
