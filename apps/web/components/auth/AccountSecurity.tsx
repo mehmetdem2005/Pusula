@@ -17,10 +17,12 @@ interface AuditRow {
   created_at: string;
 }
 
-const card = 'rounded-card-lg border border-hairline bg-surface p-6';
+const card = 'rounded-2xl border border-line bg-panel p-6';
 const input =
-  'w-full rounded-card-sm border border-hairline-strong bg-paper px-3 py-2 text-sm text-ink focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy';
-const btn = 'btn btn-primary disabled:opacity-60';
+  'w-full rounded-lg border border-line bg-panel-soft px-3 py-2 text-sm text-fg placeholder:text-fg-faint focus:border-brand focus:outline-none';
+const btn =
+  'press rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
+const h2 = 'font-display text-fg mb-4 text-lg font-bold';
 
 export function AccountSecurity(): ReactElement {
   const [email, setEmail] = useState('');
@@ -162,6 +164,11 @@ export function AccountSecurity(): ReactElement {
     }
   }
 
+  async function signOut() {
+    await getSupabaseBrowser().auth.signOut();
+    window.location.href = '/auth/login';
+  }
+
   async function signOutEverywhere() {
     if (!confirm('Tüm cihazlardaki oturumların kapatılacak. Devam?')) return;
     await getSupabaseBrowser().auth.signOut({ scope: 'global' });
@@ -190,14 +197,16 @@ export function AccountSecurity(): ReactElement {
   return (
     <div className="space-y-4">
       {(msg || err) && (
-        <p className={`text-sm ${err ? 'text-band-asiri' : 'text-band-kelepir'}`}>{err ?? msg}</p>
+        <p className="text-sm" style={{ color: err ? 'var(--c-danger)' : 'var(--kelepir)' }}>
+          {err ?? msg}
+        </p>
       )}
 
       <section className={card}>
-        <h2 className="text-navy mb-4 font-serif text-xl">Profil</h2>
+        <h2 className={h2}>Profil</h2>
         <div className="space-y-3">
           <label className="block">
-            <span className="text-ink-3 text-sm">İsim</span>
+            <span className="text-fg-dim text-sm">İsim</span>
             <input
               className={input}
               value={displayName}
@@ -205,8 +214,8 @@ export function AccountSecurity(): ReactElement {
             />
           </label>
           <label className="block">
-            <span className="text-ink-3 text-sm">Profil tipi</span>
-            <select className={`${input}`} value={role} onChange={(e) => setRole(e.target.value)}>
+            <span className="text-fg-dim text-sm">Profil tipi</span>
+            <select className={input} value={role} onChange={(e) => setRole(e.target.value)}>
               <option value="individual">Bireysel</option>
               <option value="agent">Emlakçı</option>
               <option value="dealer">Galerici</option>
@@ -219,8 +228,8 @@ export function AccountSecurity(): ReactElement {
       </section>
 
       <section className={card}>
-        <h2 className="text-navy mb-4 font-serif text-xl">E-posta & Şifre</h2>
-        <p className="text-muted mb-2 text-sm">Mevcut e-posta: {email || '—'}</p>
+        <h2 className={h2}>E-posta & Şifre</h2>
+        <p className="text-fg-faint mb-2 text-sm">Mevcut e-posta: {email || '—'}</p>
         <div className="mb-4 flex gap-2">
           <input
             className={input}
@@ -266,21 +275,21 @@ export function AccountSecurity(): ReactElement {
       </section>
 
       <section className={card}>
-        <h2 className="text-navy mb-4 font-serif text-xl">İki Adımlı Doğrulama (2FA)</h2>
+        <h2 className={h2}>İki Adımlı Doğrulama (2FA)</h2>
         {factors.length > 0 ? (
           <div className="space-y-2">
             {factors.map((f) => (
               <div
                 key={f.id}
-                className="rounded-card-sm border-hairline flex items-center justify-between border px-3 py-2 text-sm"
+                className="border-line flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
               >
-                <span>
+                <span className="text-fg-dim">
                   {f.friendly_name ?? 'TOTP'} ·{' '}
-                  <span className="text-band-kelepir">{f.status}</span>
+                  <span style={{ color: 'var(--kelepir)' }}>{f.status}</span>
                 </span>
                 <button
                   type="button"
-                  className="text-band-asiri text-xs underline"
+                  className="text-danger text-xs underline"
                   onClick={() => void removeFactor(f.id)}
                 >
                   Kaldır
@@ -290,8 +299,8 @@ export function AccountSecurity(): ReactElement {
           </div>
         ) : enroll ? (
           <div className="space-y-3">
-            <p className="text-ink-3 text-sm">Authenticator uygulamasıyla QR'ı tarat:</p>
-            <img src={enroll.qr} alt="TOTP QR" className="h-40 w-40" />
+            <p className="text-fg-dim text-sm">Authenticator uygulamasıyla QR&apos;ı tarat:</p>
+            <img src={enroll.qr} alt="TOTP QR" className="h-40 w-40 rounded-lg bg-white p-1" />
             <div className="flex gap-2">
               <input
                 className={input}
@@ -313,43 +322,54 @@ export function AccountSecurity(): ReactElement {
       </section>
 
       <section className={card}>
-        <h2 className="text-navy mb-4 font-serif text-xl">Son Aktivite</h2>
+        <h2 className={h2}>Son Aktivite</h2>
         {audit.length === 0 ? (
-          <p className="text-muted text-sm">Kayıt yok.</p>
+          <p className="text-fg-faint text-sm">Kayıt yok.</p>
         ) : (
-          <ul className="text-ink-3 space-y-1 text-sm">
+          <ul className="text-fg-dim space-y-1 text-sm">
             {audit.map((a) => (
               <li key={a.id} className="flex justify-between">
                 <span>
                   {a.event}
                   {a.provider ? ` · ${a.provider}` : ''}
                 </span>
-                <span className="text-muted">{new Date(a.created_at).toLocaleString('tr-TR')}</span>
+                <span className="text-fg-faint">
+                  {new Date(a.created_at).toLocaleString('tr-TR')}
+                </span>
               </li>
             ))}
           </ul>
         )}
-        <button
-          type="button"
-          className="btn btn-ghost mt-4"
-          onClick={() => void signOutEverywhere()}
-        >
-          Tüm cihazlardan çıkış yap
-        </button>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="press border-line text-fg rounded-lg border px-4 py-2 text-sm font-semibold"
+            onClick={() => void signOut()}
+          >
+            Çıkış yap
+          </button>
+          <button
+            type="button"
+            className="press text-fg-dim rounded-lg px-4 py-2 text-sm font-medium underline"
+            onClick={() => void signOutEverywhere()}
+          >
+            Tüm cihazlardan çıkış
+          </button>
+        </div>
       </section>
 
       <section className={card}>
-        <h2 className="text-band-asiri mb-2 font-serif text-xl">Tehlikeli Bölge</h2>
-        <p className="text-ink-3 mb-3 text-sm">
+        <h2 className="text-danger font-display mb-2 text-lg font-bold">Tehlikeli Bölge</h2>
+        <p className="text-fg-dim mb-3 text-sm">
           KVKK politikamızı{' '}
-          <a href="/legal/kvkk" className="text-navy hover:text-gold-deep underline">
+          <a href="/legal/kvkk" className="text-brand underline">
             buradan
           </a>{' '}
           okuyabilirsin.
         </p>
         <button
           type="button"
-          className="rounded-card-sm border-band-asiri text-band-asiri hover:bg-paper-2 border px-4 py-2 text-sm font-medium transition-colors"
+          className="press border-danger text-danger rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
           onClick={() => void deleteAccount()}
         >
           Hesabımı Sil
