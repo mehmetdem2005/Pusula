@@ -469,20 +469,96 @@ export class IlanlarService {
   }
 
   /** Tek ilan + son skor detayı (ilan detay sayfası). */
+  /**
+   * Tek ilan detayı. Görünürlük: sahip her statüde görür; başkaları yalnız public+published.
+   * Medya imzalı URL'leri, sahip profili ve beğeni bilgisiyle döner. Skor yalnız sahibine
+   * gösterilir (kelepir analizi sahibe özel; feed'de otomatik skor yok).
+   */
   async getIlan(userId: string, id: string): Promise<unknown> {
     const { data, error } = await this.sb
       .from('ilanlar')
-      .select('*, scoring_results(*)')
+      .select(
+        '*, scoring_results(*), media(id,type,bucket,storage_path,poster_path,ordinal,is_ai_generated)',
+      )
       .eq('id', id)
-      .eq('owner_user_id', userId)
       .maybeSingle();
     if (error) {
       this.logger.error(`getIlan failed: ${error.message}`);
       throw error;
     }
     if (!data) throw new NotFoundException('İlan bulunamadı');
+
+    const isOwner = data.owner_user_id === userId;
+    const isPublic = data.visibility === 'public' && data.status === 'published';
+    if (!isOwner && !isPublic) throw new NotFoundException('İlan bulunamadı');
+
+    // Medya → batch imzalı URL (bucket bazında).
+    interface MediaRow {
+      id: string;
+      type: string;
+      bucket: string;
+      storage_path: string;
+      poster_path: string | null;
+      ordinal: number;
+      is_ai_generated: boolean;
+    }
+    const mediaRows = ((data.media ?? []) as MediaRow[])
+      .slice()
+      .sort((a, b) => a.ordinal - b.ordinal);
+    const pathsByBucket = new Map<string, string[]>();
+    for (const m of mediaRows) {
+      const arr = pathsByBucket.get(m.bucket) ?? [];
+      arr.push(m.storage_path);
+      if (m.poster_path) arr.push(m.poster_path);
+      pathsByBucket.set(m.bucket, arr);
+    }
+    const urlMap = new Map<string, string>();
+    for (const [bucket, paths] of pathsByBucket) {
+      if (paths.length === 0) continue;
+      const { data: signed } = await this.sb.storage.from(bucket).createSignedUrls(paths, 3600);
+      for (const s of signed ?? []) {
+        if (s.signedUrl && s.path) urlMap.set(`${bucket}:${s.path}`, s.signedUrl);
+      }
+    }
+    const media = mediaRows.map((m) => ({
+      id: m.id,
+      type: m.type,
+      url: urlMap.get(`${m.bucket}:${m.storage_path}`) ?? null,
+      poster: m.poster_path ? (urlMap.get(`${m.bucket}:${m.poster_path}`) ?? null) : null,
+      is_ai_generated: m.is_ai_generated,
+    }));
+
+    // Sahip profili (güvenli kolonlar).
+    const { data: owner } = await this.sb
+      .from('users')
+      .select('id, handle, avatar_url')
+      .eq('id', data.owner_user_id as string)
+      .maybeSingle();
+
+    // Beğeni sayısı + benim beğenim.
+    const { count: likeCount } = await this.sb
+      .from('likes')
+      .select('listing_id', { count: 'exact', head: true })
+      .eq('listing_id', id);
+    const { data: myLike } = await this.sb
+      .from('likes')
+      .select('listing_id')
+      .eq('listing_id', id)
+      .eq('user_id', userId)
+      .maybeSingle();
+
     const scores = (data.scoring_results ?? []) as { hesap_zamani: string }[];
     const latest = scores.sort((a, b) => b.hesap_zamani.localeCompare(a.hesap_zamani))[0] ?? null;
-    return { ...data, skor: latest };
+
+    const { scoring_results: _sr, media: _m, ...rest } = data as Record<string, unknown>;
+    return {
+      ...rest,
+      is_owner: isOwner,
+      owner: owner ?? { id: data.owner_user_id, handle: null, avatar_url: null },
+      media,
+      like_count: likeCount ?? 0,
+      liked_by_me: !!myLike,
+      skor: isOwner ? latest : null,
+    };
   }
 }
