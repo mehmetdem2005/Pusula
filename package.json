@@ -20,7 +20,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.6.1",
+    "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^22.10.2",
