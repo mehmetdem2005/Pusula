@@ -10,10 +10,10 @@ import {
   type VoiceOption,
 } from '../../lib/api';
 import {
-  getSpeechRecognition,
   segmentSentences,
   splitForSpeech,
-  type SRInstance,
+  startMicCapture,
+  type MicCapture,
 } from '../../lib/voice';
 
 interface Msg {
@@ -58,7 +58,7 @@ export default function AsistanPage(): ReactElement {
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const contextRef = useRef('Sen Pusula’nın emlak danışmanısın. Sade, net Türkçe yardımcı ol.');
-  const recognitionRef = useRef<SRInstance | null>(null);
+  const captureRef = useRef<MicCapture | null>(null);
 
   // TTS kuyruğu.
   const ttsQueueRef = useRef<string[]>([]);
@@ -96,7 +96,7 @@ export default function AsistanPage(): ReactElement {
       .catch(() => undefined);
     return () => {
       alive = false;
-      recognitionRef.current?.abort?.();
+      captureRef.current?.cancel();
       ttsEpochRef.current++;
       audioRef.current?.pause();
     };
@@ -245,46 +245,30 @@ export default function AsistanPage(): ReactElement {
     }
   }
 
-  // Canlı dikte → composer'a yazar (kullanıcı düzeltip gönderir).
+  // Mic kaydı → Groq Whisper → composer'a yazar (kullanıcı düzeltip gönderir).
   function toggleMic() {
     if (recording) {
-      recognitionRef.current?.stop();
+      captureRef.current?.stop();
       return;
     }
-    const SR = getSpeechRecognition();
-    if (!SR) {
-      setError('Tarayıcın canlı sesi desteklemiyor (Chrome/Edge öner).');
-      return;
-    }
-    const rec = new SR();
-    rec.lang = 'tr-TR';
-    rec.interimResults = true;
-    rec.continuous = true;
-    rec.maxAlternatives = 1;
-    let finalText = '';
-    rec.onresult = (e) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        const t = r?.[0]?.transcript ?? '';
-        if (r?.isFinal) finalText += `${t} `;
-        else interim += t;
-      }
-      setInput((finalText + interim).trimStart());
-    };
-    rec.onerror = (ev) => {
-      if (ev?.error === 'not-allowed' || ev?.error === 'service-not-allowed') {
-        setError('Mikrofona erişilemedi (izin gerekli).');
-      }
-    };
-    rec.onend = () => {
-      setRecording(false);
-      recognitionRef.current = null;
-    };
-    recognitionRef.current = rec;
-    rec.start();
-    setRecording(true);
     setError(null);
+    setRecording(true);
+    void startMicCapture({
+      onResult: (t) => {
+        captureRef.current = null;
+        setRecording(false);
+        if (t) setInput((prev) => (prev ? `${prev} ${t}` : t));
+      },
+      onError: (m) => {
+        captureRef.current = null;
+        setRecording(false);
+        setError(m);
+      },
+    })
+      .then((c) => {
+        captureRef.current = c;
+      })
+      .catch(() => setRecording(false));
   }
 
   function onTextareaInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
