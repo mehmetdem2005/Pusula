@@ -37,11 +37,6 @@ export default function Profile() {
 
         <View className="px-5 gap-2">
           <Section title="Kişiselleştirme">
-            <Row
-              emoji="🔑"
-              title={t('profile.apiKeys')}
-              onPress={() => router.push('/settings/api-keys')}
-            />
             <Row emoji="🏆" title="Rozetlerim" onPress={() => router.push('/achievements')} />
             <Row emoji="🎯" title="Hedeflerim" onPress={() => router.push('/goals')} />
             <Row emoji="📊" title="Haftalık Rapor" onPress={() => router.push('/weekly-report')} />

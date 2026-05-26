@@ -1,37 +1,23 @@
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { Alert, Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button } from '../src/components/ui/Button'
-import { Input } from '../src/components/ui/Input'
-import { useAddApiKey } from '../src/hooks/useApiKeys'
 import { useUpdateOnboarding } from '../src/hooks/useSubjects'
+import { useOnboardingStore } from '../src/stores/onboarding'
 
 export default function Onboarding() {
   const router = useRouter()
   const [step, setStep] = useState(0)
-  const [keyInput, setKeyInput] = useState('')
-  const addKey = useAddApiKey()
   const completeOnboarding = useUpdateOnboarding()
+  const setOnboardingCompleted = useOnboardingStore((s) => s.setCompleted)
 
   const finish = () => {
-    completeOnboarding.mutate(true, {
-      onSuccess: () => router.replace('/(tabs)'),
-    })
-  }
-
-  const saveKey = () => {
-    if (!keyInput.startsWith('gsk_')) {
-      Alert.alert('', 'Groq anahtarı "gsk_" ile başlamalı. Atlamak da serbest.')
-      return
-    }
-    addKey.mutate(
-      { label: 'Ana Anahtar', key: keyInput.trim() },
-      {
-        onSuccess: () => setStep(2),
-        onError: (e: any) => Alert.alert('Hata', e.message),
-      },
-    )
+    // Gate anında geçişe izin versin diye store'u hemen güncelle,
+    // DB'ye yazma arka planda devam eder.
+    setOnboardingCompleted(true)
+    completeOnboarding.mutate(true)
+    router.replace('/(tabs)')
   }
 
   return (
@@ -39,14 +25,14 @@ export default function Onboarding() {
       <View className="flex-1 px-6 justify-between">
         <View className="flex-row justify-between items-center pt-2">
           <View className="flex-row gap-1.5">
-            {[0, 1, 2].map((i) => (
+            {[0, 1].map((i) => (
               <View
                 key={i}
                 className={`h-1.5 rounded-full ${i === step ? 'w-8 bg-brand-950' : 'w-1.5 bg-slate-300'}`}
               />
             ))}
           </View>
-          {step < 2 && (
+          {step < 1 && (
             <Pressable onPress={finish}>
               <Text className="text-slate-500">Atla</Text>
             </Pressable>
@@ -55,23 +41,14 @@ export default function Onboarding() {
 
         <View className="flex-1 justify-center">
           {step === 0 && <Step1 />}
-          {step === 1 && (
-            <Step2
-              keyInput={keyInput}
-              setKeyInput={setKeyInput}
-              onSave={saveKey}
-              onSkip={() => setStep(2)}
-              loading={addKey.isPending}
-            />
-          )}
-          {step === 2 && <Step3 />}
+          {step === 1 && <Step2 />}
         </View>
 
         <View className="pb-4">
           {step === 0 && (
             <Button title="Başlayalım" size="lg" fullWidth onPress={() => setStep(1)} />
           )}
-          {step === 2 && (
+          {step === 1 && (
             <Button
               title="Kavra'ya başla"
               size="lg"
@@ -107,56 +84,7 @@ function Step1() {
   )
 }
 
-function Step2({
-  keyInput,
-  setKeyInput,
-  onSave,
-  onSkip,
-  loading,
-}: {
-  keyInput: string
-  setKeyInput: (s: string) => void
-  onSave: () => void
-  onSkip: () => void
-  loading: boolean
-}) {
-  return (
-    <View>
-      <Text style={{ fontSize: 48, textAlign: 'center' }}>🔑</Text>
-      <Text className="text-3xl font-serif text-brand-950 text-center mt-4">Anahtarın sende</Text>
-      <Text className="text-slate-600 text-center text-base mt-3 leading-6 px-2">
-        Kendi Groq anahtarınla sınırsız sohbet. Ücretsiz tier cömerttir — çoğu kullanıcı hiç para
-        ödemez.
-      </Text>
-
-      <View className="bg-brand-50 border border-brand-200 rounded-2xl p-4 mt-6">
-        <Text className="text-brand-900 text-sm leading-5">
-          1. console.groq.com adresine git, ücretsiz kayıt ol{'\n'}
-          2. "API Keys" &gt; "Create API Key"{'\n'}
-          3. Oluşan <Text className="font-mono">gsk_...</Text> anahtarını aşağı yapıştır
-        </Text>
-      </View>
-
-      <View className="mt-6">
-        <Input
-          value={keyInput}
-          onChangeText={setKeyInput}
-          placeholder="gsk_..."
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      </View>
-
-      <Button title="Anahtarı Kaydet" onPress={onSave} loading={loading} fullWidth size="lg" />
-      <Pressable onPress={onSkip} className="py-3 items-center mt-3">
-        <Text className="text-slate-500">Sonra eklerim</Text>
-      </Pressable>
-    </View>
-  )
-}
-
-function Step3() {
+function Step2() {
   return (
     <View className="items-center">
       <Text style={{ fontSize: 64 }}>🎉</Text>

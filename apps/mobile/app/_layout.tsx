@@ -10,6 +10,7 @@ import '../src/lib/i18n'
 import { AppLockScreen } from '../src/components/lock/AppLockScreen'
 import { useAppLock } from '../src/hooks/useAppLock'
 import { useLanguageStore } from '../src/hooks/useLanguage'
+import { useOnboardingStore } from '../src/stores/onboarding'
 import { registerPushNotifications } from '../src/lib/notifications'
 import { useShareIntentHandler } from '../src/lib/share-intent'
 import { supabase } from '../src/lib/supabase'
@@ -26,7 +27,8 @@ function RouteGate({ children }: { children: React.ReactNode }) {
   const segments = useSegments()
   const router = useRouter()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
-  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
+  const onboardingCompleted = useOnboardingStore((s) => s.completed)
+  const setOnboardingCompleted = useOnboardingStore((s) => s.setCompleted)
 
   useShareIntentHandler()
   const { isLocked } = useAppLock()
