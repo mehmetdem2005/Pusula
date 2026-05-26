@@ -280,11 +280,14 @@ export async function socialRoutes(fastify: FastifyInstance) {
     const enriched = (all ?? []).map((a) => ({
       ...a,
       isUnlocked: unlocked.has(a.id),
+      earned: unlocked.has(a.id),
+      earned_at: null,
     }))
 
     return {
       achievements: enriched,
       unlockedCount: unlocked.size,
+      earnedCount: unlocked.size,
       totalCount: enriched.length,
     }
   })

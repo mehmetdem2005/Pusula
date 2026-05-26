@@ -35,34 +35,7 @@ const PushTokenSchema = z.object({
 
 export async function motivationRoutes(fastify: FastifyInstance) {
   // ==================== ACHIEVEMENTS ====================
-
-  /** GET /api/achievements — preset + earned hepsi */
-  fastify.get('/api/achievements', async (req, reply) => {
-    const userId = await verifyUserToken(req.headers.authorization)
-    if (!userId) return reply.code(401).send({ error: 'unauthorized' })
-
-    const [allResp, earnedResp] = await Promise.all([
-      supabase.from('achievements').select('*').eq('is_active', true).order('display_order'),
-      supabase.from('user_achievements').select('*').eq('user_id', userId),
-    ])
-
-    const earnedIds = new Set((earnedResp.data ?? []).map((u: any) => u.achievement_id))
-    const earnedDates = new Map(
-      (earnedResp.data ?? []).map((u: any) => [u.achievement_id, u.earned_at]),
-    )
-
-    const all = (allResp.data ?? []).map((a: any) => ({
-      ...a,
-      earned: earnedIds.has(a.id),
-      earned_at: earnedDates.get(a.id) ?? null,
-    }))
-
-    return {
-      achievements: all,
-      earnedCount: earnedIds.size,
-      totalCount: all.length,
-    }
-  })
+  // NOT: GET /api/achievements social.ts'te tek kaynak (her iki yanıt şekli orada birleşik).
 
   /** POST /api/achievements/check — yeni rozet kazanıldı mı kontrol et */
   fastify.post('/api/achievements/check', async (req, reply) => {
