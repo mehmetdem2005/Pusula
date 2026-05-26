@@ -149,9 +149,8 @@ export default function DocumentDetail() {
             <ActionCard
               emoji="💬"
               title="PDF Hakkında Soru Sor"
-              subtitle="RAG ile dokümandan cevap (yakında)"
-              onPress={() => Alert.alert('', "RAG sohbet Faz 4'te")}
-              disabled
+              subtitle="RAG ile dokümandan cevap al"
+              onPress={() => router.push(`/documents/${id}/chat`)}
             />
           </View>
         )}

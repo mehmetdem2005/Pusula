@@ -167,6 +167,22 @@ export function useGenerateFlashcards() {
   })
 }
 
+export interface DocChatCitation {
+  page: number | null
+  snippet: string
+}
+
+export function useDocumentChat() {
+  return useMutation({
+    mutationFn: async (input: { documentId: string; question: string }) => {
+      return await apiFetch<{ answer: string; citations: DocChatCitation[] }>(
+        `${PDF_BASE_URL}/api/documents/${input.documentId}/chat`,
+        { method: 'POST', body: JSON.stringify({ question: input.question }) },
+      )
+    },
+  })
+}
+
 export function usePendingFlashcards(documentId: string | null) {
   return useQuery({
     queryKey: ['generated-flashcards', documentId],

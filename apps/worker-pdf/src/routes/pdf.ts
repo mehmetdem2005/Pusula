@@ -32,6 +32,37 @@ interface GeneratedFlashcard {
   difficulty: number
 }
 
+const ChatSchema = z.object({
+  question: z.string().min(1).max(1000),
+})
+
+function parseEmbedding(e: unknown): number[] | null {
+  if (Array.isArray(e)) return e as number[]
+  if (typeof e === 'string') {
+    try {
+      const v = JSON.parse(e)
+      return Array.isArray(v) ? v : null
+    } catch {
+      return null
+    }
+  }
+  return null
+}
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0
+  let na = 0
+  let nb = 0
+  const len = Math.min(a.length, b.length)
+  for (let i = 0; i < len; i++) {
+    dot += a[i]! * b[i]!
+    na += a[i]! * a[i]!
+    nb += b[i]! * b[i]!
+  }
+  const denom = Math.sqrt(na) * Math.sqrt(nb)
+  return denom === 0 ? 0 : dot / denom
+}
+
 export async function pdfRoutes(fastify: FastifyInstance) {
   /**
    * POST /api/documents/:id/process
@@ -353,6 +384,89 @@ Türkçe yaz. Tarihler, formüller, tanımlar, isimler için ideal.`,
     } catch (err: any) {
       fastify.log.error(err)
       return reply.code(500).send({ error: 'vision_failed', message: err.message })
+    }
+  })
+
+  /**
+   * POST /api/documents/:id/chat
+   * Dokümandan RAG ile soru-cevap: soruyu embed et → en yakın chunk'ları bul →
+   * sadece o bağlamla cevap üret (kaynak sayfa atıflarıyla).
+   */
+  fastify.post<{ Params: { id: string } }>('/api/documents/:id/chat', async (req, reply) => {
+    const userId = await verifyUserToken(req.headers.authorization)
+    if (!userId) return reply.code(401).send({ error: 'unauthorized' })
+
+    const parsed = ChatSchema.safeParse(req.body)
+    if (!parsed.success) return reply.code(400).send({ error: parsed.error.format() })
+    const { question } = parsed.data
+
+    const apiKey = await getActiveGroqKey(userId)
+    if (!apiKey) return reply.code(400).send({ error: 'no_active_key' })
+
+    // IDOR koruması: doküman bu kullanıcıya ait mi?
+    const { data: doc } = await supabase
+      .from('documents')
+      .select('id, title')
+      .eq('id', req.params.id)
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (!doc) return reply.code(404).send({ error: 'document_not_found' })
+
+    // Chunk'ları + embedding'lerini çek
+    const { data: chunks } = await supabase
+      .from('document_chunks')
+      .select('content, page_number, embedding')
+      .eq('document_id', req.params.id)
+      .limit(500)
+
+    if (!chunks || chunks.length === 0) {
+      return reply.code(400).send({ error: 'not_processed', message: 'Doküman henüz işlenmedi' })
+    }
+
+    // Soruyu embed et, cosine similarity ile en yakın 6 chunk'ı seç
+    const [queryEmbed] = await embedTexts([question])
+    const ranked = chunks
+      .map((c) => {
+        const emb = parseEmbedding(c.embedding)
+        return {
+          content: c.content as string,
+          page: c.page_number as number | null,
+          score: emb && queryEmbed ? cosineSimilarity(queryEmbed, emb) : 0,
+        }
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6)
+
+    const context = ranked
+      .map((c, i) => `[Pasaj ${i + 1}${c.page ? `, sayfa ${c.page}` : ''}]\n${c.content}`)
+      .join('\n\n')
+
+    try {
+      const result = await groqChatJSON<{ answer: string }>({
+        apiKey,
+        jsonMode: true,
+        temperature: 0.3,
+        systemPrompt: `Sen bir doküman asistanısın. SADECE aşağıdaki pasajlara dayanarak Türkçe cevap ver.
+Cevabı pasajlardan üretemiyorsan "Bu doküman bu konuda bilgi içermiyor." de — uydurma.
+Mümkünse hangi sayfaya dayandığını belirt.
+
+DOKÜMAN: ${doc.title}
+
+PASAJLAR:
+${context}
+
+Çıktı formatı (JSON): { "answer": "..." }`,
+        userPrompt: question,
+      })
+
+      const citations = ranked
+        .filter((c) => c.page != null)
+        .map((c) => ({ page: c.page, snippet: c.content.slice(0, 160) }))
+
+      return { answer: result.answer ?? '', citations }
+    } catch (err: any) {
+      fastify.log.error(err)
+      return reply.code(500).send({ error: 'chat_failed', message: err.message })
     }
   })
 }

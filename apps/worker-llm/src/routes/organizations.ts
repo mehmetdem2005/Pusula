@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+import { emailLayout, sendEmail } from '../email.js'
 import { AUDIT_EVENTS, audit } from '../lib/audit.js'
 import { supabase, verifyUserToken } from '../supabase.js'
 
@@ -249,7 +250,7 @@ export async function organizationsRoutes(fastify: FastifyInstance) {
     // Seat check
     const { data: org } = await supabase
       .from('organizations')
-      .select('seats_used, max_seats, slug')
+      .select('name, seats_used, max_seats, slug')
       .eq('id', req.params.id)
       .single()
 
@@ -337,8 +338,24 @@ export async function organizationsRoutes(fastify: FastifyInstance) {
     // Recompute seats
     await supabase.rpc('recompute_org_seats', { p_org_id: req.params.id })
 
-    // TODO: Email gönder (SendGrid/Resend) — pending invitations için
-    // worker-cron'da hourly job
+    // Pending davetlere e-posta gönder
+    const orgName = org.name ?? 'Kavra ekibi'
+    await Promise.all(
+      invitations
+        .filter((i) => i.status === 'invited' && i.inviteUrl)
+        .map((i) =>
+          sendEmail({
+            to: i.email,
+            subject: `${orgName} seni Kavra'ya davet etti`,
+            html: emailLayout(`
+              <p style="color: #1E1B4B; font-size: 16px; margin-top: 16px;"><strong>${orgName}</strong> seni Kavra'da kendi ekibine davet etti.</p>
+              <p style="color: #64748B; font-size: 14px;">Daveti kabul etmek için aşağıdaki butona tıkla:</p>
+              <a href="${i.inviteUrl}" style="display: inline-block; background: #1E1B4B; color: #FBF8F0; text-decoration: none; padding: 14px 28px; border-radius: 14px; font-weight: 600; margin: 20px 0;">Daveti Kabul Et</a>
+              <p style="color: #94A3B8; font-size: 12px; line-height: 1.5;">Buton çalışmazsa bu bağlantıyı tarayıcına yapıştır:<br/>${i.inviteUrl}</p>
+            `),
+          }),
+        ),
+    )
 
     return { invitations }
   })

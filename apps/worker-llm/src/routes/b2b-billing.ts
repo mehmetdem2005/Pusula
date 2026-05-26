@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+import { emailLayout, sendEmail } from '../email.js'
 import { AUDIT_EVENTS, audit } from '../lib/audit.js'
 import { supabase, verifyUserToken } from '../supabase.js'
 
@@ -179,8 +180,6 @@ export async function b2bBillingRoutes(fastify: FastifyInstance) {
         .eq('id', req.params.id)
         .single()
 
-      // sales@kavra.app'e email tetikle (cron worker ile)
-      // Şimdilik audit log + dahili notify
       await audit({
         orgId: req.params.id,
         userId,
@@ -192,6 +191,21 @@ export async function b2bBillingRoutes(fastify: FastifyInstance) {
           orgName: org?.name,
           email: org?.billing_email,
         },
+      })
+
+      // Satış ekibine bildir
+      await sendEmail({
+        to: 'sales@kavra.app',
+        subject: `Enterprise talebi — ${org?.name ?? 'Bilinmeyen kurum'}`,
+        html: emailLayout(`
+          <p style="color: #1E1B4B; font-size: 16px; margin-top: 16px;">Yeni enterprise satış talebi.</p>
+          <table style="width: 100%; font-size: 14px; color: #334155; border-collapse: collapse;">
+            <tr><td style="padding: 4px 0; color: #94A3B8;">Kurum</td><td><strong>${org?.name ?? '—'}</strong></td></tr>
+            <tr><td style="padding: 4px 0; color: #94A3B8;">Fatura e-postası</td><td>${org?.billing_email ?? '—'}</td></tr>
+            <tr><td style="padding: 4px 0; color: #94A3B8;">Tahmini koltuk</td><td>${req.body.seatEstimate ?? '—'}</td></tr>
+          </table>
+          <p style="color: #64748B; font-size: 14px; margin-top: 16px; white-space: pre-wrap;">${(req.body.message ?? '').replace(/[<>]/g, '')}</p>
+        `),
       })
 
       return { ok: true, message: 'Satış ekibi 24 saat içinde dönecek.' }
