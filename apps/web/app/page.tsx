@@ -1,3 +1,6 @@
+const APK_URL =
+  process.env.NEXT_PUBLIC_APK_URL ?? 'https://github.com/mehmetdem2005/pusula/releases/latest'
+
 export default function Landing() {
   return (
     <main className="min-h-screen">
@@ -160,15 +163,25 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-serif mb-6">Bugün kavramaya başla.</h2>
           <p className="text-white/70 text-lg mb-10 max-w-xl mx-auto">
-            Ücretsiz Android uygulamasını indir, Groq anahtarını ekle, istediğin dilde kavramaya
-            başla.
+            Ücretsiz Android uygulamasını indir ve istediğin dilde hemen kavramaya başla.
           </p>
-          <a
-            href="#"
-            className="inline-block bg-accent-500 text-white px-8 py-4 rounded-xl font-semibold hover:bg-accent-600 transition"
-          >
-            Google Play'den İndir
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={APK_URL}
+              className="inline-block bg-accent-500 text-white px-8 py-4 rounded-xl font-semibold hover:bg-accent-600 transition"
+            >
+              Android APK indir
+            </a>
+            <span
+              aria-disabled="true"
+              className="inline-flex items-center gap-2 bg-white/10 text-white/60 px-8 py-4 rounded-xl font-semibold cursor-not-allowed select-none"
+            >
+              Google Play
+              <span className="text-xs bg-white/15 text-white/80 px-2 py-0.5 rounded-full">
+                yakında
+              </span>
+            </span>
+          </div>
           <p className="text-white/50 text-sm mt-4">
             iOS yakında · Web şu anda geliştirme aşamasında
           </p>
