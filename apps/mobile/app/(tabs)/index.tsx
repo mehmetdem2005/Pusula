@@ -2,9 +2,7 @@ import { useRouter } from 'expo-router'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native'
-import { Alert as RNAlert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useApiKeys } from '../../src/hooks/useApiKeys'
 import { useCreateLesson, useRecentLessons } from '../../src/hooks/useLessons'
 import { useAchievements, useCheckAchievements, useStreak } from '../../src/hooks/useMotivation'
 import { useTodayReflection } from '../../src/hooks/useReflections'
@@ -21,7 +19,6 @@ export default function Dashboard() {
   const { t } = useTranslation()
   const router = useRouter()
   const user = useAuth((s) => s.user)
-  const { data: keys } = useApiKeys()
   const { data: lessons } = useRecentLessons(3)
   const { data: streak } = useStreak()
   const { data: achievements } = useAchievements()
@@ -55,23 +52,8 @@ export default function Dashboard() {
   }, [])
 
   const firstName = (user?.user_metadata?.full_name as string | undefined)?.split(' ')[0] ?? ''
-  const hasActiveKey = keys && keys.some((k) => k.is_default && k.is_active)
-
-  const requireKey = () => {
-    if (hasActiveKey) return true
-    Alert.alert(
-      'Önce API anahtarı ekle',
-      'Kavra ile konuşmaya başlamak için bir Groq anahtarına ihtiyacın var.',
-      [
-        { text: 'Vazgeç', style: 'cancel' },
-        { text: 'Ekle', onPress: () => router.push('/settings/api-keys') },
-      ],
-    )
-    return false
-  }
 
   const handleNewChat = () => {
-    if (!requireKey()) return
     createLesson.mutate(
       {},
       {
@@ -82,7 +64,6 @@ export default function Dashboard() {
   }
 
   const handleVoiceLesson = () => {
-    if (!requireKey()) return
     createLesson.mutate(
       {},
       {
@@ -99,22 +80,6 @@ export default function Dashboard() {
         <Text className="text-3xl font-serif text-brand-950 mt-1">
           {firstName || 'Hoş geldin'} 👋
         </Text>
-
-        {!hasActiveKey && (
-          <Pressable
-            onPress={() => router.push('/settings/api-keys')}
-            className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-6 flex-row items-center gap-3"
-          >
-            <Text style={{ fontSize: 24 }}>🔑</Text>
-            <View className="flex-1">
-              <Text className="font-semibold text-amber-900">Groq anahtarı gerekli</Text>
-              <Text className="text-amber-800 text-sm mt-0.5">
-                Konuşmaya başlamak için anahtarını ekle
-              </Text>
-            </View>
-            <Text className="text-amber-700 text-xl">›</Text>
-          </Pressable>
-        )}
 
         <View className="flex-row gap-3 mt-6">
           <Pressable

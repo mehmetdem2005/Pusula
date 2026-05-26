@@ -40,8 +40,8 @@ export default function Landing() {
         </h1>
 
         <p className="text-xl text-slate-600 mt-6 max-w-2xl mx-auto leading-relaxed">
-          Kendi Groq anahtarınla sınırsız sohbet. PDF yükle, fotoğraf çek, konuşarak ders dinle. Her
-          dilde. Tamamen senin kontrolünde.
+          Sınırsız sohbet — kurulum yok, anahtar yok. PDF yükle, fotoğraf çek, konuşarak ders
+          dinle. Her dilde, hemen başla.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-10">
@@ -60,7 +60,7 @@ export default function Landing() {
         </div>
 
         <div className="flex items-center justify-center gap-6 mt-8 text-sm text-slate-500">
-          <span>🔒 Anahtarın sende</span>
+          <span>⚡ Kurulum gerekmez</span>
           <span>🎙️ Sesli entegre</span>
           <span>📴 Offline çalışır</span>
         </div>
@@ -120,8 +120,8 @@ export default function Landing() {
           Ücretsiz başla. İstersen Pro'ya geç.
         </h2>
         <p className="text-center text-slate-600 mb-16 max-w-2xl mx-auto">
-          Groq anahtarın sende olduğu için LLM maliyeti bizde değil. Senden sadece ekstra özellikler
-          için ücret alıyoruz.
+          Ücretsiz katmanla hemen başla — anahtar veya kurulum gerekmez. Senden sadece gelişmiş
+          özellikler için ücret alıyoruz.
         </p>
 
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -132,7 +132,7 @@ export default function Landing() {
             cta="Hemen başla"
             features={[
               '150 tekniğin tümü',
-              'Sınırsız metin chat (kendi Groq key)',
+              'Sınırsız metin chat',
               'Cihaz TTS + Whisper STT',
               '5 PDF / ay',
               '2D kavram haritası',

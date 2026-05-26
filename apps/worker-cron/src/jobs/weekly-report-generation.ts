@@ -80,7 +80,7 @@ export async function runWeeklyReportGeneration({ logger }: JobContext): Promise
     const messages: Parameters<typeof sendExpoPushBatch>[0] = []
 
     // Her kullanıcı için: önce metrikleri al, sonra Groq ile narrative üret
-    const SYSTEM_GROQ_KEY = process.env.SYSTEM_GROQ_KEY
+    const SYSTEM_GROQ_KEY = process.env.SYSTEM_GROQ_KEY ?? process.env.GROQ_API_KEY
 
     for (const userId of toGenerate) {
       usersProcessed++
