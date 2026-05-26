@@ -70,7 +70,7 @@ function RouteGate({ children }: { children: React.ReactNode }) {
     const inOnboarding = first === 'onboarding'
 
     if (!session) {
-      if (!inAuth) router.replace('/(auth)/signin')
+      if (!inAuth) router.replace('/(auth)/sign-in')
       return
     }
 
