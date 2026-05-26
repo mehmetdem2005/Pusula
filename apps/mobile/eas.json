@@ -22,9 +22,9 @@
       "ios": { "simulator": false },
       "env": {
         "APP_ENV": "staging",
-        "EXPO_PUBLIC_API_BASE_URL": "https://api-staging.kavra.app",
-        "EXPO_PUBLIC_VOICE_BASE_URL": "https://voice-staging.kavra.app",
-        "EXPO_PUBLIC_PDF_BASE_URL": "https://pdf-staging.kavra.app"
+        "EXPO_PUBLIC_API_BASE_URL": "https://kavra-worker-llm.onrender.com",
+        "EXPO_PUBLIC_VOICE_BASE_URL": "https://kavra-worker-voice.onrender.com",
+        "EXPO_PUBLIC_PDF_BASE_URL": "https://kavra-worker-pdf.onrender.com"
       }
     },
     "production": {
