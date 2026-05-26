@@ -20,6 +20,10 @@ import { supabase } from '../../src/lib/supabase'
  *   5. Apple (iOS only)
  *   6. Facebook (Instagram dahil — Meta auth)
  */
+
+// Facebook/Meta auth henüz Supabase'de yapılandırılmadı — bağlanınca true yap
+const FACEBOOK_ENABLED = false
+
 export default function SignIn() {
   const router = useRouter()
   const [authMethod, setAuthMethod] = useState<'magic' | 'password' | 'phone'>('magic')
@@ -320,22 +324,24 @@ export default function SignIn() {
             </Pressable>
           )}
 
-          <Pressable
-            onPress={handleFacebook}
-            disabled={!!loading}
-            className="bg-[#1877F2] rounded-xl p-3 flex-row items-center justify-center gap-3"
-          >
-            {loading === 'facebook' ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <>
-                <Icon name="facebook" size={18} color="white" />
-                <Text className="text-white font-medium text-sm">
-                  Facebook / Instagram ile devam et
-                </Text>
-              </>
-            )}
-          </Pressable>
+          {FACEBOOK_ENABLED && (
+            <Pressable
+              onPress={handleFacebook}
+              disabled={!!loading}
+              className="bg-[#1877F2] rounded-xl p-3 flex-row items-center justify-center gap-3"
+            >
+              {loading === 'facebook' ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <>
+                  <Icon name="facebook" size={18} color="white" />
+                  <Text className="text-white font-medium text-sm">
+                    Facebook / Instagram ile devam et
+                  </Text>
+                </>
+              )}
+            </Pressable>
+          )}
         </View>
 
         <Text className="text-[10px] text-slate-500 text-center mt-8 leading-5">
