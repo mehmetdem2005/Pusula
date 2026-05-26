@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import { ENGLISH_VOICES, TURKISH_VOICES, synthesizeEdgeAndStore } from '../edge-tts.js'
+import { GEMINI_VOICES, isGeminiTTSConfigured, synthesizeGeminiAndStore } from '../gemini-tts.js'
 import { synthesizeAndStore } from '../piper.js'
 import { verifyUserToken } from '../supabase.js'
 
@@ -19,32 +19,34 @@ export async function synthesizeRoutes(fastify: FastifyInstance) {
     const parsed = SynthesizeSchema.safeParse(req.body)
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.format() })
 
-    // Önce Edge TTS (ücretsiz, kaliteli neural). Başarısız olursa Piper'a düş.
-    try {
-      const result = await synthesizeEdgeAndStore(parsed.data)
-      return result
-    } catch (edgeErr: any) {
-      fastify.log.warn(edgeErr, 'Edge TTS başarısız, Piper fallback')
+    // Önce Gemini TTS (ücretsiz tier, kaliteli neural, çok dilli). Olmazsa Piper.
+    let geminiErr: any = null
+    if (isGeminiTTSConfigured()) {
       try {
-        const result = await synthesizeAndStore(parsed.data, userId)
-        return result
+        return await synthesizeGeminiAndStore(parsed.data)
       } catch (err: any) {
-        fastify.log.error(err, 'TTS sentez hatası (edge + piper)')
-        return reply.code(500).send({
-          error: 'tts_failed',
-          detail: err?.message ?? edgeErr?.message ?? 'Unknown',
-        })
+        geminiErr = err
+        fastify.log.warn(err, 'Gemini TTS başarısız, Piper fallback')
       }
+    }
+    try {
+      return await synthesizeAndStore(parsed.data, userId)
+    } catch (err: any) {
+      fastify.log.error(err, 'TTS sentez hatası (gemini + piper)')
+      return reply.code(500).send({
+        error: 'tts_failed',
+        detail: err?.message ?? geminiErr?.message ?? 'Unknown',
+      })
     }
   })
 
-  // Mevcut sesleri listele — Edge TTS neural sesler (ücretsiz)
+  // Mevcut sesleri listele — Gemini neural sesler (ücretsiz tier)
   fastify.get('/api/voice/voices', async () => {
     return {
-      voices: [...TURKISH_VOICES, ...ENGLISH_VOICES].map((v) => ({
-        id: v.shortName,
-        language: v.locale.split('-')[0],
-        name: v.displayName,
+      voices: GEMINI_VOICES.map((v) => ({
+        id: v.id,
+        language: 'tr',
+        name: v.name,
         gender: v.gender.toLowerCase(),
       })),
     }

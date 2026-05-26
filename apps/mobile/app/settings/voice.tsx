@@ -22,8 +22,12 @@ const TTS_MODES: Array<{ value: TTSMode; label: string; desc: string; emoji: str
 ]
 
 const VOICE_OPTIONS = [
-  { id: 'tr-TR-EmelNeural', label: 'Türkçe — Emel', gender: '👩' },
-  { id: 'tr-TR-AhmetNeural', label: 'Türkçe — Ahmet', gender: '👨' },
+  { id: 'Kore', label: 'Eylül', gender: '👩' },
+  { id: 'Aoede', label: 'Derya', gender: '👩' },
+  { id: 'Leda', label: 'Zeynep', gender: '👩' },
+  { id: 'Puck', label: 'Kaan', gender: '👨' },
+  { id: 'Charon', label: 'Demir', gender: '👨' },
+  { id: 'Fenrir', label: 'Bora', gender: '👨' },
 ]
 
 export default function VoiceSettings() {
@@ -31,14 +35,14 @@ export default function VoiceSettings() {
   const prefs = (profile as any)?.user_preferences
 
   const [mode, setMode] = useState<TTSMode>(prefs?.tts_mode ?? 'auto')
-  const [voice, setVoice] = useState<string>(prefs?.tts_voice ?? 'tr-TR-EmelNeural')
+  const [voice, setVoice] = useState<string>(prefs?.tts_voice ?? 'Kore')
   const [speed, setSpeed] = useState<number>(prefs?.tts_speed ?? 1.0)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (prefs) {
       setMode(prefs.tts_mode ?? 'auto')
-      setVoice(prefs.tts_voice ?? 'tr-TR-EmelNeural')
+      setVoice(prefs.tts_voice ?? 'Kore')
       setSpeed(prefs.tts_speed ?? 1.0)
     }
   }, [prefs])
