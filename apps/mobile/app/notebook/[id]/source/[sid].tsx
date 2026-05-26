@@ -53,7 +53,7 @@ const TARGET_LANGS: Array<{ code: string; label: string }> = [
 
 export default function YouTubeSourceViewer() {
   const router = useRouter()
-  const { sid } = useLocalSearchParams<{ sid: string }>()
+  const { id, sid } = useLocalSearchParams<{ id: string; sid: string }>()
   const [source, setSource] = useState<Source | null>(null)
   const [chunks, setChunks] = useState<Chunk[]>([])
   const [loading, setLoading] = useState(true)
@@ -249,7 +249,7 @@ export default function YouTubeSourceViewer() {
         </Pressable>
 
         <Pressable
-          onPress={() => router.push(`/notebook/${source.id}`)}
+          onPress={() => router.push(`/notebook/${id}`)}
           className="bg-ink-900 rounded-full px-3 py-1.5 flex-row items-center gap-1.5"
         >
           <Icon name="message-square" size={11} color="#F59E0B" />
