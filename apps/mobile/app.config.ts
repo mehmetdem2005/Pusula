@@ -89,6 +89,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-document-picker',
+    [
+      'expo-build-properties',
+      {
+        // Compose Compiler 1.5.15 Kotlin 1.9.25 ister; SDK 52 varsayilani 1.9.24
+        android: { kotlinVersion: '1.9.25' },
+      },
+    ],
   ],
   experiments: { typedRoutes: true },
   extra: {
