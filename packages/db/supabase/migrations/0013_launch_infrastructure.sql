@@ -27,6 +27,7 @@ create index if not exists idx_devices_user on user_devices(user_id, last_active
 create index if not exists idx_devices_push on user_devices(push_enabled) where push_enabled = true;
 
 alter table public.user_devices enable row level security;
+drop policy if exists "users_own_devices" on user_devices;
 create policy "users_own_devices" on user_devices for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -58,10 +59,13 @@ create index if not exists idx_moderation_user on moderation_log(user_id, create
 create index if not exists idx_moderation_flagged on moderation_log(verdict) where verdict in ('flagged', 'blocked');
 
 alter table public.moderation_log enable row level security;
+drop policy if exists "users_read_own_moderation" on moderation_log;
 create policy "users_read_own_moderation" on moderation_log for select
   using (auth.uid() = user_id);
+drop policy if exists "service_writes_moderation" on moderation_log;
 create policy "service_writes_moderation" on moderation_log for insert
   with check (auth.role() = 'service_role');
+drop policy if exists "admins_manage_moderation" on moderation_log;
 create policy "admins_manage_moderation" on moderation_log for all
   using (
     exists (
@@ -94,10 +98,13 @@ create table if not exists public.user_feedback (
 create index if not exists idx_feedback_status on user_feedback(status, created_at desc);
 
 alter table public.user_feedback enable row level security;
+drop policy if exists "users_create_feedback" on user_feedback;
 create policy "users_create_feedback" on user_feedback for insert
   with check (auth.uid() = user_id);
+drop policy if exists "users_read_own_feedback" on user_feedback;
 create policy "users_read_own_feedback" on user_feedback for select
   using (auth.uid() = user_id);
+drop policy if exists "admins_manage_feedback" on user_feedback;
 create policy "admins_manage_feedback" on user_feedback for all
   using (
     exists (
@@ -121,6 +128,7 @@ create table if not exists public.review_prompt_state (
 );
 
 alter table public.review_prompt_state enable row level security;
+drop policy if exists "users_own_review_state" on review_prompt_state;
 create policy "users_own_review_state" on review_prompt_state for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -152,12 +160,14 @@ create table if not exists public.announcements (
 create index if not exists idx_announcements_active on announcements(is_active, starts_at, ends_at);
 
 alter table public.announcements enable row level security;
+drop policy if exists "anyone_reads_active" on announcements;
 create policy "anyone_reads_active" on announcements for select
   using (
     is_active = true
     and starts_at <= now()
     and (ends_at is null or ends_at >= now())
   );
+drop policy if exists "admins_manage_announcements" on announcements;
 create policy "admins_manage_announcements" on announcements for all
   using (
     exists (
@@ -177,6 +187,7 @@ create table if not exists public.user_announcement_state (
 );
 
 alter table public.user_announcement_state enable row level security;
+drop policy if exists "users_own_announcement_state" on user_announcement_state;
 create policy "users_own_announcement_state" on user_announcement_state for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -200,6 +211,7 @@ create table if not exists public.account_deletion_requests (
 create index if not exists idx_deletion_pending on account_deletion_requests(status, scheduled_for) where status = 'pending';
 
 alter table public.account_deletion_requests enable row level security;
+drop policy if exists "users_own_deletion" on account_deletion_requests;
 create policy "users_own_deletion" on account_deletion_requests for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -219,8 +231,12 @@ $$;
 -- USER_ENTITLEMENTS: view → table'a migrate (mobile in-app purchase için)
 -- ============================================================================
 
--- Eski view'ı kaldır
-drop view if exists public.user_entitlements cascade;
+-- Eski view varsa kaldır (tablo ise dokunma)
+do $$ begin
+  if exists (select 1 from information_schema.views where table_schema='public' and table_name='user_entitlements') then
+    drop view public.user_entitlements cascade;
+  end if;
+end $$;
 
 -- Tablo olarak yeniden yarat
 create table if not exists public.user_entitlements (
@@ -244,8 +260,10 @@ create index if not exists idx_entitlements_pro on user_entitlements(is_pro, val
 create index if not exists idx_entitlements_external on user_entitlements(external_subscription_id);
 
 alter table public.user_entitlements enable row level security;
+drop policy if exists "users_read_own_entitlement" on user_entitlements;
 create policy "users_read_own_entitlement" on user_entitlements for select
   using (auth.uid() = user_id);
+drop policy if exists "service_writes_entitlements" on user_entitlements;
 create policy "service_writes_entitlements" on user_entitlements for all
   using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
 
@@ -257,7 +275,7 @@ select
   true as is_pro,
   current_period_end as valid_until,
   'stripe' as source
-from premium_subscriptions
+from subscriptions
 where status = 'active'
 on conflict (user_id) do nothing;
 
@@ -285,7 +303,9 @@ create index if not exists idx_sub_events_user on subscription_events(user_id, c
 create index if not exists idx_sub_events_type on subscription_events(event_type, created_at desc);
 
 alter table public.subscription_events enable row level security;
+drop policy if exists "users_read_own_sub_events" on subscription_events;
 create policy "users_read_own_sub_events" on subscription_events for select
   using (auth.uid() = user_id);
+drop policy if exists "service_writes_sub_events" on subscription_events;
 create policy "service_writes_sub_events" on subscription_events for insert
   with check (auth.role() = 'service_role');

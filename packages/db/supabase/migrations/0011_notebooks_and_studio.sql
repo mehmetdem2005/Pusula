@@ -5,6 +5,8 @@
 
 -- pgvector extension
 create extension if not exists vector;
+-- unaccent (Türkçe-dostu FTS) — bu migrationdaki arama fonksiyonu kullanıyor, en başta olmalı
+create extension if not exists unaccent;
 
 -- ---- NOTEBOOKS (Kavra "Defter") ----
 create table if not exists public.notebooks (
@@ -34,6 +36,7 @@ create index if not exists idx_notebooks_user
   on notebooks(user_id, is_archived, last_accessed_at desc);
 
 alter table public.notebooks enable row level security;
+drop policy if exists "users_own_notebooks" on notebooks;
 create policy "users_own_notebooks" on notebooks for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -77,6 +80,7 @@ create index if not exists idx_sources_status
   on notebook_sources(status) where status in ('pending', 'processing');
 
 alter table public.notebook_sources enable row level security;
+drop policy if exists "users_own_sources" on notebook_sources;
 create policy "users_own_sources" on notebook_sources for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -116,6 +120,7 @@ create index if not exists idx_chunks_embedding
   with (m = 16, ef_construction = 64);
 
 alter table public.source_chunks enable row level security;
+drop policy if exists "users_own_chunks" on source_chunks;
 create policy "users_own_chunks" on source_chunks for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -143,6 +148,7 @@ create index if not exists idx_messages_notebook
   on notebook_messages(notebook_id, created_at);
 
 alter table public.notebook_messages enable row level security;
+drop policy if exists "users_own_messages" on notebook_messages;
 create policy "users_own_messages" on notebook_messages for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -189,6 +195,7 @@ create index if not exists idx_generated_status
   on generated_content(status) where status in ('pending', 'processing');
 
 alter table public.generated_content enable row level security;
+drop policy if exists "users_own_generated" on generated_content;
 create policy "users_own_generated" on generated_content for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -210,6 +217,7 @@ create table if not exists public.podcast_scripts (
 create index if not exists idx_scripts_content on podcast_scripts(generated_content_id);
 
 alter table public.podcast_scripts enable row level security;
+drop policy if exists "users_own_scripts" on podcast_scripts;
 create policy "users_own_scripts" on podcast_scripts for select
   using (
     exists (
@@ -225,19 +233,22 @@ insert into storage.buckets (id, name, public)
   values ('notebook-sources', 'notebook-sources', false)
   on conflict (id) do nothing;
 
-create policy if not exists "users_read_own_sources" on storage.objects
+drop policy if exists "users_read_own_sources" on storage.objects;
+create policy "users_read_own_sources" on storage.objects
   for select using (
     bucket_id = 'notebook-sources'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "users_upload_own_sources" on storage.objects
+drop policy if exists "users_upload_own_sources" on storage.objects;
+create policy "users_upload_own_sources" on storage.objects
   for insert with check (
     bucket_id = 'notebook-sources'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "users_delete_own_sources" on storage.objects
+drop policy if exists "users_delete_own_sources" on storage.objects;
+create policy "users_delete_own_sources" on storage.objects
   for delete using (
     bucket_id = 'notebook-sources'
     and (storage.foldername(name))[1] = auth.uid()::text
@@ -248,13 +259,15 @@ insert into storage.buckets (id, name, public)
   values ('notebook-outputs', 'notebook-outputs', false)
   on conflict (id) do nothing;
 
-create policy if not exists "users_read_own_outputs" on storage.objects
+drop policy if exists "users_read_own_outputs" on storage.objects;
+create policy "users_read_own_outputs" on storage.objects
   for select using (
     bucket_id = 'notebook-outputs'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "service_writes_outputs" on storage.objects
+drop policy if exists "service_writes_outputs" on storage.objects;
+create policy "service_writes_outputs" on storage.objects
   for insert with check (
     bucket_id = 'notebook-outputs' and auth.role() = 'service_role'
   );

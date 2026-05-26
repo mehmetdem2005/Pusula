@@ -4,7 +4,8 @@
 -- ============================================================================
 
 -- ---- SUBSCRIPTIONS — Stripe ile sync ----
-create table if not exists public.subscriptions (
+drop table if exists public.subscriptions cascade;
+create table public.subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null unique references profiles(id) on delete cascade,
 
@@ -38,7 +39,8 @@ create index if not exists idx_subscriptions_stripe_customer on subscriptions(st
 create index if not exists idx_subscriptions_stripe_sub on subscriptions(stripe_subscription_id);
 
 alter table public.subscriptions enable row level security;
-create policy if not exists "users_read_own_subscription" on subscriptions
+drop policy if exists "users_read_own_subscription" on subscriptions;
+create policy "users_read_own_subscription" on subscriptions
   for select using (auth.uid() = user_id);
 -- Yazma sadece service_role'dan yapılır (webhook)
 
@@ -47,38 +49,27 @@ insert into subscriptions (user_id, tier, status)
 select id, 'free', 'active' from profiles
 on conflict (user_id) do nothing;
 
--- ---- ENTİTLEMENT VIEW — basit Pro kontrol ----
--- Mobile/worker bunu okur, gerçek "premium mi?" kararını verir
-create or replace view public.user_entitlements as
-select
-  s.user_id,
-  s.tier,
-  s.status,
-  case
-    when s.tier = 'pro_lifetime' and s.lifetime_purchased_at is not null then true
-    when s.tier in ('pro_monthly', 'pro_yearly')
-      and s.status in ('active', 'trialing')
-      and (s.current_period_end is null or s.current_period_end > now())
-    then true
-    else false
-  end as is_pro,
-  s.current_period_end,
-  s.cancel_at_period_end
-from subscriptions s;
-
-grant select on user_entitlements to authenticated, service_role;
-
 -- ---- IS_PRO HELPER FUNCTION ----
+-- NOT: user_entitlements TABLOSU 0013'te oluşturuluyor. Pro kararı burada
+-- doğrudan subscriptions'tan hesaplanır (view yok — tablo ile çakışmasın).
 create or replace function public.is_pro(p_user_id uuid default auth.uid())
 returns boolean
 language sql
 stable
 security definer
 as $$
-  select coalesce(
-    (select is_pro from user_entitlements where user_id = p_user_id),
-    false
-  );
+  select coalesce((
+    select bool_or(
+      case
+        when s.tier = 'pro_lifetime' and s.lifetime_purchased_at is not null then true
+        when s.tier in ('pro_monthly', 'pro_yearly')
+          and s.status in ('active', 'trialing')
+          and (s.current_period_end is null or s.current_period_end > now())
+        then true
+        else false
+      end)
+    from subscriptions s where s.user_id = p_user_id
+  ), false);
 $$;
 
 grant execute on function public.is_pro to authenticated, service_role;
@@ -95,11 +86,13 @@ create table if not exists public.usage_quotas (
 );
 
 alter table public.usage_quotas enable row level security;
-create policy if not exists "users_read_own_quotas" on usage_quotas
+drop policy if exists "users_read_own_quotas" on usage_quotas;
+create policy "users_read_own_quotas" on usage_quotas
   for select using (auth.uid() = user_id);
 
 -- ---- VOICE CLONES — F5-TTS modeller ----
-create table if not exists public.voice_clones (
+drop table if exists public.voice_clones cascade;
+create table public.voice_clones (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   name text not null,                          -- 'Babamın sesi', 'Hocamızın sesi' vb.
@@ -129,7 +122,8 @@ create index if not exists idx_voice_clones_user on voice_clones(user_id, create
 create unique index if not exists idx_voice_clones_default on voice_clones(user_id) where is_default = true;
 
 alter table public.voice_clones enable row level security;
-create policy if not exists "users_own_voice_clones" on voice_clones
+drop policy if exists "users_own_voice_clones" on voice_clones;
+create policy "users_own_voice_clones" on voice_clones
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- THEMES — Tema kişiselleştirme (free=3 / pro=hepsi) ----
@@ -167,10 +161,10 @@ do $$
 begin
   if not exists (select 1 from information_schema.columns
                   where table_name = 'user_preferences' and column_name = 'app_lock_enabled') then
-    alter table user_preferences add column app_lock_enabled boolean default false;
-    alter table user_preferences add column app_lock_method text check (app_lock_method in ('biometric', 'pin')) default 'biometric';
-    alter table user_preferences add column app_lock_timeout_seconds int default 0;  -- 0 = anında, >0 = N saniye sonra
-    alter table user_preferences add column theme_id text references themes(id) default 'indigo_amber';
+    alter table user_preferences add column if not exists app_lock_enabled boolean default false;
+    alter table user_preferences add column if not exists app_lock_method text check (app_lock_method in ('biometric', 'pin')) default 'biometric';
+    alter table user_preferences add column if not exists app_lock_timeout_seconds int default 0;  -- 0 = anında, >0 = N saniye sonra
+    alter table user_preferences add column if not exists theme_id text references themes(id) default 'indigo_amber';
   end if;
 end $$;
 
@@ -198,10 +192,10 @@ do $$
 begin
   if not exists (select 1 from information_schema.columns
                   where table_name = 'user_preferences' and column_name = 'notify_review_reminder') then
-    alter table user_preferences add column notify_review_reminder boolean default true;
-    alter table user_preferences add column notify_review_reminder_hour int default 20 check (notify_review_reminder_hour between 0 and 23);
-    alter table user_preferences add column notify_weekly_report boolean default true;
-    alter table user_preferences add column notify_streak_warning boolean default true;
+    alter table user_preferences add column if not exists notify_review_reminder boolean default true;
+    alter table user_preferences add column if not exists notify_review_reminder_hour int default 20 check (notify_review_reminder_hour between 0 and 23);
+    alter table user_preferences add column if not exists notify_weekly_report boolean default true;
+    alter table user_preferences add column if not exists notify_streak_warning boolean default true;
   end if;
 end $$;
 
@@ -226,19 +220,22 @@ insert into storage.buckets (id, name, public)
   on conflict (id) do nothing;
 
 -- RLS — kullanıcı sadece kendi klasörüne yazabilir/okuyabilir
-create policy if not exists "voice_references_user_read" on storage.objects
+drop policy if exists "voice_references_user_read" on storage.objects;
+create policy "voice_references_user_read" on storage.objects
   for select using (
     bucket_id = 'voice-references'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "voice_references_user_insert" on storage.objects
+drop policy if exists "voice_references_user_insert" on storage.objects;
+create policy "voice_references_user_insert" on storage.objects
   for insert with check (
     bucket_id = 'voice-references'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "voice_references_user_delete" on storage.objects
+drop policy if exists "voice_references_user_delete" on storage.objects;
+create policy "voice_references_user_delete" on storage.objects
   for delete using (
     bucket_id = 'voice-references'
     and (storage.foldername(name))[1] = auth.uid()::text

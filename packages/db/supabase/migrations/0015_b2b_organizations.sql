@@ -70,19 +70,6 @@ create index if not exists idx_orgs_slug on organizations(slug);
 create index if not exists idx_orgs_sso_domain on organizations(sso_domain) where sso_domain is not null;
 create index if not exists idx_orgs_plan on organizations(plan);
 
-alter table public.organizations enable row level security;
-create policy "members_read_org" on organizations for select
-  using (exists (
-    select 1 from organization_members om
-    where om.org_id = organizations.id and om.user_id = auth.uid()
-  ));
-create policy "owners_update_org" on organizations for update
-  using (exists (
-    select 1 from organization_members om
-    where om.org_id = organizations.id and om.user_id = auth.uid() and om.role = 'owner'
-  ));
-
--- =============== ORG MEMBERS ============
 create table if not exists public.organization_members (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
@@ -117,12 +104,30 @@ create index if not exists idx_orgmembers_org on organization_members(org_id, ro
 create index if not exists idx_orgmembers_invitation on organization_members(invitation_token) where invitation_token is not null;
 create index if not exists idx_orgmembers_scim on organization_members(scim_external_id) where scim_external_id is not null;
 
+alter table public.organizations enable row level security;
+drop policy if exists "members_read_org" on organizations;
+create policy "members_read_org" on organizations for select
+  using (exists (
+    select 1 from organization_members om
+    where om.org_id = organizations.id and om.user_id = auth.uid()
+  ));
+drop policy if exists "owners_update_org" on organizations;
+create policy "owners_update_org" on organizations for update
+  using (exists (
+    select 1 from organization_members om
+    where om.org_id = organizations.id and om.user_id = auth.uid() and om.role = 'owner'
+  ));
+
+-- =============== ORG MEMBERS ============
+
 alter table public.organization_members enable row level security;
+drop policy if exists "members_read_org_members" on organization_members;
 create policy "members_read_org_members" on organization_members for select
   using (exists (
     select 1 from organization_members om
     where om.org_id = organization_members.org_id and om.user_id = auth.uid()
   ));
+drop policy if exists "admins_manage_members" on organization_members;
 create policy "admins_manage_members" on organization_members for all
   using (exists (
     select 1 from organization_members om
@@ -160,11 +165,13 @@ create index if not exists idx_classes_org on classes(org_id, is_archived);
 create index if not exists idx_classes_teacher on classes(teacher_id);
 
 alter table public.classes enable row level security;
+drop policy if exists "org_members_read_classes" on classes;
 create policy "org_members_read_classes" on classes for select
   using (exists (
     select 1 from organization_members om
     where om.org_id = classes.org_id and om.user_id = auth.uid()
   ));
+drop policy if exists "teachers_manage_classes" on classes;
 create policy "teachers_manage_classes" on classes for all
   using (auth.uid() = teacher_id or exists (
     select 1 from organization_members om
@@ -192,6 +199,7 @@ create table if not exists public.class_members (
 create index if not exists idx_classmembers_user on class_members(user_id);
 
 alter table public.class_members enable row level security;
+drop policy if exists "class_members_read_self" on class_members;
 create policy "class_members_read_self" on class_members for select using (
   auth.uid() = user_id
   or exists (select 1 from classes where id = class_members.class_id and teacher_id = auth.uid())
@@ -234,10 +242,12 @@ create index if not exists idx_assignments_class on assignments(class_id, due_at
 create index if not exists idx_assignments_teacher on assignments(teacher_id);
 
 alter table public.assignments enable row level security;
+drop policy if exists "class_members_read_assignments" on assignments;
 create policy "class_members_read_assignments" on assignments for select using (
   exists (select 1 from class_members where class_id = assignments.class_id and user_id = auth.uid())
   or exists (select 1 from classes where id = assignments.class_id and teacher_id = auth.uid())
 );
+drop policy if exists "teachers_manage_assignments" on assignments;
 create policy "teachers_manage_assignments" on assignments for all
   using (auth.uid() = teacher_id);
 
@@ -271,8 +281,10 @@ create index if not exists idx_submissions_student on assignment_submissions(stu
 create index if not exists idx_submissions_assignment on assignment_submissions(assignment_id, status);
 
 alter table public.assignment_submissions enable row level security;
+drop policy if exists "students_read_own_submissions" on assignment_submissions;
 create policy "students_read_own_submissions" on assignment_submissions for all
   using (auth.uid() = student_id) with check (auth.uid() = student_id);
+drop policy if exists "teachers_read_class_submissions" on assignment_submissions;
 create policy "teachers_read_class_submissions" on assignment_submissions for select using (
   exists (
     select 1 from assignments a
@@ -281,6 +293,7 @@ create policy "teachers_read_class_submissions" on assignment_submissions for se
       and (c.teacher_id = auth.uid())
   )
 );
+drop policy if exists "teachers_grade_submissions" on assignment_submissions;
 create policy "teachers_grade_submissions" on assignment_submissions for update using (
   exists (
     select 1 from assignments a
@@ -320,6 +333,7 @@ create index if not exists idx_audit_user on audit_log(user_id, created_at desc)
 create index if not exists idx_audit_event on audit_log(event_type, created_at desc);
 
 alter table public.audit_log enable row level security;
+drop policy if exists "admins_read_audit" on audit_log;
 create policy "admins_read_audit" on audit_log for select using (
   exists (
     select 1 from organization_members om
@@ -328,6 +342,7 @@ create policy "admins_read_audit" on audit_log for select using (
       and om.role in ('owner', 'admin')
   )
 );
+drop policy if exists "service_writes_audit" on audit_log;
 create policy "service_writes_audit" on audit_log for insert
   with check (auth.role() = 'service_role');
 
@@ -368,6 +383,7 @@ begin
 end;
 $$;
 
+drop trigger if exists trg_class_member_count on class_members;
 drop trigger if exists trg_class_member_count on class_members;
 create trigger trg_class_member_count
 after insert or delete on class_members

@@ -4,7 +4,8 @@
 -- ============================================================================
 
 -- ---- DAILY REFLECTIONS — günlük yazılı yansıtma ----
-create table if not exists public.reflections (
+drop table if exists public.reflections cascade;
+create table public.reflections (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   date date not null,                              -- bir günde tek reflection
@@ -21,11 +22,13 @@ create table if not exists public.reflections (
 create index if not exists idx_reflections_user_date on reflections(user_id, date desc);
 
 alter table public.reflections enable row level security;
-create policy if not exists "users_own_reflections" on reflections
+drop policy if exists "users_own_reflections" on reflections;
+create policy "users_own_reflections" on reflections
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- WEEKLY REPORTS — AI tarafından üretilen haftalık özet ----
-create table if not exists public.weekly_reports (
+drop table if exists public.weekly_reports cascade;
+create table public.weekly_reports (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   week_start date not null,                        -- pazartesi
@@ -46,11 +49,13 @@ create table if not exists public.weekly_reports (
 create index if not exists idx_reports_user on weekly_reports(user_id, week_start desc);
 
 alter table public.weekly_reports enable row level security;
-create policy if not exists "users_own_reports" on weekly_reports
+drop policy if exists "users_own_reports" on weekly_reports;
+create policy "users_own_reports" on weekly_reports
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- ACHIEVEMENTS (preset rozetler) ----
-create table if not exists public.achievements (
+drop table if exists public.achievements cascade;
+create table public.achievements (
   id text primary key,                             -- 'streak_7', 'first_lesson' vb.
   name text not null,
   description text not null,
@@ -99,11 +104,13 @@ create table if not exists public.user_achievements (
 create index if not exists idx_user_achievements on user_achievements(user_id, earned_at desc);
 
 alter table public.user_achievements enable row level security;
-create policy if not exists "users_own_achievements" on user_achievements
+drop policy if exists "users_own_achievements" on user_achievements;
+create policy "users_own_achievements" on user_achievements
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- FOCUS SESSIONS — Pomodoro / deep work kayıtları ----
-create table if not exists public.focus_sessions (
+drop table if exists public.focus_sessions cascade;
+create table public.focus_sessions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   subject_id uuid references subjects(id) on delete set null,
@@ -120,11 +127,13 @@ create table if not exists public.focus_sessions (
 create index if not exists idx_focus_user on focus_sessions(user_id, started_at desc);
 
 alter table public.focus_sessions enable row level security;
-create policy if not exists "users_own_focus" on focus_sessions
+drop policy if exists "users_own_focus" on focus_sessions;
+create policy "users_own_focus" on focus_sessions
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- WOOP GOALS — Wish / Outcome / Obstacle / Plan (mental contrasting) ----
-create table if not exists public.goals (
+drop table if exists public.goals cascade;
+create table public.goals (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   subject_id uuid references subjects(id) on delete set null,
@@ -141,7 +150,8 @@ create table if not exists public.goals (
 create index if not exists idx_goals_user on goals(user_id, created_at desc);
 
 alter table public.goals enable row level security;
-create policy if not exists "users_own_goals" on goals
+drop policy if exists "users_own_goals" on goals;
+create policy "users_own_goals" on goals
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- PUSH TOKENS — Expo Push notifications için ----
@@ -159,11 +169,13 @@ create table if not exists public.push_tokens (
 create index if not exists idx_tokens_user_active on push_tokens(user_id, is_active);
 
 alter table public.push_tokens enable row level security;
-create policy if not exists "users_own_tokens" on push_tokens
+drop policy if exists "users_own_tokens" on push_tokens;
+create policy "users_own_tokens" on push_tokens
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- STREAKS tablosu (varsa kontrol, yoksa ekle) ----
-create table if not exists public.streaks (
+drop table if exists public.streaks cascade;
+create table public.streaks (
   user_id uuid primary key references profiles(id) on delete cascade,
   current_streak int default 0,
   longest_streak int default 0,
@@ -172,7 +184,8 @@ create table if not exists public.streaks (
 );
 
 alter table public.streaks enable row level security;
-create policy if not exists "users_own_streak" on streaks
+drop policy if exists "users_own_streak" on streaks;
+create policy "users_own_streak" on streaks
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- STREAK HESAPLAMA TRIGGER (lesson tamamlandığında çalışır) ----
@@ -226,6 +239,7 @@ begin
   return new;
 end $$;
 
+drop trigger if exists trg_streak_on_lesson on lessons;
 drop trigger if exists trg_streak_on_lesson on lessons;
 create trigger trg_streak_on_lesson
   after update on lessons

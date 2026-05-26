@@ -41,11 +41,12 @@ create table if not exists public.vocabulary_srs (
 
 create index if not exists idx_vocab_srs_due
   on vocabulary_srs(user_id, due_at)
-  where state != 'new' or due_at <= now();
+  where state != 'new';
 
 create index if not exists idx_vocab_srs_vocab on vocabulary_srs(vocabulary_id);
 
 alter table public.vocabulary_srs enable row level security;
+drop policy if exists "users_own_vocab_srs" on vocabulary_srs;
 create policy "users_own_vocab_srs" on vocabulary_srs for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -72,6 +73,7 @@ create index if not exists idx_vocab_review_log_user
   on vocabulary_review_log(user_id, reviewed_at desc);
 
 alter table public.vocabulary_review_log enable row level security;
+drop policy if exists "users_own_vocab_log" on vocabulary_review_log;
 create policy "users_own_vocab_log" on vocabulary_review_log for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -97,6 +99,7 @@ create table if not exists public.user_fsrs_params (
 );
 
 alter table public.user_fsrs_params enable row level security;
+drop policy if exists "users_own_fsrs_params" on user_fsrs_params;
 create policy "users_own_fsrs_params" on user_fsrs_params for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -117,6 +120,7 @@ create table if not exists public.book_tts_settings (
 );
 
 alter table public.book_tts_settings enable row level security;
+drop policy if exists "users_own_tts_settings" on book_tts_settings;
 create policy "users_own_tts_settings" on book_tts_settings for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -154,6 +158,7 @@ create index if not exists idx_exercise_user
   on exercise_sessions(user_id, started_at desc);
 
 alter table public.exercise_sessions enable row level security;
+drop policy if exists "users_own_exercises" on exercise_sessions;
 create policy "users_own_exercises" on exercise_sessions for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -177,6 +182,7 @@ create index if not exists idx_vocab_daily_user
   on vocabulary_daily_progress(user_id, date desc);
 
 alter table public.vocabulary_daily_progress enable row level security;
+drop policy if exists "users_own_daily_progress" on vocabulary_daily_progress;
 create policy "users_own_daily_progress" on vocabulary_daily_progress for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 

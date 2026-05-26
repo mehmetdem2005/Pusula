@@ -4,18 +4,13 @@
 -- ============================================================================
 
 -- ---- USER ROLES — Super admin / admin / user ----
-do $$
-begin
-  if not exists (select 1 from information_schema.columns
-                  where table_name = 'profiles' and column_name = 'role') then
-    alter table profiles add column role text not null default 'user'
-      check (role in ('super_admin', 'admin', 'user'));
-    alter table profiles add column phone_number text;
-    alter table profiles add column phone_verified_at timestamptz;
-    alter table profiles add column auth_providers jsonb default '[]'::jsonb;
-    -- Hangi providerlerden giriş yapmış: ['google', 'email', 'phone', 'facebook', 'magic_link']
-  end if;
-end $$;
+alter table profiles add column if not exists role text not null default 'user';
+do $$ begin
+  alter table profiles add constraint profiles_role_check check (role in ('super_admin', 'admin', 'user'));
+exception when duplicate_object then null; end $$;
+alter table profiles add column if not exists phone_number text;
+alter table profiles add column if not exists phone_verified_at timestamptz;
+alter table profiles add column if not exists auth_providers jsonb default '[]'::jsonb;
 
 create index if not exists idx_profiles_role on profiles(role) where role != 'user';
 create index if not exists idx_profiles_phone on profiles(phone_number) where phone_number is not null;
@@ -68,6 +63,7 @@ end;
 $$;
 
 drop trigger if exists trg_first_user_super_admin on profiles;
+drop trigger if exists trg_first_user_super_admin on profiles;
 create trigger trg_first_user_super_admin
   after insert on profiles
   for each row
@@ -119,6 +115,7 @@ create index if not exists idx_admin_audit_admin on admin_audit_logs(admin_user_
 create index if not exists idx_admin_audit_action on admin_audit_logs(action, created_at desc);
 
 alter table public.admin_audit_logs enable row level security;
+drop policy if exists "admins_read_audit_logs" on admin_audit_logs;
 create policy "admins_read_audit_logs" on admin_audit_logs
   for select using (is_admin());
 
@@ -129,10 +126,10 @@ do $$
 begin
   if not exists (select 1 from information_schema.columns
                   where table_name = 'subjects' and column_name = 'is_custom') then
-    alter table subjects add column is_custom boolean default true;
-    alter table subjects add column custom_icon_name text;
+    alter table subjects add column if not exists is_custom boolean default true;
+    alter table subjects add column if not exists custom_icon_name text;
     -- Lucide icon name (eğer Lucide kullanılırsa) örn: 'book-open', 'flask-conical'
-    alter table subjects add column emoji text;
+    alter table subjects add column if not exists emoji text;
     -- Kullanıcı emoji seçmek isterse (Almanca için 🇩🇪 vb)
   end if;
 end $$;
@@ -172,8 +169,10 @@ insert into suggested_subjects (name, description, emoji, icon_name, color, cate
 on conflict do nothing;
 
 alter table public.suggested_subjects enable row level security;
+drop policy if exists "all_users_read_suggested" on suggested_subjects;
 create policy "all_users_read_suggested" on suggested_subjects
   for select using (true);
+drop policy if exists "admins_modify_suggested" on suggested_subjects;
 create policy "admins_modify_suggested" on suggested_subjects
   for all using (is_admin()) with check (is_admin());
 
@@ -201,8 +200,10 @@ create index if not exists idx_library_category on library_documents(category);
 create index if not exists idx_library_tags on library_documents using gin(subject_tags);
 
 alter table public.library_documents enable row level security;
+drop policy if exists "all_users_read_library" on library_documents;
 create policy "all_users_read_library" on library_documents
   for select using (true);
+drop policy if exists "admins_manage_library" on library_documents;
 create policy "admins_manage_library" on library_documents
   for all using (is_admin()) with check (is_admin());
 
@@ -211,15 +212,18 @@ insert into storage.buckets (id, name, public)
   values ('library', 'library', true)         -- public read for cover images
   on conflict (id) do nothing;
 
-create policy if not exists "public_read_library_storage" on storage.objects
+drop policy if exists "public_read_library_storage" on storage.objects;
+create policy "public_read_library_storage" on storage.objects
   for select using (bucket_id = 'library');
 
-create policy if not exists "admins_upload_library" on storage.objects
+drop policy if exists "admins_upload_library" on storage.objects;
+create policy "admins_upload_library" on storage.objects
   for insert with check (
     bucket_id = 'library' and is_admin()
   );
 
-create policy if not exists "admins_delete_library" on storage.objects
+drop policy if exists "admins_delete_library" on storage.objects;
+create policy "admins_delete_library" on storage.objects
   for delete using (
     bucket_id = 'library' and is_admin()
   );
@@ -234,8 +238,10 @@ create table if not exists public.library_downloads (
 );
 
 alter table public.library_downloads enable row level security;
+drop policy if exists "users_read_own_downloads" on library_downloads;
 create policy "users_read_own_downloads" on library_downloads
   for select using (auth.uid() = user_id);
+drop policy if exists "users_record_own_downloads" on library_downloads;
 create policy "users_record_own_downloads" on library_downloads
   for insert with check (auth.uid() = user_id);
 
@@ -244,8 +250,8 @@ do $$
 begin
   if not exists (select 1 from information_schema.columns
                   where table_name = 'profiles' and column_name = 'banned_at') then
-    alter table profiles add column banned_at timestamptz;
-    alter table profiles add column ban_reason text;
+    alter table profiles add column if not exists banned_at timestamptz;
+    alter table profiles add column if not exists ban_reason text;
   end if;
 end $$;
 
@@ -253,7 +259,7 @@ end $$;
 create table if not exists public.ai_images (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
-  conversation_id uuid references conversations(id) on delete cascade,
+  conversation_id uuid,
   prompt text not null,
   refined_prompt text,                        -- AI'nın iyileştirdiği prompt
   model text not null,                        -- 'flux-schnell', 'sdxl', 'gpt-image' vb
@@ -270,6 +276,7 @@ create index if not exists idx_ai_images_user on ai_images(user_id, created_at d
 create index if not exists idx_ai_images_conv on ai_images(conversation_id);
 
 alter table public.ai_images enable row level security;
+drop policy if exists "users_own_ai_images" on ai_images;
 create policy "users_own_ai_images" on ai_images
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -278,7 +285,8 @@ insert into storage.buckets (id, name, public)
   values ('ai-images', 'ai-images', false)
   on conflict (id) do nothing;
 
-create policy if not exists "users_read_own_ai_images_storage" on storage.objects
+drop policy if exists "users_read_own_ai_images_storage" on storage.objects;
+create policy "users_read_own_ai_images_storage" on storage.objects
   for select using (
     bucket_id = 'ai-images'
     and (storage.foldername(name))[1] = auth.uid()::text
@@ -289,6 +297,6 @@ do $$
 begin
   if not exists (select 1 from information_schema.columns
                   where table_name = 'usage_quotas' and column_name = 'ai_images_generated') then
-    alter table usage_quotas add column ai_images_generated int default 0;
+    alter table usage_quotas add column if not exists ai_images_generated int default 0;
   end if;
 end $$;

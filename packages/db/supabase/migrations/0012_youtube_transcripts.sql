@@ -32,6 +32,7 @@ create table if not exists public.youtube_translation_cache (
 create index if not exists idx_yt_cache_source on youtube_translation_cache(source_id);
 
 alter table public.youtube_translation_cache enable row level security;
+drop policy if exists "users_own_yt_cache" on youtube_translation_cache;
 create policy "users_own_yt_cache" on youtube_translation_cache for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -66,5 +67,6 @@ create table if not exists public.video_playback_history (
 create index if not exists idx_playback_user on video_playback_history(user_id, updated_at desc);
 
 alter table public.video_playback_history enable row level security;
+drop policy if exists "users_own_playback" on video_playback_history;
 create policy "users_own_playback" on video_playback_history for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);

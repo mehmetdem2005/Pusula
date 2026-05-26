@@ -42,6 +42,7 @@ create index if not exists idx_books_user_status on books(user_id, status, last_
 create index if not exists idx_books_user_lang on books(user_id, language);
 
 alter table public.books enable row level security;
+drop policy if exists "users_own_books" on books;
 create policy "users_own_books" on books for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---- BOOK SENTENCES (preprocessed: cümle bazında pozisyon + audio) ----
@@ -77,10 +78,12 @@ create index if not exists idx_sentences_user on book_sentences(user_book_id, ch
 alter table public.book_sentences enable row level security;
 
 -- Library kitap cümleleri herkese açık (audio cache shared)
+drop policy if exists "all_users_read_lib_sentences" on book_sentences;
 create policy "all_users_read_lib_sentences" on book_sentences
   for select using (library_document_id is not null);
 
 -- User book cümleleri sadece sahibine
+drop policy if exists "users_own_book_sentences" on book_sentences;
 create policy "users_own_book_sentences" on book_sentences
   for all using (
     user_book_id is not null
@@ -124,6 +127,7 @@ create index if not exists idx_vocab_user on user_vocabulary(user_id, status, la
 create index if not exists idx_vocab_book on user_vocabulary(source_book_id);
 
 alter table public.user_vocabulary enable row level security;
+drop policy if exists "users_own_vocabulary" on user_vocabulary;
 create policy "users_own_vocabulary" on user_vocabulary for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -155,6 +159,7 @@ create index if not exists idx_dict_used on dictionary_cache(last_used_at desc);
 
 -- Anyone can read dict cache (it's just public dictionary data)
 alter table public.dictionary_cache enable row level security;
+drop policy if exists "all_users_read_dict" on dictionary_cache;
 create policy "all_users_read_dict" on dictionary_cache for select using (true);
 
 -- ---- SENTENCE TRANSLATION CACHE ----
@@ -179,6 +184,7 @@ create table if not exists public.sentence_translation_cache (
 create index if not exists idx_sent_trans_hash on sentence_translation_cache(source_text_hash);
 
 alter table public.sentence_translation_cache enable row level security;
+drop policy if exists "all_users_read_sent_trans" on sentence_translation_cache;
 create policy "all_users_read_sent_trans" on sentence_translation_cache for select using (true);
 
 -- ---- WORD FREQUENCY LISTS (En İyi 500/1000 - Linga özelliği) ----
@@ -196,6 +202,7 @@ create table if not exists public.word_frequency (
 create index if not exists idx_freq_lang_rank on word_frequency(language, rank);
 
 alter table public.word_frequency enable row level security;
+drop policy if exists "all_users_read_freq" on word_frequency;
 create policy "all_users_read_freq" on word_frequency for select using (true);
 
 -- ---- READING SESSIONS (oturum başına metrik) ----
@@ -219,6 +226,7 @@ create index if not exists idx_reading_sessions_user on reading_sessions(user_id
 create index if not exists idx_reading_sessions_book on reading_sessions(book_id, started_at desc);
 
 alter table public.reading_sessions enable row level security;
+drop policy if exists "users_own_sessions" on reading_sessions;
 create policy "users_own_sessions" on reading_sessions for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -242,6 +250,7 @@ create table if not exists public.book_bookmarks (
 create index if not exists idx_bookmarks_book on book_bookmarks(book_id, created_at desc);
 
 alter table public.book_bookmarks enable row level security;
+drop policy if exists "users_own_bookmarks" on book_bookmarks;
 create policy "users_own_bookmarks" on book_bookmarks for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
@@ -250,8 +259,8 @@ do $$
 begin
   if not exists (select 1 from information_schema.columns
                   where table_name = 'profiles' and column_name = 'daily_word_goal') then
-    alter table profiles add column daily_word_goal int default 10;
-    alter table profiles add column reading_languages text[] default array['en']::text[];
+    alter table profiles add column if not exists daily_word_goal int default 10;
+    alter table profiles add column if not exists reading_languages text[] default array['en']::text[];
   end if;
 end $$;
 
@@ -260,19 +269,22 @@ insert into storage.buckets (id, name, public)
   values ('books', 'books', false)
   on conflict (id) do nothing;
 
-create policy if not exists "users_read_own_books_storage" on storage.objects
+drop policy if exists "users_read_own_books_storage" on storage.objects;
+create policy "users_read_own_books_storage" on storage.objects
   for select using (
     bucket_id = 'books'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "users_upload_own_books" on storage.objects
+drop policy if exists "users_upload_own_books" on storage.objects;
+create policy "users_upload_own_books" on storage.objects
   for insert with check (
     bucket_id = 'books'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
-create policy if not exists "users_delete_own_books" on storage.objects
+drop policy if exists "users_delete_own_books" on storage.objects;
+create policy "users_delete_own_books" on storage.objects
   for delete using (
     bucket_id = 'books'
     and (storage.foldername(name))[1] = auth.uid()::text
@@ -283,10 +295,12 @@ insert into storage.buckets (id, name, public)
   values ('book-audio', 'book-audio', true)    -- public read for shared cache
   on conflict (id) do nothing;
 
-create policy if not exists "public_read_book_audio" on storage.objects
+drop policy if exists "public_read_book_audio" on storage.objects;
+create policy "public_read_book_audio" on storage.objects
   for select using (bucket_id = 'book-audio');
 
-create policy if not exists "service_writes_book_audio" on storage.objects
+drop policy if exists "service_writes_book_audio" on storage.objects;
+create policy "service_writes_book_audio" on storage.objects
   for insert with check (
     bucket_id = 'book-audio' and auth.role() = 'service_role'
   );
