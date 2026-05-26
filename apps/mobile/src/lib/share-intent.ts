@@ -52,9 +52,35 @@ async function handleSharedUrl(url: string, router: any) {
       }
     }
 
-    // Auth callback
-    if (parsed.path === 'auth/callback') {
-      // Supabase zaten yakalıyor, bir şey yapmaya gerek yok
+    // Auth callback (magic link / OAuth dönüşü) — URL'deki token'ları session'a çevir
+    if (url.includes('auth/callback')) {
+      const fragment = url.includes('#')
+        ? url.slice(url.indexOf('#') + 1)
+        : url.includes('?')
+          ? url.slice(url.indexOf('?') + 1)
+          : ''
+      const sp = new URLSearchParams(fragment)
+      const accessToken = sp.get('access_token')
+      const refreshToken = sp.get('refresh_token')
+      const tokenHash = sp.get('token_hash')
+      const otpType = sp.get('type')
+      try {
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+          if (!error) router.replace('/(tabs)')
+        } else if (tokenHash && otpType) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: otpType as any,
+          })
+          if (!error) router.replace('/(tabs)')
+        }
+      } catch (e) {
+        console.warn('Auth callback hatası:', e)
+      }
       return
     }
   } catch (e) {
