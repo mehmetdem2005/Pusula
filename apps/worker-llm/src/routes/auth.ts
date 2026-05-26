@@ -286,18 +286,33 @@ export async function authRoutes(fastify: FastifyInstance) {
 
     const { email, code, newPassword } = parsed.data
 
-    // Kodu yeniden doğrula (tek seferlik kullanım için)
+    // En son doğrulanmış (consumed) password_reset OTP'sini bul
     const { data: otp } = await supabase
       .from('otp_codes')
       .select('*')
       .eq('identifier', email)
       .eq('purpose', 'password_reset')
-      .order('created_at', { ascending: false })
+      .not('consumed_at', 'is', null)
+      .order('consumed_at', { ascending: false })
       .limit(1)
       .maybeSingle()
 
-    if (!otp || !otp.consumed_at) {
+    if (!otp) {
       return reply.code(400).send({ error: 'invalid_state' })
+    }
+
+    // KRİTİK: complete adımı koda bağlı olmalı — kodu hash'e karşı yeniden doğrula.
+    // Aksi halde geçmişte consumed bir OTP'si olan kullanıcının şifresi,
+    // sadece e-postası bilinerek herhangi bir kodla sıfırlanabilir.
+    const codeValid = await bcrypt.compare(code, otp.code_hash)
+    if (!codeValid) {
+      return reply.code(400).send({ error: 'invalid_code' })
+    }
+
+    // Doğrulamadan sonra dar pencere (15 dk) — eski OTP'ler süresiz kullanılamasın
+    const consumedAtMs = new Date(otp.consumed_at).getTime()
+    if (Number.isNaN(consumedAtMs) || Date.now() - consumedAtMs > 15 * 60 * 1000) {
+      return reply.code(400).send({ error: 'reset_window_expired' })
     }
 
     // Supabase Admin ile şifre güncelle
@@ -310,6 +325,9 @@ export async function authRoutes(fastify: FastifyInstance) {
     })
 
     if (error) return reply.code(500).send({ error: error.message })
+
+    // Tek kullanımlık: bu OTP bir daha şifre sıfırlamada kullanılamasın
+    await supabase.from('otp_codes').delete().eq('id', otp.id)
 
     return { ok: true, message: 'Şifren güncellendi' }
   })

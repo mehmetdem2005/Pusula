@@ -164,7 +164,12 @@ export async function clansRoutes(fastify: FastifyInstance) {
         .limit(limit)
 
       if (req.query.search) {
-        q = q.or(`name.ilike.%${req.query.search}%,description.ilike.%${req.query.search}%`)
+        // PostgREST .or() string'i parametrize edilmez; filtre ayraç karakterlerini
+        // (, ) * % \) temizle ki kullanıcı filtre mantığından kaçamasın.
+        const safe = req.query.search.replace(/[(),*%\\]/g, '').slice(0, 100)
+        if (safe) {
+          q = q.or(`name.ilike.%${safe}%,description.ilike.%${safe}%`)
+        }
       }
 
       const { data } = await q

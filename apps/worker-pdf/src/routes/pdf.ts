@@ -214,6 +214,15 @@ ana kavramları çıkar. Her kavram öz, anlaşılır ve sınava değer olmalı.
     const apiKey = await getActiveGroqKey(userId)
     if (!apiKey) return reply.code(400).send({ error: 'no_active_key' })
 
+    // IDOR koruması: doküman bu kullanıcıya ait mi?
+    const { data: ownedDoc } = await supabase
+      .from('documents')
+      .select('id')
+      .eq('id', documentId)
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (!ownedDoc) return reply.code(404).send({ error: 'document_not_found' })
+
     const { data: chunks } = await supabase
       .from('document_chunks')
       .select('id, content')

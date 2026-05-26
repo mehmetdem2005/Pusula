@@ -138,11 +138,22 @@ async function generateEmbeddings(texts: string[]): Promise<number[][]> {
 // ===== Text extraction =====
 
 async function extractFromUrl(url: string): Promise<string> {
+  // Sadece http(s) — file://, gopher://, dahili şemaları reddet (SSRF sertleştirme)
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    throw new Error('Geçersiz URL')
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error('Yalnızca http/https URL destekleniyor')
+  }
+
   // Jina Reader: https://r.jina.ai/{url} - markdown çıktı
   const headers: Record<string, string> = {}
   if (JINA_API_KEY) headers.Authorization = `Bearer ${JINA_API_KEY}`
 
-  const res = await fetch(`https://r.jina.ai/${url}`, { headers })
+  const res = await fetch(`https://r.jina.ai/${parsed.toString()}`, { headers })
   if (!res.ok) throw new Error(`Jina Reader: ${res.status}`)
   return await res.text()
 }

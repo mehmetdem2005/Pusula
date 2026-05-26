@@ -8,7 +8,7 @@ import { apiFetch } from '../../src/lib/api'
 
 export default function NewPassword() {
   const router = useRouter()
-  const params = useLocalSearchParams<{ email: string; resetToken: string }>()
+  const params = useLocalSearchParams<{ email: string; code: string }>()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -23,7 +23,7 @@ export default function NewPassword() {
         method: 'POST',
         body: JSON.stringify({
           email: params.email,
-          code: params.resetToken,
+          code: params.code,
           newPassword: password,
         }),
       })

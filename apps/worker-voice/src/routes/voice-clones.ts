@@ -115,6 +115,12 @@ export async function voiceCloneRoutes(fastify: FastifyInstance) {
 
     const { name, description, storagePath, durationSeconds, referenceText, language } = parsed.data
 
+    // IDOR koruması: sadece kendi yüklediğin yolu klonlayabilirsin.
+    // Yükleme yolu daima `${userId}/...` formatında (upload-url endpoint'i öyle üretiyor).
+    if (!storagePath.startsWith(`${userId}/`)) {
+      return reply.code(403).send({ error: 'forbidden_path' })
+    }
+
     // Audio'yu indir + validate et
     const { data: audioData, error: dlErr } = await supabase.storage
       .from(REFERENCE_BUCKET)

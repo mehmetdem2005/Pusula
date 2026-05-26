@@ -17,6 +17,15 @@ export async function chatRoutes(fastify: FastifyInstance) {
     if (!parsed.success) return reply.code(400).send({ error: parsed.error.format() })
     const { lessonId, content, modelId } = parsed.data
 
+    // IDOR koruması: ders bu kullanıcıya ait mi?
+    const { data: ownedLesson } = await supabase
+      .from('lessons')
+      .select('id')
+      .eq('id', lessonId)
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (!ownedLesson) return reply.code(404).send({ error: 'lesson_not_found' })
+
     const apiKey = await getActiveGroqKey(userId)
     if (!apiKey) {
       return reply.code(400).send({

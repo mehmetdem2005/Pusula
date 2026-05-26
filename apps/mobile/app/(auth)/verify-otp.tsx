@@ -88,7 +88,7 @@ export default function VerifyOTP() {
         if (params.purpose === 'password_reset') {
           router.replace({
             pathname: '/(auth)/new-password',
-            params: { email: params.identifier, resetToken: result.resetToken },
+            params: { email: params.identifier, code },
           })
         } else if (params.purpose === 'phone_verify') {
           Alert.alert('✓ Doğrulandı', 'Telefonun doğrulandı.', [
