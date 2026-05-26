@@ -246,7 +246,7 @@ export async function sharingRoutes(fastify: FastifyInstance) {
         description: orig.description,
         language: orig.language,
         category: orig.category,
-        icon: orig.icon,
+        emoji: orig.emoji,
         color: orig.color,
         is_public: false, // klon default private
       })

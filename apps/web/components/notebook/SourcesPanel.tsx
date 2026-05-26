@@ -53,19 +53,30 @@ export function SourcesPanel({ notebookId, sources, activeSourceId, onSelectSour
       if (uploadErr) throw uploadErr
 
       // Backend'e bildir → işleme alır
-      return apiFetch('/api/sources/upload', {
+      const t = file.type
+      const name = file.name.toLowerCase()
+      const sourceType = t.includes('pdf') || name.endsWith('.pdf')
+        ? 'pdf'
+        : t.startsWith('audio') || name.endsWith('.mp3') || name.endsWith('.m4a')
+          ? 'audio'
+          : name.endsWith('.epub')
+            ? 'epub'
+            : name.endsWith('.docx')
+              ? 'docx'
+              : 'text'
+
+      return apiFetch('/api/sources', {
         method: 'POST',
         body: JSON.stringify({
           notebookId,
+          sourceType,
+          title: file.name,
           storagePath: path,
-          fileName: file.name,
-          fileSize: file.size,
-          mimeType: file.type,
         }),
       })
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['notebook-sources', notebookId] })
+      qc.invalidateQueries({ queryKey: ['notebook', notebookId] })
       toast.success('Kaynak ekleniyor...')
     },
     onError: (e: any) => toast.error(e.message),
@@ -83,7 +94,7 @@ export function SourcesPanel({ notebookId, sources, activeSourceId, onSelectSour
 
   const deleteMut = useMutation({
     mutationFn: (sourceId: string) => apiFetch(`/api/sources/${sourceId}`, { method: 'DELETE' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['notebook-sources', notebookId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notebook', notebookId] }),
   })
 
   return (
@@ -229,7 +240,7 @@ function UrlInput({ notebookId, onClose }: { notebookId: string; onClose: () => 
         body: JSON.stringify({ notebookId, sourceType: 'url', externalUrl: url }),
       }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['notebook-sources', notebookId] })
+      qc.invalidateQueries({ queryKey: ['notebook', notebookId] })
       onClose()
       toast.success('Web sayfası ekleniyor...')
     },
@@ -270,7 +281,7 @@ function YoutubeInput({ notebookId, onClose }: { notebookId: string; onClose: ()
         }),
       }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['notebook-sources', notebookId] })
+      qc.invalidateQueries({ queryKey: ['notebook', notebookId] })
       onClose()
       toast.success('YouTube transkripti çekiliyor...')
     },

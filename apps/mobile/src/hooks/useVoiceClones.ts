@@ -19,7 +19,7 @@ export function useVoiceClones() {
   return useQuery({
     queryKey: ['voice-clones'],
     queryFn: async () => {
-      const { clones } = await apiFetch<{ clones: VoiceClone[] }>('/api/voice-clones', {})
+      const { clones } = await apiFetch<{ clones: VoiceClone[] }>(`${VOICE_BASE}/api/voice-clones`, {})
       return clones
     },
   })

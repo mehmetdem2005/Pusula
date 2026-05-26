@@ -34,7 +34,7 @@ export function useNotebookRealtime(notebookId: string | null) {
           table: 'notebook_sources',
           filter: `notebook_id=eq.${notebookId}`,
         },
-        () => qc.invalidateQueries({ queryKey: ['notebook-sources', notebookId] }),
+        () => qc.invalidateQueries({ queryKey: ['notebook', notebookId] }),
       )
 
       // New messages (mobile'dan gelirse web'de göster)
@@ -58,7 +58,7 @@ export function useNotebookRealtime(notebookId: string | null) {
           table: 'generated_content',
           filter: `notebook_id=eq.${notebookId}`,
         },
-        () => qc.invalidateQueries({ queryKey: ['notebook-studio', notebookId] }),
+        () => qc.invalidateQueries({ queryKey: ['notebook', notebookId] }),
       )
 
       .subscribe()

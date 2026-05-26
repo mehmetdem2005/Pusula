@@ -104,6 +104,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
     voiceBaseUrl: process.env.EXPO_PUBLIC_VOICE_BASE_URL,
     pdfBaseUrl: process.env.EXPO_PUBLIC_PDF_BASE_URL,
+    supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
+    supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     revenueCatIos: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY,
     revenueCatAndroid: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY,
   },

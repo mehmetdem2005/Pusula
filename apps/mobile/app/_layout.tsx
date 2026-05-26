@@ -45,10 +45,17 @@ function RouteGate({ children }: { children: React.ReactNode }) {
       .select('onboarding_completed')
       .eq('id', session.user.id)
       .single()
-      .then(({ data }) => {
-        setOnboardingCompleted(data?.onboarding_completed ?? false)
-        setOnboardingChecked(true)
-      })
+      .then(
+        ({ data }) => {
+          setOnboardingCompleted(data?.onboarding_completed ?? false)
+          setOnboardingChecked(true)
+        },
+        () => {
+          // Profil cekilemezse (ag/RLS hatasi) kullaniciyi gate'te kilitleme
+          setOnboardingCompleted(false)
+          setOnboardingChecked(true)
+        },
+      )
 
     // Push notification registration (arka planda, hata önemli değil)
     registerPushNotifications().then((r) => {

@@ -13,7 +13,9 @@
         "APP_ENV": "development",
         "EXPO_PUBLIC_API_BASE_URL": "http://localhost:4001",
         "EXPO_PUBLIC_VOICE_BASE_URL": "http://localhost:4002",
-        "EXPO_PUBLIC_PDF_BASE_URL": "http://localhost:4003"
+        "EXPO_PUBLIC_PDF_BASE_URL": "http://localhost:4003",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://ctizkpezfudwdyuptpqn.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aXprcGV6ZnVkd2R5dXB0cHFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MzQxMjYsImV4cCI6MjA5MzAxMDEyNn0.5YWdwZ04E2Ye91M9oCJvQdndVZoEu_jPJ7auL4l6BOo"
       }
     },
     "preview": {

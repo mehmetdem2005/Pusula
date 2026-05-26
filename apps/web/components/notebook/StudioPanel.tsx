@@ -63,22 +63,23 @@ const STUDIO_TYPES = [
 export function StudioPanel({ notebookId, sources }: { notebookId: string; sources: Source[] }) {
   const qc = useQueryClient()
 
+  // Uretilmis icerik /api/notebooks/:id yanitinin generatedContent alaninda gelir
   const { data } = useQuery({
-    queryKey: ['notebook-studio', notebookId],
-    queryFn: () => apiFetch<{ items: any[] }>(`/api/notebooks/${notebookId}/studio`),
+    queryKey: ['notebook', notebookId],
+    queryFn: () => apiFetch<{ generatedContent: any[] }>(`/api/notebooks/${notebookId}`),
   })
 
-  const items = data?.items ?? []
+  const items = data?.generatedContent ?? []
   const readySources = sources.filter((s) => s.status === 'ready').length
 
   const generateMut = useMutation({
     mutationFn: (contentType: string) =>
-      apiFetch(`/api/notebooks/${notebookId}/studio`, {
+      apiFetch('/api/studio/generate', {
         method: 'POST',
-        body: JSON.stringify({ contentType }),
+        body: JSON.stringify({ notebookId, contentType }),
       }),
     onSuccess: (_, contentType) => {
-      qc.invalidateQueries({ queryKey: ['notebook-studio', notebookId] })
+      qc.invalidateQueries({ queryKey: ['notebook', notebookId] })
       toast.success(`${STUDIO_TYPES.find((t) => t.value === contentType)?.label} üretiliyor...`)
     },
     onError: (e: any) => toast.error(e.message),

@@ -18,11 +18,8 @@ export default function NotebookDetailPage() {
     enabled: !!id,
   })
 
-  const { data: sourcesData } = useQuery({
-    queryKey: ['notebook-sources', id],
-    queryFn: () => apiFetch<{ sources: any[] }>(`/api/notebooks/${id}/sources`),
-    enabled: !!id,
-  })
+  // /api/notebooks/:id yaniti zaten { notebook, sources, generatedContent } doner
+  const sources: any[] = notebook?.sources ?? []
 
   // Realtime sync — kaynak status değişikliklerini push'la
   useNotebookRealtime(id)
@@ -47,7 +44,7 @@ export default function NotebookDetailPage() {
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <span className="text-[10px] text-slate-500 font-mono">
-            {sourcesData?.sources?.length ?? 0} kaynak
+            {sources.length} kaynak
           </span>
         </div>
       </header>
@@ -58,7 +55,7 @@ export default function NotebookDetailPage() {
         <div className="w-80 border-r border-slate-100 overflow-y-auto bg-white">
           <SourcesPanel
             notebookId={id}
-            sources={sourcesData?.sources ?? []}
+            sources={sources}
             activeSourceId={activeSourceId}
             onSelectSource={setActiveSourceId}
           />
@@ -66,12 +63,12 @@ export default function NotebookDetailPage() {
 
         {/* Chat panel */}
         <div className="flex-1 min-w-0 flex flex-col">
-          <ChatPanel notebookId={id} sources={sourcesData?.sources ?? []} />
+          <ChatPanel notebookId={id} sources={sources} />
         </div>
 
         {/* Studio panel */}
         <div className="w-96 border-l border-slate-100 overflow-y-auto bg-white">
-          <StudioPanel notebookId={id} sources={sourcesData?.sources ?? []} />
+          <StudioPanel notebookId={id} sources={sources} />
         </div>
       </div>
     </div>
