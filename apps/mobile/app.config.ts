@@ -93,7 +93,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   experiments: { typedRoutes: true },
   extra: {
     router: { origin: false },
-    eas: { projectId: process.env.EAS_PROJECT_ID ?? 'YOUR_EAS_PROJECT_ID' },
+    eas: { projectId: process.env.EAS_PROJECT_ID ?? 'b06ccde0-c905-4434-8cd0-841531cdd7d8' },
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
     voiceBaseUrl: process.env.EXPO_PUBLIC_VOICE_BASE_URL,
     pdfBaseUrl: process.env.EXPO_PUBLIC_PDF_BASE_URL,
@@ -102,10 +102,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   runtimeVersion: { policy: 'appVersion' },
   updates: {
-    url: 'https://u.expo.dev/YOUR_EAS_PROJECT_ID',
+    url: 'https://u.expo.dev/b06ccde0-c905-4434-8cd0-841531cdd7d8',
     enabled: true,
     fallbackToCacheTimeout: 0,
     checkAutomatically: 'ON_LOAD',
   },
-  owner: 'kavra',
+  owner: 'mehmetdem2005',
 })
