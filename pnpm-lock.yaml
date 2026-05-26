@@ -30,6 +30,9 @@ importers:
       '@epubjs-react-native/expo-file-system':
         specifier: ^1.1.4
         version: 1.1.4(expo-file-system@18.0.12(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.3(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.3(@babel/core@7.29.0))(@types/react@18.3.28)(encoding@0.1.13)(react@18.3.1)))(encoding@0.1.13)(react-native-webview@13.13.5(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.3(@babel/core@7.29.0))(@types/react@18.3.28)(encoding@0.1.13)(react@18.3.1))(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.3(@babel/core@7.29.0))(@types/react@18.3.28)(encoding@0.1.13)(react@18.3.1))(react@18.3.1))(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.3(@babel/core@7.29.0))(@types/react@18.3.28)(encoding@0.1.13)(react@18.3.1)))(react@18.3.1)
+      '@expo/metro-runtime':
+        specifier: ~4.0.1
+        version: 4.0.1(react-native@0.76.0(@babel/core@7.29.0)(@babel/preset-env@7.29.3(@babel/core@7.29.0))(@types/react@18.3.28)(encoding@0.1.13)(react@18.3.1))
       '@kavra/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -517,6 +520,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.48.1
         version: 2.105.1
+      js-sha256:
+        specifier: ^0.11.1
+        version: 0.11.1
     devDependencies:
       '@types/node':
         specifier: ^22.10.0
@@ -4958,6 +4964,9 @@ packages:
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
+
+  js-sha256@0.11.1:
+    resolution: {integrity: sha512-o6WSo/LUvY2uC4j7mO50a2ms7E/EAdbP0swigLV+nzHKTTaYnaLIWJ02VdXrsJX0vGedDESQnLsOekr94ryfjg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -12309,6 +12318,8 @@ snapshots:
   join-component@1.1.0: {}
 
   joycon@3.1.1: {}
+
+  js-sha256@0.11.1: {}
 
   js-tokens@4.0.0: {}
 

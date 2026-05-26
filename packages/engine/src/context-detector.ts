@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { sha256 } from 'js-sha256'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ConceptSnapshot, LearningContext, UserIntent, UserSnapshot } from './types.js'
 
@@ -113,7 +113,7 @@ export class ContextDetector {
    * Maliyet: Llama-3.1-8b-instant (çok ucuz, ~100 token çıktı).
    */
   private async classifyIntent(message: string, groqApiKey: string): Promise<UserIntent> {
-    const hash = createHash('sha256').update(message.toLowerCase().trim()).digest('hex')
+    const hash = sha256(message.toLowerCase().trim())
 
     // Cache kontrol
     const { data: cached } = await this.supabase
