@@ -1,57 +1,54 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { type CookieOptions, createServerClient } from '@supabase/ssr'
+import { type NextRequest, NextResponse } from 'next/server'
 
-/**
- * Edge middleware — Next.js 15 + @supabase/ssr.
- *
- * Sorumluluk:
- *  - Oturumu @supabase/ssr cookie'lerinden okur/yeniler (getUser).
- *  - /dashboard, /settings için auth redirect (oturum yoksa login).
- *  - Request-ID header'ı (downstream log korelasyonu).
- *
- * NOT: Asıl JWT doğrulama backend'de (apps/api/src/auth/jwt.guard.ts). Burada UX redirect.
- */
-const PROTECTED_PATHS = ['/dashboard', '/settings', '/admin'];
+const PROTECTED_PREFIXES = ['/notebooks', '/library', '/settings', '/clans']
+const AUTH_PREFIXES = ['/login', '/signup']
 
-export async function middleware(req: NextRequest): Promise<NextResponse> {
-  let response = NextResponse.next({ request: req });
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return req.cookies.getAll();
+          return request.cookies.getAll()
         },
         setAll(cookiesToSet: { name: string; value: string; options?: CookieOptions }[]) {
-          for (const { name, value } of cookiesToSet) {
-            req.cookies.set(name, value);
-          }
-          response = NextResponse.next({ request: req });
-          for (const { name, value, options } of cookiesToSet) {
-            response.cookies.set({ name, value, ...options });
-          }
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          )
         },
       },
     },
-  );
+  )
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
+  const path = request.nextUrl.pathname
 
-  const url = req.nextUrl;
-  if (!user && PROTECTED_PATHS.some((p) => url.pathname.startsWith(p))) {
-    const loginUrl = new URL('/auth/login', req.url);
-    loginUrl.searchParams.set('next', url.pathname);
-    return NextResponse.redirect(loginUrl);
+  // Korumalı route → login'e
+  if (!user && PROTECTED_PREFIXES.some((p) => path.startsWith(p))) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('next', path)
+    return NextResponse.redirect(url)
   }
 
-  response.headers.set('x-request-id', req.headers.get('x-request-id') ?? crypto.randomUUID());
-  return response;
+  // Login route ama kullanıcı zaten girmiş → home'a
+  if (user && AUTH_PREFIXES.some((p) => path.startsWith(p))) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/library'
+    return NextResponse.redirect(url)
+  }
+
+  return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/|favicon.ico|robots.txt|sitemap.xml).*)'],
-};
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+}

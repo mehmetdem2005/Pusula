@@ -1,8 +1,0 @@
-blank_issues_enabled: false
-contact_links:
-  - name: 🔒 Güvenlik açığı
-    url: mailto:security@pusula.tr
-    about: Güvenlik açıklarını GitHub Issue olarak AÇMA — e-postayla bildir.
-  - name: 💬 Soru / tartışma
-    url: https://github.com/pusula/pusula/discussions
-    about: Sorular için Discussions kullan.

@@ -1,0 +1,108 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "signin": {
+      "title": "Welcome back",
+      "subtitle": "Continue where you left off",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "forgot": "Forgot password",
+      "magicLink": "Send magic link",
+      "google": "Continue with Google",
+      "noAccount": "No account?",
+      "signupCta": "Sign up"
+    },
+    "signup": {
+      "title": "Start with Kavra",
+      "subtitle": "150 techniques. One tutor. All yours.",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "fullName": "Your name",
+      "submit": "Create Account",
+      "terms": "By signing up, you agree to the Terms of Service.",
+      "haveAccount": "Have an account?",
+      "signinCta": "Sign in"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailInUse": "Email already registered",
+      "weakPassword": "Password too short",
+      "networkError": "Connection issue. Check your internet.",
+      "unknown": "Unexpected error"
+    },
+    "magicLinkSent": "Magic link sent. Click the link in your email to continue."
+  },
+  "tabs": {
+    "dashboard": "Home",
+    "learn": "Learn",
+    "review": "Review",
+    "journal": "Journal",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "streakDays": "{{count}}-day streak",
+    "dueToday": "Due today",
+    "dueCount_one": "{{count}} card",
+    "dueCount_other": "{{count}} cards",
+    "quickStart": "Quick Start",
+    "continueLesson": "Continue learning",
+    "noActivity": "Nothing yet. Add your first subject."
+  },
+  "profile": {
+    "signOut": "Sign Out",
+    "settings": "Settings",
+    "apiKeys": "API Keys",
+    "preferences": "Preferences",
+    "voice": "Voice",
+    "personalities": "AI Personalities",
+    "appearance": "Appearance",
+    "language": "Language",
+    "subscription": "Subscription",
+    "data": "My Data",
+    "about": "About"
+  },
+  "onboarding": {
+    "welcome": "Welcome to Kavra",
+    "step1": {
+      "title": "Your tutor, 24/7",
+      "body": "Personalized learning powered by 150 pedagogical techniques."
+    },
+    "step2": {
+      "title": "Your API key, your control",
+      "body": "Unlimited chat with your own Groq key. Start free."
+    },
+    "step3": {
+      "title": "Voice, visual, multilingual",
+      "body": "Upload PDFs, take photos, learn by talking. In any language."
+    }
+  },
+  "error": {
+    "boundary": {
+      "title": "Something went wrong",
+      "body": "Sorry, unexpected error occurred.",
+      "reload": "Reload app"
+    }
+  }
+}

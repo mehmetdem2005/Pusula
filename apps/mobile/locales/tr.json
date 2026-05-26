@@ -1,0 +1,108 @@
+{
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "confirm": "Onayla",
+    "continue": "Devam",
+    "back": "Geri",
+    "next": "Sonraki",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "retry": "Tekrar dene",
+    "close": "Kapat",
+    "yes": "Evet",
+    "no": "Hayır"
+  },
+  "auth": {
+    "signin": {
+      "title": "Tekrar hoş geldin",
+      "subtitle": "Kavramaya kaldığın yerden devam et",
+      "email": "E-posta",
+      "password": "Şifre",
+      "submit": "Giriş Yap",
+      "forgot": "Şifremi unuttum",
+      "magicLink": "E-posta ile giriş linki al",
+      "google": "Google ile devam et",
+      "noAccount": "Hesabın yok mu?",
+      "signupCta": "Kayıt ol"
+    },
+    "signup": {
+      "title": "Kavra'ya başla",
+      "subtitle": "150 teknik. Tek hoca. Tamamen sen.",
+      "email": "E-posta",
+      "password": "Şifre",
+      "passwordHint": "En az 8 karakter",
+      "fullName": "Adın",
+      "submit": "Hesap Oluştur",
+      "terms": "Hesap oluşturarak Kullanım Şartları'nı kabul etmiş olursun.",
+      "haveAccount": "Hesabın var mı?",
+      "signinCta": "Giriş yap"
+    },
+    "errors": {
+      "invalidCredentials": "E-posta veya şifre yanlış",
+      "emailInUse": "Bu e-posta zaten kayıtlı",
+      "weakPassword": "Şifre çok kısa",
+      "networkError": "Bağlantı sorunu. İnternetini kontrol et.",
+      "unknown": "Beklenmeyen bir hata oluştu"
+    },
+    "magicLinkSent": "Giriş linki e-postana gönderildi. Link'e tıklayarak devam et."
+  },
+  "tabs": {
+    "dashboard": "Ana",
+    "learn": "Öğren",
+    "review": "Tekrar",
+    "journal": "Günlük",
+    "profile": "Profil"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Günaydın",
+      "afternoon": "İyi günler",
+      "evening": "İyi akşamlar"
+    },
+    "streakDays": "{{count}} günlük seri",
+    "dueToday": "Bugün tekrar",
+    "dueCount_one": "{{count}} kart",
+    "dueCount_other": "{{count}} kart",
+    "quickStart": "Hızlı Başla",
+    "continueLesson": "Kaldığın yerden devam",
+    "noActivity": "Henüz hiçbir şey yok. İlk konunu ekle."
+  },
+  "profile": {
+    "signOut": "Çıkış Yap",
+    "settings": "Ayarlar",
+    "apiKeys": "API Anahtarları",
+    "preferences": "Tercihler",
+    "voice": "Ses Ayarları",
+    "personalities": "AI Kişilikleri",
+    "appearance": "Görünüm",
+    "language": "Dil",
+    "subscription": "Abonelik",
+    "data": "Verilerim",
+    "about": "Hakkında"
+  },
+  "onboarding": {
+    "welcome": "Kavra'ya hoş geldin",
+    "step1": {
+      "title": "Kendi hocan, 7/24",
+      "body": "150 pedagojik teknikle desteklenen, sana özel öğrenme yolculuğu."
+    },
+    "step2": {
+      "title": "API anahtarın sende",
+      "body": "Kendi Groq anahtarınla sınırsız sohbet. Ücretsiz başla, kontrolün tamamen sende."
+    },
+    "step3": {
+      "title": "Sesli, görsel, çok dilli",
+      "body": "PDF yükle, fotoğraf çek, konuşarak ders dinle. Her dilde."
+    }
+  },
+  "error": {
+    "boundary": {
+      "title": "Bir şeyler yanlış gitti",
+      "body": "Üzgünüz, beklenmeyen bir hata oluştu.",
+      "reload": "Uygulamayı yeniden başlat"
+    }
+  }
+}

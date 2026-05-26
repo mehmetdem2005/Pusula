@@ -1,76 +1,34 @@
-import './globals.css';
-import type { Metadata, Viewport } from 'next';
-import type { ReactNode, ReactElement } from 'react';
-import { Cormorant, Manrope, JetBrains_Mono, Inter } from 'next/font/google';
-import { PostHogProvider } from '../lib/posthog';
-import { ThemeProvider, THEME_INIT_SCRIPT } from '../components/ThemeProvider';
-
-// Türkçe glifler için latin-ext şart. next/font fontları self-host eder (Google'a runtime bağlantı yok).
-const cormorant = Cormorant({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-cormorant',
-  display: 'swap',
-});
-const manrope = Manrope({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-manrope',
-  display: 'swap',
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-jetbrains',
-  display: 'swap',
-});
-// Reels rebuild — Inter (tek-aile precision sistemi; profesyonel/premium UI standardı).
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-inter',
-  display: 'swap',
-});
+import type { Metadata } from 'next'
+import './globals.css'
+import { Toaster } from 'sonner'
+import { QueryProvider } from '../lib/query-provider'
 
 export const metadata: Metadata = {
-  title: 'Pusula — Karar verirken kaybolma',
-  description:
-    'Türkiye için AI destekli emlak ve oto ilan analiz platformu. Deterministik kelepir skoru, mahalle bağlamı, AI asistan.',
-  applicationName: 'Pusula',
-  authors: [{ name: 'Pusula' }],
-  keywords: ['emlak', 'kelepir', 'AI', 'analiz', 'konut', 'oto'],
+  title: 'Kavra — Kavra. Her şeyi.',
+  description: 'PDF, video, podcast özeti — AI sohbet, flashcard, sınav. Türkçe doğan AI defter.',
   openGraph: {
-    title: 'Pusula — Karar verirken kaybolma',
-    description: 'Türkiye emlak ve oto ilanları için AI destekli kelepir analiz aracı.',
-    type: 'website',
+    title: 'Kavra',
+    description: '150 teknik. Tek hoca. Tamamen sen.',
     locale: 'tr_TR',
-    siteName: 'Pusula',
-    url: 'https://app.pusula.tr',
+    type: 'website',
+    images: [{ url: 'https://kavra.app/og.png' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pusula — Karar verirken kaybolma',
-    description: 'Türkiye emlak ve oto ilanları için AI destekli kelepir analiz aracı.',
+    title: 'Kavra',
+    description: '150 teknik. Tek hoca. Tamamen sen.',
   },
-  robots: { index: true, follow: true },
-};
+}
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  themeColor: '#0b0b0f',
-};
-
-export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="tr"
-      className={`${cormorant.variable} ${manrope.variable} ${jetbrainsMono.variable} ${inter.variable}`}
-    >
-      <body className="bg-night text-fg">
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-        <ThemeProvider>
-          <PostHogProvider>{children}</PostHogProvider>
-        </ThemeProvider>
+    <html lang="tr">
+      <body className="antialiased">
+        <QueryProvider>
+          {children}
+          <Toaster richColors position="top-right" />
+        </QueryProvider>
       </body>
     </html>
-  );
+  )
 }

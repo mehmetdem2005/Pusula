@@ -1,0 +1,177 @@
+# Render Blueprint — Kavra servisleri
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: kavra-worker-llm
+    env: node
+    plan: starter
+    region: frankfurt
+    buildCommand: pnpm install --frozen-lockfile --filter @kavra/worker-llm... && pnpm --filter @kavra/worker-llm build
+    startCommand: pnpm --filter @kavra/worker-llm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MASTER_ENCRYPTION_KEY
+        sync: false
+      - key: GROQ_ADMIN_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_YEARLY
+        sync: false
+      - key: STRIPE_PRICE_LIFETIME
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: REPLICATE_API_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: JINA_API_KEY
+        sync: false
+      - key: SUPADATA_API_KEY
+        sync: false
+      - key: MODAL_YT_TRANSCRIBE_URL
+        sync: false
+      - key: REVENUECAT_WEBHOOK_AUTH
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_TR_A
+        sync: false
+      - key: ELEVENLABS_VOICE_TR_B
+        sync: false
+    healthCheckPath: /health
+
+  - type: web
+    name: kavra-worker-voice
+    env: docker
+    plan: standard
+    region: frankfurt
+    dockerfilePath: ./apps/worker-voice/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MASTER_ENCRYPTION_KEY
+        sync: false
+      - key: MODAL_F5TTS_URL
+        sync: false
+      - key: MODAL_API_TOKEN
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+    healthCheckPath: /health
+    disk:
+      name: piper-cache
+      mountPath: /tmp
+      sizeGB: 1
+
+  - type: web
+    name: kavra-worker-pdf
+    env: node
+    plan: standard
+    region: frankfurt
+    buildCommand: pnpm install --frozen-lockfile --filter @kavra/worker-pdf... && pnpm --filter @kavra/worker-pdf build
+    startCommand: pnpm --filter @kavra/worker-pdf start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MASTER_ENCRYPTION_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+    healthCheckPath: /health
+
+  # ===== FAZ 7: Cron Worker (sürekli çalışan, node-cron ile schedule) =====
+  - type: worker
+    name: kavra-worker-cron
+    env: node
+    plan: starter
+    region: frankfurt
+    buildCommand: pnpm install --frozen-lockfile --filter @kavra/worker-cron... && pnpm --filter @kavra/worker-cron build
+    startCommand: pnpm --filter @kavra/worker-cron start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RUN_MODE
+        value: scheduled
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SYSTEM_GROQ_KEY
+        sync: false
+
+# ===== FAZ 7: Cron Jobs (alternatif olarak Render'ın cron job feature'ı) =====
+# Render Cron Jobs sürekli çalışan worker'a kıyasla daha ucuz ($0.50/ay vs $7).
+# Sürekli worker yerine bunlar tercih edilirse worker-cron'u silmeli.
+crons:
+  - name: daily-review-reminder
+    schedule: "0 * * * *"   # her saat başı
+    command: cd apps/worker-cron && RUN_MODE=once-daily-review-reminder pnpm start
+    region: frankfurt
+
+  - name: weekly-report-generation
+    schedule: "0 9 * * 1"   # pazartesi 09:00 UTC
+    command: cd apps/worker-cron && RUN_MODE=once-weekly-report-generation pnpm start
+    region: frankfurt
+
+  - name: streak-warning
+    schedule: "0 21 * * *"  # her gün 21:00 UTC
+    command: cd apps/worker-cron && RUN_MODE=once-streak-warning pnpm start
+    region: frankfurt
+
+  - name: leaderboard-refresh
+    schedule: "0 * * * *"  # her saat başı materialized view refresh
+    command: cd apps/worker-cron && RUN_MODE=once-leaderboard-refresh pnpm start
+    region: frankfurt
+
+# Web (Next.js) servisi
+  - type: web
+    name: kavra-web
+    runtime: node
+    region: frankfurt
+    plan: standard
+    rootDir: apps/web
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://api.kavra.app

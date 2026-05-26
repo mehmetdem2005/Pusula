@@ -1,8 +1,0 @@
-**/dist/**
-**/.next/**
-**/build/**
-**/.turbo/**
-**/coverage/**
-**/node_modules/**
-pnpm-lock.yaml
-_DEVRETME_silinecek/**
