@@ -27,6 +27,7 @@ export async function getActiveGroqKey(userId: string): Promise<string | null> {
     .eq('is_default', true)
     .eq('is_active', true)
     .single()
-  if (!data) return null
-  return decryptApiKey(data.key_encrypted, data.key_iv, data.key_tag)
+  if (data) return decryptApiKey(data.key_encrypted, data.key_iv, data.key_tag)
+  // Kullanıcının kendi anahtarı yoksa sistem (sunucu) anahtarına düş
+  return process.env.GROQ_API_KEY ?? null
 }

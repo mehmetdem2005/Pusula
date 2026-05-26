@@ -87,6 +87,8 @@ services:
         sync: false
       - key: ELEVENLABS_API_KEY
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
     healthCheckPath: /health
     disk:
       name: piper-cache
@@ -111,6 +113,8 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
     healthCheckPath: /health
 
   # ===== FAZ 7: Cron Worker (sürekli çalışan, node-cron ile schedule) =====
@@ -131,6 +135,8 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: SYSTEM_GROQ_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false
 
 # ===== FAZ 7: Cron Jobs (alternatif olarak Render'ın cron job feature'ı) =====
