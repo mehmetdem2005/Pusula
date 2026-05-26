@@ -48,7 +48,7 @@ export default function Profile() {
             <Row
               emoji="🎭"
               title={t('profile.personalities')}
-              onPress={() => Alert.alert('', 'Yakında')}
+              onPress={() => router.push('/settings/personalities')}
             />
             <Row
               emoji="🎙️"
@@ -70,18 +70,13 @@ export default function Profile() {
             <Row
               emoji="🌍"
               title={t('profile.language')}
-              onPress={() => Alert.alert('', 'Yakında')}
-            />
-            <Row
-              emoji="⚙️"
-              title={t('profile.preferences')}
-              onPress={() => Alert.alert('', 'Yakında')}
+              onPress={() => router.push('/settings/language')}
             />
           </Section>
 
           <Section title="Hesap">
             <Row emoji="👑" title="Pro Üyelik" onPress={() => router.push('/upgrade')} />
-            <Row emoji="📦" title={t('profile.data')} onPress={() => Alert.alert('', 'Yakında')} />
+            <Row emoji="📦" title={t('profile.data')} onPress={() => router.push('/settings/account')} />
             <Row
               emoji="ℹ️"
               title={t('profile.about')}

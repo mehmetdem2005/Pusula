@@ -9,6 +9,7 @@ import '../global.css'
 import '../src/lib/i18n'
 import { AppLockScreen } from '../src/components/lock/AppLockScreen'
 import { useAppLock } from '../src/hooks/useAppLock'
+import { useLanguageStore } from '../src/hooks/useLanguage'
 import { registerPushNotifications } from '../src/lib/notifications'
 import { useShareIntentHandler } from '../src/lib/share-intent'
 import { supabase } from '../src/lib/supabase'
@@ -29,6 +30,8 @@ function RouteGate({ children }: { children: React.ReactNode }) {
 
   useShareIntentHandler()
   const { isLocked } = useAppLock()
+  // Kaydedilmiş dil tercihini açılışta yükle (store rehydrate olunca i18n'e uygulanır)
+  useLanguageStore((s) => s.language)
 
   useEffect(() => {
     initialize()
