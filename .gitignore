@@ -10,6 +10,9 @@ build/
 .expo/
 *.tsbuildinfo
 
+# Stray root-level Expo stub (gercek config apps/mobile/app.config.ts)
+/app.json
+
 # Environments
 .env
 .env.local
