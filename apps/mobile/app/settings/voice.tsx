@@ -13,18 +13,17 @@ type TTSMode = 'device' | 'server' | 'auto' | 'off'
 const TTS_MODES: Array<{ value: TTSMode; label: string; desc: string; emoji: string }> = [
   {
     value: 'auto',
-    label: 'Otomatik',
-    desc: 'Kısa metin cihaz, uzun metin sunucu (önerilen)',
+    label: 'Kaliteli ses',
+    desc: 'Doğal neural ses · ücretsiz (internet gerekli) — önerilen',
     emoji: '✨',
   },
-  { value: 'device', label: 'Cihaz', desc: 'Hızlı, çevrimdışı, ücretsiz', emoji: '📱' },
-  { value: 'server', label: 'Sunucu (Piper)', desc: 'En kaliteli, internet gerekli', emoji: '🎙️' },
+  { value: 'device', label: 'Cihaz', desc: 'Çevrimdışı, daha robotik', emoji: '📱' },
   { value: 'off', label: 'Kapalı', desc: 'Sesli yanıt yok', emoji: '🔇' },
 ]
 
 const VOICE_OPTIONS = [
-  { id: 'tr_TR-dfki-medium', label: 'Türkçe — DFKI', gender: '👩' },
-  { id: 'tr_TR-fettah-medium', label: 'Türkçe — Fettah', gender: '👨' },
+  { id: 'tr-TR-EmelNeural', label: 'Türkçe — Emel', gender: '👩' },
+  { id: 'tr-TR-AhmetNeural', label: 'Türkçe — Ahmet', gender: '👨' },
 ]
 
 export default function VoiceSettings() {
@@ -32,14 +31,14 @@ export default function VoiceSettings() {
   const prefs = (profile as any)?.user_preferences
 
   const [mode, setMode] = useState<TTSMode>(prefs?.tts_mode ?? 'auto')
-  const [voice, setVoice] = useState<string>(prefs?.tts_voice ?? 'tr_TR-dfki-medium')
+  const [voice, setVoice] = useState<string>(prefs?.tts_voice ?? 'tr-TR-EmelNeural')
   const [speed, setSpeed] = useState<number>(prefs?.tts_speed ?? 1.0)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (prefs) {
       setMode(prefs.tts_mode ?? 'auto')
-      setVoice(prefs.tts_voice ?? 'tr_TR-dfki-medium')
+      setVoice(prefs.tts_voice ?? 'tr-TR-EmelNeural')
       setSpeed(prefs.tts_speed ?? 1.0)
     }
   }, [prefs])
@@ -126,7 +125,7 @@ export default function VoiceSettings() {
         {mode !== 'off' && mode !== 'device' && (
           <>
             <Text className="text-xs font-semibold text-slate-400 uppercase mb-2 mt-6 px-1">
-              Sunucu sesi (Piper)
+              Ses seçimi
             </Text>
             <View className="gap-2">
               {VOICE_OPTIONS.map((v) => (

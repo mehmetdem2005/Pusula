@@ -20,6 +20,7 @@
 
 import crypto from 'node:crypto'
 import { WebSocket } from 'ws'
+import { supabase } from './supabase.js'
 
 const EDGE_TTS_TRUSTED_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4'
 const EDGE_TTS_WSS_URL =
@@ -211,4 +212,68 @@ export function defaultVoiceForLanguage(lang: string, gender?: 'Male' | 'Female'
 
   const pair = voices[langPrefix] ?? voices.tr!
   return gender === 'Male' ? pair[1] : pair[0]
+}
+
+/**
+ * Gelen voice değerini geçerli bir Edge voice'a çevirir.
+ * Edge ses kimlikleri "...Neural" ile biter. Piper kimliği (tr_TR-dfki-medium)
+ * ya da boş gelirse dile göre varsayılana düşer.
+ */
+export function resolveEdgeVoice(
+  language: string,
+  voice?: string,
+  gender?: 'Male' | 'Female',
+): string {
+  if (voice && voice.endsWith('Neural')) return voice
+  return defaultVoiceForLanguage(language, gender)
+}
+
+export interface EdgeStoreInput {
+  text: string
+  language: string
+  voice?: string
+  speed?: number
+  gender?: 'Male' | 'Female'
+}
+
+/**
+ * Edge TTS ile sentezle, Supabase Storage'a (audio-output) MP3 olarak yükle,
+ * 1 saatlik signed URL döndür. Aynı metin+ses+hız kombosu cache'ten gelir.
+ */
+export async function synthesizeEdgeAndStore(
+  input: EdgeStoreInput,
+): Promise<{ url: string; cached: boolean; engine: 'edge' }> {
+  const voice = resolveEdgeVoice(input.language, input.voice, input.gender)
+  const speed = input.speed ?? 1.0
+  const hash = crypto
+    .createHash('sha256')
+    .update(`edge::${voice}::${speed}::${input.text}`)
+    .digest('hex')
+    .slice(0, 32)
+  const storagePath = `cache/${hash}.mp3`
+
+  const { data: existing } = await supabase.storage
+    .from('audio-output')
+    .list('cache', { search: `${hash}.mp3` })
+  if (existing?.some((f) => f.name === `${hash}.mp3`)) {
+    const { data: signed } = await supabase.storage
+      .from('audio-output')
+      .createSignedUrl(storagePath, 60 * 60)
+    if (signed) return { url: signed.signedUrl, cached: true, engine: 'edge' }
+  }
+
+  const ratePercent = Math.round((speed - 1.0) * 100)
+  const mp3 = await edgeTTS({ text: input.text, voice, rate: ratePercent })
+
+  const { error: uploadErr } = await supabase.storage
+    .from('audio-output')
+    .upload(storagePath, mp3, { contentType: 'audio/mpeg', upsert: true })
+  if (uploadErr) throw uploadErr
+
+  const { data: signed } = await supabase.storage
+    .from('audio-output')
+    .createSignedUrl(storagePath, 60 * 60)
+  if (!signed) throw new Error('Signed URL alınamadı')
+
+  return { url: signed.signedUrl, cached: false, engine: 'edge' }
 }

@@ -80,18 +80,31 @@ export function useVoiceInput(opts: UseVoiceInputOptions = {}) {
       const { data: sessionData } = await supabase.auth.getSession()
       const token = sessionData.session?.access_token
 
-      const res = await fetch(`${VOICE_URL}/api/voice/transcribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          audioStoragePath: storagePath,
-          language: opts.language,
-          lessonId: opts.lessonId,
-        }),
-      })
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 30_000)
+      let res: Response
+      try {
+        res = await fetch(`${VOICE_URL}/api/voice/transcribe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            audioStoragePath: storagePath,
+            language: opts.language,
+            lessonId: opts.lessonId,
+          }),
+          signal: controller.signal,
+        })
+      } catch (e: any) {
+        if (e?.name === 'AbortError') {
+          throw new Error('Sunucu yanıt vermedi (zaman aşımı). Tekrar dene.')
+        }
+        throw e
+      } finally {
+        clearTimeout(timer)
+      }
 
       if (!res.ok) {
         const err = await res.text()

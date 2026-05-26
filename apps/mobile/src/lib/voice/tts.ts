@@ -22,11 +22,11 @@ export interface SpeakOptions {
 }
 
 /**
- * Kısa metin → cihaz TTS (anında, offline, ücretsiz)
- * Uzun metin → Piper server (kaliteli, cache'li)
- * auto mode: <200 karakter → device, >200 → server
+ * Sunucu (Edge TTS) → kaliteli Türkçe neural ses, ücretsiz, cache'li.
+ * Cihaz TTS yalnızca 'device' modunda veya sunucu erişilemezse (offline/cold)
+ * fallback olarak kullanılır.
  */
-const AUTO_THRESHOLD = 200
+const SERVER_TIMEOUT_MS = 25_000
 
 class TTSManager {
   private currentSound: Audio.Sound | null = null
@@ -38,9 +38,8 @@ class TTSManager {
 
     await this.stop()
 
-    const useDevice = mode === 'device' || (mode === 'auto' && opts.text.length < AUTO_THRESHOLD)
-
-    if (useDevice) {
+    // Sadece açıkça 'device' seçilince cihaz sesi; aksi halde kaliteli sunucu sesi.
+    if (mode === 'device') {
       this.speakDevice(opts)
     } else {
       await this.speakServer(opts)
@@ -78,19 +77,27 @@ class TTSManager {
       const token = sessionData.session?.access_token
       if (!token) throw new Error('Oturum yok')
 
-      const res = await fetch(`${VOICE_URL}/api/voice/synthesize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          text: opts.text,
-          language: opts.language ?? 'tr',
-          voice: opts.voice,
-          speed: opts.speed ?? 1.0,
-        }),
-      })
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), SERVER_TIMEOUT_MS)
+      let res: Response
+      try {
+        res = await fetch(`${VOICE_URL}/api/voice/synthesize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            text: opts.text,
+            language: opts.language ?? 'tr',
+            voice: opts.voice,
+            speed: opts.speed ?? 1.0,
+          }),
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timer)
+      }
 
       if (!res.ok) {
         const err = await res.text()

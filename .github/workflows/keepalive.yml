@@ -1,0 +1,22 @@
+name: keep-alive
+
+# Render free plan servisleri 15 dk hareketsizlikten sonra uyur ve sonraki
+# istek 30-60 sn cold-start bekler. Bu cron worker'ları sıcak tutar.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping workers
+        run: |
+          for url in \
+            https://kavra-worker-llm.onrender.com/health \
+            https://kavra-worker-voice.onrender.com/health \
+            https://kavra-worker-pdf.onrender.com/health; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$url" || echo "fail")
+            echo "$url -> $code"
+          done
