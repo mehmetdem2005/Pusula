@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import http from 'node:http'
 import cron from 'node-cron'
 import pino from 'pino'
 import { runDailyReviewReminder } from './jobs/daily-review-reminder.js'
@@ -29,6 +30,20 @@ const logger = pino({
 const RUN_MODE = process.env.RUN_MODE ?? 'scheduled'
 
 logger.info({ mode: RUN_MODE }, 'Kavra cron worker başlıyor')
+
+// Render web_service için minimal HTTP health server
+const PORT = Number(process.env.PORT ?? 4004)
+http
+  .createServer((req, res) => {
+    if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ ok: true, mode: RUN_MODE }))
+    } else {
+      res.writeHead(404)
+      res.end()
+    }
+  })
+  .listen(PORT, () => logger.info({ port: PORT }, 'Health server dinliyor'))
 
 if (RUN_MODE === 'scheduled') {
   // Her saat başı (timezone-aware review reminder kontrol)
