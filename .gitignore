@@ -41,3 +41,6 @@ ios/
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# Vercel CLI link metadata (local)
+.vercel
