@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { NotebookChatTab } from '../../src/components/notebook/NotebookChatTab'
 import { NotebookSourcesTab } from '../../src/components/notebook/NotebookSourcesTab'
 import { NotebookStudioTab } from '../../src/components/notebook/NotebookStudioTab'
+import { ShareNotebookModal } from '../../src/components/social/ShareNotebookModal'
 import { Icon } from '../../src/components/ui/Icon'
 import { useNotebook } from '../../src/hooks/useNotebooks'
 
@@ -15,6 +16,7 @@ export default function NotebookDetail() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { data, isLoading } = useNotebook(id ?? null)
   const [tab, setTab] = useState<Tab>('chat')
+  const [shareOpen, setShareOpen] = useState(false)
 
   if (isLoading || !data) {
     return (
@@ -47,6 +49,9 @@ export default function NotebookDetail() {
             {data.sources.length} kaynak · {data.notebook.message_count} mesaj
           </Text>
         </View>
+        <Pressable onPress={() => setShareOpen(true)} hitSlop={12}>
+          <Text style={{ fontSize: 18 }}>🔗</Text>
+        </Pressable>
         <Pressable onPress={() => router.push(`/notebook/${id}/settings`)} hitSlop={12}>
           <Icon name="settings" size={20} color="#64748B" />
         </Pressable>
@@ -86,6 +91,19 @@ export default function NotebookDetail() {
           generatedContent={data.generatedContent}
         />
       )}
+
+      <ShareNotebookModal
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        notebook={{
+          id: data.notebook.id,
+          title: data.notebook.title,
+          is_public: (data.notebook as any).is_public ?? false,
+          public_slug: (data.notebook as any).public_slug ?? null,
+          category: (data.notebook as any).category ?? null,
+          allow_clone: (data.notebook as any).allow_clone ?? false,
+        }}
+      />
     </SafeAreaView>
   )
 }

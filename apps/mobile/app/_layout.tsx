@@ -63,9 +63,7 @@ function RouteGate({ children }: { children: React.ReactNode }) {
       )
 
     // Push notification registration (arka planda, hata önemli değil)
-    registerPushNotifications().then((r) => {
-      if (r.error) console.log('Push register:', r.error)
-    })
+    registerPushNotifications()
   }, [session?.user])
 
   useEffect(() => {

@@ -17,6 +17,7 @@ import {
   useNotebookChat,
   useNotebookMessages,
 } from '../../hooks/useNotebooks'
+import { HandwritingModal } from '../handwriting/HandwritingModal'
 import { Icon } from '../ui/Icon'
 
 interface Props {
@@ -29,6 +30,7 @@ export function NotebookChatTab({ notebook, sources }: Props) {
   const { data: messages, isLoading } = useNotebookMessages(notebook.id)
   const chat = useNotebookChat()
   const [input, setInput] = useState('')
+  const [hwOpen, setHwOpen] = useState(false)
   const scrollRef = useRef<ScrollView>(null)
 
   useEffect(() => {
@@ -110,6 +112,13 @@ export function NotebookChatTab({ notebook, sources }: Props) {
             style={{ maxHeight: 120 }}
           />
           <Pressable
+            onPress={() => setHwOpen(true)}
+            className="w-9 h-9 rounded-xl items-center justify-center"
+            hitSlop={6}
+          >
+            <Text style={{ fontSize: 18 }}>✍️</Text>
+          </Pressable>
+          <Pressable
             onPress={send}
             disabled={!input.trim() || chat.isPending || hasNoReadySources}
             className={`w-9 h-9 rounded-xl items-center justify-center ${
@@ -124,6 +133,13 @@ export function NotebookChatTab({ notebook, sources }: Props) {
           </Pressable>
         </View>
       </View>
+
+      <HandwritingModal
+        visible={hwOpen}
+        onClose={() => setHwOpen(false)}
+        onRecognized={(text) => setInput((prev) => (prev ? `${prev} ${text}` : text))}
+        mode="mixed"
+      />
     </KeyboardAvoidingView>
   )
 }

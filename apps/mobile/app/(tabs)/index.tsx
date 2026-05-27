@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { AnnouncementBanner } from '../../src/components/launch/AnnouncementBanner'
 import { useCreateLesson, useRecentLessons } from '../../src/hooks/useLessons'
 import { useAchievements, useCheckAchievements, useStreak } from '../../src/hooks/useMotivation'
 import { useTodayReflection } from '../../src/hooks/useReflections'
@@ -80,6 +81,8 @@ export default function Dashboard() {
         <Text className="text-3xl font-serif text-brand-950 mt-1">
           {firstName || 'Hoş geldin'} 👋
         </Text>
+
+        <AnnouncementBanner />
 
         <View className="flex-row gap-3 mt-6">
           <Pressable
